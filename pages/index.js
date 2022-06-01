@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import Image from "next/image";
 import YouTube from "react-youtube";
 
@@ -9,53 +9,61 @@ export default function App(props) {
   };
 
   const opts = {
-    height: "844",
-    width: "428",
+    height: "600",
+    width: "337.5",
     playerVars: {
       // https://developers.google.com/youtube/player_parameters
       autoplay: 0,
+      cc_load_policy: 1,
     },
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* <Text style={styles.link} accessibilityRole="link" href={`/alternate`}>
         A universal link
       </Text> */}
 
-      <View style={styles.textContainer}>
-        {/* <Text accessibilityRole="header" aria-level="2" style={styles.text}> */}
-        <View style={styles.badges}>
-          <a href={"https://lyrist.app/ios"}>
-            <img src="/app-store-badge.svg" alt="app-store-badge" />
-          </a>
-          <a href={"https://lyrist.app/android"}>
-            <img
-              src="/google-play-badge.png"
-              width={153.425}
-              height={59.375}
-              alt="google-play-badge"
-            />
-          </a>
-        </View>
+      {/* <Text accessibilityRole="header" aria-level="2" style={styles.text}> */}
+      <Image src={"/logo.png"} width={140.4375} height={47.625} />
+      <View style={styles.badges}>
+        <a href={"https://lyrist.app/ios"}>
+          <img src="/app-store-badge.svg" alt="app-store-badge" />
+        </a>
+        <a href={"https://lyrist.app/android"}>
+          <img
+            src="/google-play-badge.png"
+            width={153.425}
+            height={59.375}
+            alt="google-play-badge"
+          />
+        </a>
+      </View>
 
+      <View style={styles.videoView}>
         <YouTube
           accessibilityRole="youtube"
           videoId="NUhlzDv9m9g"
           opts={opts}
           onReady={onPlayerReady}
-          style={{ marginTop: 20, marginBottom: 20 }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            paddingTop: 40,
+            transform: "translateX(-50%)",
+          }}
         />
-        <Image src={"/logo.png"} width={140.4375} height={47.625} />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginLeft: 40,
-    marginTop: 20,
+    flexGrow: 1,
+    alignItems: "center",
+    paddingTop: 40,
   },
   link: {
     color: "blue",
@@ -66,12 +74,14 @@ const styles = StyleSheet.create({
   },
   badges: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    marginTop: 40,
   },
-  text: {
-    alignItems: "center",
-    fontSize: 24,
-    marginBottom: 24,
+  videoView: {
+    justifyContent: "center",
+    width: "100%",
+    height: 0,
+    paddingTop: "177%",
+    // overflow: "hidden",
   },
 });
