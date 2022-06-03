@@ -9,14 +9,20 @@ module.exports = {
         basePath: false,
       },
       {
-        source: "/ios/beta",
-        destination: "https://testflight.apple.com/join/x3hOZLt5/",
+        source: "/android/beta",
+        destination: "https://play.google.com/apps/testing/com.rapbook",
         permanent: false,
         basePath: false,
       },
       {
         source: "/ios",
         destination: "https://itunes.apple.com/us/app/rapbook/id1352247113",
+        permanent: false,
+        basePath: false,
+      },
+      {
+        source: "/ios/beta",
+        destination: "https://testflight.apple.com/join/x3hOZLt5/",
         permanent: false,
         basePath: false,
       },
