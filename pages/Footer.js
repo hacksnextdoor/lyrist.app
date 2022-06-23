@@ -23,6 +23,16 @@ export default function Footer({ style }) {
       </View>
       <View style={styles.links}>
         <View style={styles.view}>
+          <a href={"/faq"} target={"_blank"}>
+            <Text
+              accessibilityRole="link"
+              style={[styles.text, { textDecorationLine: "underline" }]}
+            >
+              FAQ
+            </Text>
+          </a>
+        </View>
+        <View style={styles.view}>
           <a href={"/terms"} target={"_blank"}>
             <Text
               accessibilityRole="link"

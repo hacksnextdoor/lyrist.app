@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Image from "next/image";
 import { ScrollView, StyleSheet, View } from "react-native";
 import YouTube from "react-youtube";
@@ -19,11 +18,6 @@ export default function App() {
       cc_load_policy: 1,
     },
   };
-
-  useEffect(() => {
-    console.log("hello word");
-    return () => console.log("bye");
-  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
