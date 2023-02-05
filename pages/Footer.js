@@ -23,6 +23,16 @@ export default function Footer({ style }) {
       </View>
       <View style={styles.links}>
         <View style={styles.view}>
+          <a href={"https://app.loopedin.io/lyrist"} target={"_blank"}>
+            <Text
+              accessibilityRole="link"
+              style={[styles.text, { textDecorationLine: "underline" }]}
+            >
+              Planned Features
+            </Text>
+          </a>
+        </View>
+        <View style={styles.view}>
           <a href={"/faq"} target={"_blank"}>
             <Text
               accessibilityRole="link"
@@ -64,7 +74,7 @@ export default function Footer({ style }) {
           </a>
         </View>
       </View>
-      <Text style={styles.footerText}>ⓒ 2022 Lyrist LLC</Text>
+      <Text style={styles.footerText}>ⓒ 2023 Lyrist LLC</Text>
     </View>
   );
 }
