@@ -82,7 +82,7 @@ export default function Footer({ style }) {
 const styles = StyleSheet.create({
   container: { alignItems: "center" },
   social: { flexDirection: "row" },
-  links: { flexDirection: "row" },
+  links: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
   view: { padding: 12 },
   text: { fontFamily: "Fira Sans" },
   footerText: {
