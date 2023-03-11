@@ -12,7 +12,6 @@ export function Navbar() {
   return (
     <View style={styles.section} dataSet={{ media: ids.section }}>
       <Link
-        accessibilityRole="link"
         href={"https://app.loopedin.io/lyrist"}
         style={{ textDecoration: line1 ? "underline" : "none", textDecorationColor: "black" }}
         target={"_blank"}
@@ -27,7 +26,6 @@ export function Navbar() {
         </Pressable>
       </Link>
       <Link
-        accessibilityRole="link"
         href={"/faq"}
         style={{ textDecoration: line2 ? "underline" : "none", textDecorationColor: "black" }}
         target={"_blank"}
@@ -42,7 +40,6 @@ export function Navbar() {
         </Pressable>
       </Link>
       <Link
-        accessibilityRole="link"
         href={"/terms"}
         style={{ textDecoration: line3 ? "underline" : "none", textDecorationColor: "black" }}
         target={"_blank"}
@@ -57,7 +54,6 @@ export function Navbar() {
         </Pressable>
       </Link>
       <Link
-        accessibilityRole="link"
         href={"/privacy"}
         style={{ textDecoration: line4 ? "underline" : "none", textDecorationColor: "black" }}
         target={"_blank"}
@@ -72,7 +68,6 @@ export function Navbar() {
         </Pressable>
       </Link>
       <Link
-        accessibilityRole="link"
         href={"mailto:lyrist.app@gmail.com"}
         style={{ textDecoration: line5 ? "underline" : "none", textDecorationColor: "black" }}
       >

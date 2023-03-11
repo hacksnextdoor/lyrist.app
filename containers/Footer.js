@@ -11,17 +11,29 @@ export function Footer() {
         <Navbar />
         <View style={styles.social} dataSet={{ media: ids.social }}>
           <Link
-            accessibilityRole="link"
+            accessibilityrole="link"
             href={"https://instagram.com/lyrist.app"}
             target={"_blank"}
           >
-            <Image src={"/instagram.png"} width={24} height={24} style={styles.icon} />
+            <Image
+              alt={"instagram"}
+              src={"/instagram.png"}
+              width={24}
+              height={24}
+              style={styles.icon}
+            />
           </Link>
-          <Link accessibilityRole="link" href={"https://tiktok.com/@lyrist.app"} target={"_blank"}>
-            <Image src={"/tiktok.png"} width={24} height={24} style={styles.icon} />
+          <Link accessibilityrole="link" href={"https://tiktok.com/@lyrist.app"} target={"_blank"}>
+            <Image alt={"tiktok"} src={"/tiktok.png"} width={24} height={24} style={styles.icon} />
           </Link>
-          <Link accessibilityRole="link" href={"https://twitter.com/lyristapp"} target={"_blank"}>
-            <Image src={"/twitter.png"} width={24} height={24} style={styles.icon} />
+          <Link accessibilityrole="link" href={"https://twitter.com/lyristapp"} target={"_blank"}>
+            <Image
+              alt={"twitter"}
+              src={"/twitter.png"}
+              width={24}
+              height={24}
+              style={styles.icon}
+            />
           </Link>
         </View>
       </View>

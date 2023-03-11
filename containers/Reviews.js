@@ -7,15 +7,15 @@ export function Reviews() {
   return (
     <View style={styles.section} dataSet={{ media: ids.section }}>
       <View style={styles.reviewsView} dataSet={{ media: ids.reviewsView }}>
-        {reviews.map(({ content, name, stars }) => (
-          <View style={[styles.card, styles.cardShadow]} dataSet={{ media: ids.card }}>
+        {reviews.map(({ id, content, name, stars }) => (
+          <View key={id} style={[styles.card, styles.cardShadow]} dataSet={{ media: ids.card }}>
             <Text style={styles.name}>{name}</Text>
             <View style={styles.stars}>
-              {Array.from(Array(stars), () => (
-                <FaStar color="#FEBB43" style={{ marginRight: 2 }} />
+              {Array.from(Array(stars), (_, k) => (
+                <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
               ))}
-              {Array.from(Array(5 - stars), () => (
-                <FaRegStar color="#FEBB43" style={{ marginRight: 2 }} />
+              {Array.from(Array(5 - stars), (_, k) => (
+                <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
               ))}
             </View>
             <Text style={styles.content}>{content}</Text>

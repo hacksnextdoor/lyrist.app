@@ -10,12 +10,12 @@ export function Header() {
   return (
     <View style={styles.section} dataSet={{ media: ids.section }}>
       <View style={styles.logoContainer} dataSet={{ media: ids.logoContainer }}>
-        <Image src={"/logo.png"} fill sizes="" />
+        <Image alt={"logo"} src={"/logo.png"} fill sizes="" />
       </View>
       <View style={styles.links} dataSet={{ media: ids.links }}>
         <Text style={styles.soon}>Coming soon...</Text>
         <Link href={""} style={{ cursor: "default", textDecoration: "none" }}>
-          <Text style={styles.tryPlus}>Try Lyrist Plus+</Text>
+          <Text style={styles.tryPlus}>Try Lyrist+</Text>
         </Link>
         <Link href={""} style={{ cursor: "default", textDecoration: "none" }}>
           <Text style={styles.signIn}>Sign in</Text>
