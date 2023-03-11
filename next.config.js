@@ -1,10 +1,10 @@
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   redirects() {
     return [
       {
         source: "/android",
-        destination:
-          "https://play.google.com/store/apps/details?id=com.rapbook",
+        destination: "https://play.google.com/store/apps/details?id=com.rapbook",
         permanent: false,
         basePath: false,
       },
@@ -44,4 +44,7 @@ module.exports = {
     ];
     return config;
   },
+  transpilePackages: ["react-native-media-query", "react-native-web"],
 };
+
+module.exports = nextConfig;

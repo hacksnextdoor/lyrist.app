@@ -7,14 +7,15 @@
   },
   "dependencies": {
     "next": "latest",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-native-svg": "^12.3.0",
-    "react-native-web": "^0.17.7",
-    "react-youtube": "^9.0.2",
-    "sharp": "^0.30.7"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0",
+    "react-native-media-query": "^2.0.1",
+    "react-native-web": "^0.18.12",
+    "react-youtube": "^10.1.0",
+    "sharp": "^0.31.3"
   },
   "devDependencies": {
-    "babel-plugin-react-native-web": "^0.17.7"
+    "babel-plugin-react-native-web": "^0.18.12"
   }
 }

@@ -1,5 +1,6 @@
 import { Children } from "react";
 import Document, { Html, Head, Main, NextScript } from "next/document";
+import { flush } from "react-native-media-query";
 import { AppRegistry } from "react-native";
 import config from "../app.json";
 // Force Next-generated DOM elements to fill their parent's height
@@ -19,26 +20,27 @@ export default class MyDocument extends Document {
     const styles = [
       <style dangerouslySetInnerHTML={{ __html: normalizeNextElements }} />,
       getStyleElement(),
+      flush(),
     ];
     return { ...page, styles: Children.toArray(styles) };
   }
 
   render() {
     return (
-      <Html style={{ height: "100%" }}>
+      <Html style={{ boxSizing: "border-box", padding: 0, margin: 0, scrollBehavior: "smooth" }}>
         <Head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossOrigin=""
-          />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link
             href="https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap"
             rel="stylesheet"
           />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@600&display=swap"
+            rel="stylesheet"
+          ></link>
         </Head>
-        <body style={{ height: "100%", overflow: "hidden" }}>
+        <body>
           <Main />
           <NextScript />
         </body>
