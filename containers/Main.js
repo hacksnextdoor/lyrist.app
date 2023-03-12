@@ -146,8 +146,7 @@ const { ids, styles } = StyleSheet.create({
       paddingHorizontal: "4rem",
     },
     "@media screen and (max-width: 550px)": {
-      paddingHorizontal: 0,
-      marginTop: 30,
+      paddingHorizontal: "2rem",
     },
   },
 });
