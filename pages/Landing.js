@@ -1,11 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { Footer, Header, Main, Reviews } from "../containers";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig =
   process.env.NODE_ENV === "development"
     ? {
@@ -29,9 +27,10 @@ const firebaseConfig =
         measurementId: "G-WNDLPLKW2S",
       };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-getAnalytics(app);
+(async () => {
+  return (await isSupported()) ? getAnalytics(app) : null;
+})();
 
 export default () => (
   <>
