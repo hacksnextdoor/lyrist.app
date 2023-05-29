@@ -22,18 +22,15 @@ export function Main() {
     <View style={styles.section} dataSet={{ media: ids.section }}>
       <View style={styles.leftContent} dataSet={{ media: ids.leftContent }}>
         <Text style={styles.title} dataSet={{ media: ids.title }}>
-          Enhance your{" "}
+          Write{" "}
           <Text style={{ color: "#007AFF" }} dataSet={{ media: ids.title }}>
-            writing
+            lyrics
           </Text>{" "}
-          while listening to{" "}
-          <Text style={{ color: "#007AFF" }} dataSet={{ media: ids.title }}>
-            audio
-          </Text>
+          to music you find online
         </Text>
         <Text style={styles.subtitle} dataSet={{ media: ids.subtitle }}>
-          Write lyrics to beats you find or take notes for your online lectures, boosting your
-          productivity along the way.
+          Select audio from the world's largest platforms to write songs, make poetry, take notes,
+          and more!
         </Text>
         <View style={styles.badges} dataSet={{ media: ids.badges }}>
           <View>
@@ -138,6 +135,7 @@ const { ids, styles } = StyleSheet.create({
     },
   },
   rightContent: {
+    alignItems: "center",
     paddingHorizontal: "16rem",
     "@media screen and (max-width: 1403px)": {
       marginTop: 30,
