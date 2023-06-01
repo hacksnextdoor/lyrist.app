@@ -9,7 +9,6 @@ export function Reviews() {
       <View style={styles.reviewsView} dataSet={{ media: ids.reviewsView }}>
         {reviews.map(({ id, content, name, stars }) => (
           <View key={id} style={[styles.card, styles.cardShadow]} dataSet={{ media: ids.card }}>
-            <Text style={styles.name}>{name}</Text>
             <View style={styles.stars}>
               {Array.from(Array(stars), (_, k) => (
                 <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
@@ -18,7 +17,8 @@ export function Reviews() {
                 <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
               ))}
             </View>
-            <Text style={styles.content}>{content}</Text>
+            <Text style={styles.content}>"{content}"</Text>
+            <Text style={styles.name}>{name}</Text>
           </View>
         ))}
       </View>
@@ -69,13 +69,14 @@ const { ids, styles } = StyleSheet.create({
     fontFamily: "Fira Sans",
     fontSize: "1rem",
     fontWeight: "600",
+    alignSelf: "flex-end",
   },
   stars: {
     flexDirection: "row",
-    marginVertical: 8,
   },
   content: {
     fontFamily: "Fira Sans",
     fontSize: "1rem",
+    paddingVertical: 8,
   },
 });

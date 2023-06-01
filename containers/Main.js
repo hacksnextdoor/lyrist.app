@@ -1,5 +1,8 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Text, View } from "react-native";
 import StyleSheet from "react-native-media-query";
+import { useWindowDimensions } from "react-native-web";
 import YouTube from "react-youtube";
 
 const onPlayerReady = (event) => {
@@ -18,36 +21,43 @@ const opts = {
 };
 
 export function Main() {
+  const { width } = useWindowDimensions();
   return (
     <View style={styles.section} dataSet={{ media: ids.section }}>
       <View style={styles.leftContent} dataSet={{ media: ids.leftContent }}>
         <Text style={styles.title} dataSet={{ media: ids.title }}>
-          Write{" "}
+          Musical exploration{" "}
           <Text style={{ color: "#007AFF" }} dataSet={{ media: ids.title }}>
-            lyrics
-          </Text>{" "}
-          to music you find online
+            meets{" "}
+          </Text>
+          lyrical creation
         </Text>
         <Text style={styles.subtitle} dataSet={{ media: ids.subtitle }}>
-          Select audio from the world's largest platforms to write songs, make poetry, take notes,
-          and more!
+          Select audio from the world's largest platforms then write a song, make poetry, take
+          notes, and more!
         </Text>
         <View style={styles.badges} dataSet={{ media: ids.badges }}>
-          <View>
-            <a href={"https://lyrist.app/ios"}>
-              <img src="/app-store-badge.svg" alt="app-store-badge" />
-            </a>
-          </View>
-          <View>
-            <a href={"https://lyrist.app/android"}>
-              <img
-                src="/google-play-badge.png"
-                width={153.425}
-                height={59.375}
-                alt="google-play-badge"
-              />
-            </a>
-          </View>
+          <Link accessibilityrole="link" href={"https://lyrist.app/ios"} target={"_blank"}>
+            <Image
+              alt={"app-store-badge"}
+              src={"/app-store.png"}
+              height={width >= 550 ? 60 : 40}
+              width={width >= 550 ? 180 : 120}
+            />
+          </Link>
+          <Link
+            accessibilityrole="link"
+            href={"https://lyrist.app/android"}
+            style={{ marginLeft: 8 }}
+            target={"_blank"}
+          >
+            <Image
+              alt={"google-play-badge"}
+              src={"/google-play.png"}
+              height={width >= 550 ? 60 : 40}
+              width={width >= 550 ? 202.5 : 135}
+            />
+          </Link>
         </View>
       </View>
       <View style={styles.rightContent} dataSet={{ media: ids.rightContent }}>
@@ -59,7 +69,6 @@ export function Main() {
           style={{
             height: 600,
             width: "100%",
-            alignSelf: "center",
           }}
         />
       </View>
@@ -110,18 +119,18 @@ const { ids, styles } = StyleSheet.create({
   },
   subtitle: {
     fontFamily: "Fira Sans",
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: "300",
     width: "100%",
     width: 600,
     marginTop: 30,
     "@media screen and (max-width: 1050px)": {
       width: "100%",
-      fontSize: 18,
+      fontSize: 22,
     },
     "@media screen and (max-width: 490px)": {
       width: "100%",
-      fontSize: 14,
+      fontSize: 16,
       // marginTop: 20,
     },
   },
