@@ -39,7 +39,9 @@ export function Main() {
             Select from the world's largest platforms to write songs, make poetry, and take notes
             all on one screen!
           </Text>
-          <View style={{ alignSelf: "flex-start", flexDirection: "row", gap: 16 }}>
+          <View
+            style={{ alignSelf: "flex-start", flexDirection: "row", gap: 16, flexWrap: "wrap" }}
+          >
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <FaCheck size={16} />
               <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>YouTube</Text>
