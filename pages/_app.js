@@ -5,10 +5,10 @@ function MyApp({ Component, pageProps }) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Lyrist - Write lyrics to music you find online</title>
+        <title>Lyrist - Find audio from anywhere, then write.</title>
         <meta
           name="description"
-          content="Select audio from the world's largest platforms to write songs, make poetry, and take notes."
+          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
           key="desc"
         />
         {/* Favicons */}
@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
         <meta property="og:title" content="Lyrist" />
         <meta
           property="og:description"
-          content="Select audio from the world's largest platforms to write songs, make poetry, and take notes."
+          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://lyrist.app" />
@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }) {
         <meta name="twitter:title" content="Lyrist" />
         <meta
           name="twitter:description"
-          content="Select audio from the world's largest platforms to write songs, make poetry, and take notes."
+          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
         />
         <meta name="twitter:image" content="https://lyrist.app/alternate-logo-tw.png" />
       </Head>

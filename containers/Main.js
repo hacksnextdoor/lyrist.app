@@ -1,9 +1,8 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Text, View } from "react-native";
-import StyleSheet from "react-native-media-query";
-import { useWindowDimensions } from "react-native-web";
+import { FaCheck, FaRegClock } from "react-icons/fa";
+import { StyleSheet, Text, View } from "react-native";
 import YouTube from "react-youtube";
+import { useScale } from "../hooks";
+import { Badges } from "./Badges";
 
 const onPlayerReady = (event) => {
   // access to player in all event handlers via event.target
@@ -21,139 +20,90 @@ const opts = {
 };
 
 export function Main() {
-  const { width } = useWindowDimensions();
+  const { xsmall, medium } = useScale();
   return (
-    <View style={styles.section} dataSet={{ media: ids.section }}>
-      <View style={styles.leftContent} dataSet={{ media: ids.leftContent }}>
-        <Text style={styles.title} dataSet={{ media: ids.title }}>
-          Musical exploration{" "}
-          <Text style={{ color: "#007AFF" }} dataSet={{ media: ids.title }}>
-            meets{" "}
+    <View style={styles.section}>
+      <View style={[styles.subSection, medium && { flexDirection: "column" }]}>
+        <View
+          style={[
+            styles.leftContent,
+            medium && { width: "100%", alignItems: "center" },
+            xsmall && { gap: 24 },
+          ]}
+        >
+          <Text style={[styles.title, xsmall && { fontSize: 32, textAlign: "left" }]}>
+            Find <Text style={{ color: "#007AFF" }}>audio</Text> from anywhere, then{" "}
+            <Text style={{ color: "#007AFF" }}>write.</Text>
           </Text>
-          lyrical creation
-        </Text>
-        <Text style={styles.subtitle} dataSet={{ media: ids.subtitle }}>
-          Select audio from the world's largest platforms then write a song, make poetry, take
-          notes, and more!
-        </Text>
-        <View style={styles.badges} dataSet={{ media: ids.badges }}>
-          <Link accessibilityrole="link" href={"https://lyrist.app/ios"} target={"_blank"}>
-            <Image
-              alt={"app-store-badge"}
-              src={"/app-store.png"}
-              height={width >= 550 ? 60 : 40}
-              width={width >= 550 ? 180 : 120}
-            />
-          </Link>
-          <Link
-            accessibilityrole="link"
-            href={"https://lyrist.app/android"}
-            style={{ marginLeft: 8 }}
-            target={"_blank"}
-          >
-            <Image
-              alt={"google-play-badge"}
-              src={"/google-play.png"}
-              height={width >= 550 ? 60 : 40}
-              width={width >= 550 ? 202.5 : 135}
-            />
-          </Link>
+          <Text style={[styles.subtitle, xsmall && { fontSize: 16, textAlign: "left" }]}>
+            Select from the world's largest platforms to write songs, make poetry, and take notes
+            all on one screen!
+          </Text>
+          <View style={{ alignSelf: "flex-start", flexDirection: "row", gap: 16 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <FaCheck size={16} />
+              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>YouTube</Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <FaCheck size={16} />
+              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>SoundCloud</Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <FaRegClock size={16} />
+              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>Spotify</Text>
+            </View>
+          </View>
+          <Badges />
         </View>
-      </View>
-      <View style={styles.rightContent} dataSet={{ media: ids.rightContent }}>
-        <YouTube
-          accessibilityRole="youtube"
-          videoId="NUhlzDv9m9g"
-          opts={opts}
-          onReady={onPlayerReady}
-          style={{
-            height: 600,
-            width: "100%",
-          }}
-        />
+        <View
+          style={[
+            styles.rightContent,
+            medium && { width: 300, alignSelf: "center", marginTop: 48 },
+            xsmall && { marginTop: 24 },
+          ]}
+        >
+          <YouTube
+            accessibilityRole="youtube"
+            videoId="NUhlzDv9m9g"
+            opts={opts}
+            onReady={onPlayerReady}
+            style={{ height: 600 }}
+          />
+        </View>
       </View>
     </View>
   );
 }
 
-const { ids, styles } = StyleSheet.create({
+const styles = StyleSheet.create({
   section: {
+    maxWidth: 1000,
+    width: "100%",
+    alignSelf: "center",
+  },
+  subSection: {
     flexDirection: "row",
-    "@media screen and (max-width: 1050px)": {
-      flexDirection: "column",
-    },
-    "@media screen and (max-width: 550px)": {
-      flexDirection: "column",
-    },
-    flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   leftContent: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "flex-start",
     flexDirection: "column",
-    marginRight: "5rem",
-    paddingHorizontal: "16rem",
-    "@media screen and (max-width: 737px)": {
-      paddingHorizontal: "4rem",
-      marginRight: 0,
-    },
-    "@media screen and (max-width: 550px)": {
-      paddingHorizontal: "2rem",
-      marginRight: 0,
-    },
+    gap: 48,
+    width: "60%",
   },
   title: {
     fontFamily: "Fira Sans",
     fontSize: 64,
     fontWeight: "600",
-    width: 600,
-    "@media screen and (max-width: 1050px)": {
-      width: "100%",
-      fontSize: 48,
-    },
-    "@media screen and (max-width: 490px)": {
-      width: "100%",
-      fontSize: 32,
-    },
+    width: "100%",
   },
   subtitle: {
     fontFamily: "Fira Sans",
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "300",
     width: "100%",
-    width: 600,
-    marginTop: 30,
-    "@media screen and (max-width: 1050px)": {
-      width: "100%",
-      fontSize: 22,
-    },
-    "@media screen and (max-width: 490px)": {
-      width: "100%",
-      fontSize: 16,
-      // marginTop: 20,
-    },
   },
-  badges: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 30,
-    "@media screen and (max-width: 490px)": {
-      // marginTop: 20,
-    },
-  },
-  rightContent: {
-    alignItems: "center",
-    paddingHorizontal: "16rem",
-    "@media screen and (max-width: 1403px)": {
-      marginTop: 30,
-    },
-    "@media screen and (max-width: 737px)": {
-      paddingHorizontal: "4rem",
-    },
-    "@media screen and (max-width: 550px)": {
-      paddingHorizontal: "2rem",
-    },
-  },
+  rightContent: {},
 });

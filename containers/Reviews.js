@@ -1,82 +1,88 @@
-import { Text, View } from "react-native";
-import StyleSheet from "react-native-media-query";
+import { StyleSheet, Text, View } from "react-native";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import reviews from "../reviews.json";
+import { useScale } from "../hooks";
+import { Badges } from "./Badges";
 
 export function Reviews() {
+  const { xsmall, small, medium } = useScale();
   return (
-    <View style={styles.section} dataSet={{ media: ids.section }}>
-      <View style={styles.reviewsView} dataSet={{ media: ids.reviewsView }}>
-        {reviews.map(({ id, content, name, stars }) => (
-          <View key={id} style={[styles.card, styles.cardShadow]} dataSet={{ media: ids.card }}>
-            <View style={styles.stars}>
-              {Array.from(Array(stars), (_, k) => (
-                <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-              ))}
-              {Array.from(Array(5 - stars), (_, k) => (
-                <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-              ))}
+    <>
+      <View style={styles.section}>
+        <View style={styles.reviews}>
+          {reviews.map(({ id, content, name, stars }) => (
+            <View
+              key={id}
+              style={[
+                styles.card,
+                styles.cardShadow,
+                small ? { width: "100%" } : medium ? { width: "49%" } : { width: "24%" },
+              ]}
+            >
+              <View style={styles.stars}>
+                {Array.from(Array(stars), (_, k) => (
+                  <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+                ))}
+                {Array.from(Array(5 - stars), (_, k) => (
+                  <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+                ))}
+              </View>
+              <Text style={styles.content}>"{content}"</Text>
+              <Text style={styles.name}>{name}</Text>
             </View>
-            <Text style={styles.content}>"{content}"</Text>
-            <Text style={styles.name}>{name}</Text>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
-    </View>
+      {medium && (
+        // should probably be based on height, not width
+        <>
+          <Text
+            style={[styles.name, { alignSelf: "center", fontSize: 32 }, xsmall && { fontSize: 16 }]}
+          >
+            {"🫵  Join us on Lyrist  ✍️"}
+          </Text>
+          <Badges />
+        </>
+      )}
+    </>
   );
 }
 
-const { ids, styles } = StyleSheet.create({
+const styles = StyleSheet.create({
   section: {
-    paddingVertical: "2rem",
-    paddingHorizontal: "16rem",
-    "@media screen and (max-width: 737px)": {
-      paddingHorizontal: "4rem",
-    },
-    "@media screen and (max-width: 550px)": {
-      paddingHorizontal: "2rem",
-    },
-    flexWrap: "wrap",
+    alignSelf: "center",
+    maxWidth: 2000,
   },
-  reviewsView: {
+  reviews: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
   card: {
-    alignItems: "flex-start",
-    backgroundColor: "white",
-    borderRadius: "1rem",
-    padding: 40,
-    width: "25%",
-    margin: 4,
-    "@media screen and (max-width: 1537px)": {
-      width: "45%",
-      padding: 32,
-    },
-    "@media screen and (max-width: 550px)": {
-      width: "100%",
-      padding: 32,
-    },
+    maxWidth: 500,
+    backgroundColor: "#F9F9F9",
+    borderRadius: 8,
+    gap: 10,
+    padding: 20,
+    marginVertical: 6,
+    width: "24%",
   },
   cardShadow: {
     shadowColor: "#171717",
-    shadowOffset: { width: -3, height: 4 },
+    shadowOffset: { width: 0.3, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   name: {
     fontFamily: "Fira Sans",
-    fontSize: "1rem",
+    fontSize: 16,
     fontWeight: "600",
-    alignSelf: "flex-end",
   },
   stars: {
     flexDirection: "row",
   },
   content: {
     fontFamily: "Fira Sans",
-    fontSize: "1rem",
-    paddingVertical: 8,
+    fontSize: 16,
   },
 });

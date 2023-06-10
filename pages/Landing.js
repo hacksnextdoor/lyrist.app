@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { Footer, Header, Main, Reviews } from "../containers";
+import { Footer, Header, Main, Navbar, Reviews } from "../containers";
+import { View } from "react-native";
+import { useScale } from "../hooks";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -32,11 +34,15 @@ const app = initializeApp(firebaseConfig);
   return (await isSupported()) ? getAnalytics(app) : null;
 })();
 
-export default () => (
-  <>
-    <Header />
-    <Main />
-    <Reviews />
-    <Footer />
-  </>
-);
+export default () => {
+  const { xsmall } = useScale();
+  return (
+    <View style={xsmall ? { gap: 24, padding: 24 } : { gap: 48, padding: 48 }}>
+      <Header />
+      <Main />
+      <Reviews />
+      <Navbar />
+      <Footer />
+    </View>
+  );
+};

@@ -44,7 +44,7 @@ const nextConfig = {
     ];
     return config;
   },
-  transpilePackages: ["react-native-media-query", "react-native-web"],
+  transpilePackages: ["react-native-web"],
 };
 
 module.exports = nextConfig;
