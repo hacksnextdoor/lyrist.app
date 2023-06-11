@@ -2,61 +2,48 @@ import { StyleSheet, Text, View } from "react-native";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import reviews from "../reviews.json";
 import { useScale } from "../hooks";
-import { Badges } from "./Badges";
 
 export function Reviews() {
-  const { xsmall, small, medium } = useScale();
+  const { small, medium } = useScale();
   return (
-    <>
-      <View style={styles.section}>
-        <View style={styles.reviews}>
-          {reviews.map(({ id, content, name, stars }) => (
-            <View
-              key={id}
-              style={[
-                styles.card,
-                styles.cardShadow,
-                small ? { width: "100%" } : medium ? { width: "49%" } : { width: "24%" },
-              ]}
-            >
-              <View style={styles.stars}>
-                {Array.from(Array(stars), (_, k) => (
-                  <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-                ))}
-                {Array.from(Array(5 - stars), (_, k) => (
-                  <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-                ))}
-              </View>
-              <Text style={styles.content}>"{content}"</Text>
-              <Text style={styles.name}>{name}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-      {medium && (
-        // should probably be based on height, not width
-        <>
-          <Text
-            style={[styles.name, { alignSelf: "center", fontSize: 32 }, xsmall && { fontSize: 16 }]}
+    <View style={styles.section}>
+      <View style={styles.reviews}>
+        {reviews.map(({ id, content, name, stars }) => (
+          <View
+            key={id}
+            style={[
+              styles.card,
+              styles.cardShadow,
+              small ? { width: "100%" } : medium ? { width: "49%" } : { width: "24%" },
+            ]}
           >
-            {"🫵  Join us on Lyrist  ✍️"}
-          </Text>
-          <Badges />
-        </>
-      )}
-    </>
+            <View style={styles.stars}>
+              {Array.from(Array(stars), (_, k) => (
+                <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+              ))}
+              {Array.from(Array(5 - stars), (_, k) => (
+                <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+              ))}
+            </View>
+            <Text style={styles.content}>"{content}"</Text>
+            <Text style={styles.name}>{name}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
     alignSelf: "center",
-    maxWidth: 2000,
+    maxWidth: 1200,
   },
   reviews: {
+    justifyContent: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    gap: 8,
   },
   card: {
     maxWidth: 500,
@@ -64,8 +51,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 8,
     padding: 16,
-    marginVertical: 6,
-    width: "24%",
   },
   cardShadow: {
     shadowColor: "#171717",

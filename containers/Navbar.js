@@ -6,6 +6,7 @@ import { useScale } from "../hooks";
 
 export function Navbar() {
   const { medium } = useScale();
+  const [line0, setLine0] = useState(false);
   const [line1, setLine1] = useState(false);
   const [line2, setLine2] = useState(false);
   const [line3, setLine3] = useState(false);
@@ -35,13 +36,22 @@ export function Navbar() {
           </Link>
         </View>
         <View style={[styles.navigation, medium && { flexDirection: "column" }]}>
+          {/* <Link
+            href={"/pricing"}
+            style={{ textDecoration: line0 ? "underline" : "none", textDecorationColor: "black" }}
+            target={"_blank"}
+          >
+            <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
+              <Text style={styles.link}>Pricing</Text>
+            </Pressable>
+          </Link> */}
           <Link
             href={"https://app.loopedin.io/lyrist"}
             style={{ textDecoration: line1 ? "underline" : "none", textDecorationColor: "black" }}
             target={"_blank"}
           >
             <Pressable onHoverIn={() => setLine1(true)} onHoverOut={() => setLine1(false)}>
-              <Text style={styles.link}>Planned Features</Text>
+              <Text style={styles.link}>Roadmap</Text>
             </Pressable>
           </Link>
           <Link

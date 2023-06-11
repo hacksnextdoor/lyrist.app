@@ -29,8 +29,7 @@ export function useScale() {
   const shorterWindowDimension = width > height ? height : width;
 
   const scale = (size) => (width / baseWidth) * size;
-  const xsmall = width < 491;
-  const small = width < 668;
+  const small = width < 569;
   const medium = width < 850;
-  return { xsmall, small, medium, scale };
+  return { small, medium, scale };
 }

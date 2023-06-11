@@ -1,4 +1,3 @@
-import { FaCheck, FaRegClock } from "react-icons/fa";
 import { StyleSheet, Text, View } from "react-native";
 import YouTube from "react-youtube";
 import { useScale } from "../hooks";
@@ -20,7 +19,7 @@ const opts = {
 };
 
 export function Main() {
-  const { xsmall, medium } = useScale();
+  const { small, medium } = useScale();
   return (
     <View style={styles.section}>
       <View style={[styles.subSection, medium && { flexDirection: "column" }]}>
@@ -28,40 +27,24 @@ export function Main() {
           style={[
             styles.leftContent,
             medium && { width: "100%", alignItems: "center" },
-            xsmall && { gap: 24 },
+            small && { gap: 24 },
           ]}
         >
-          <Text style={[styles.title, xsmall && { fontSize: 32, textAlign: "left" }]}>
+          <Text style={[styles.title, small && { fontSize: 32, textAlign: "left" }]}>
             Find <Text style={{ color: "#007AFF" }}>audio</Text> from anywhere, then{" "}
             <Text style={{ color: "#007AFF" }}>write.</Text>
           </Text>
-          <Text style={[styles.subtitle, xsmall && { fontSize: 16, textAlign: "left" }]}>
+          <Text style={[styles.subtitle, small && { fontSize: 16, textAlign: "left" }]}>
             Select from the world's largest platforms to write songs, make poetry, and take notes
             all on one screen!
           </Text>
-          <View
-            style={{ alignSelf: "flex-start", flexDirection: "row", gap: 16, flexWrap: "wrap" }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <FaCheck size={16} />
-              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>YouTube</Text>
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <FaCheck size={16} />
-              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>SoundCloud</Text>
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <FaRegClock size={16} />
-              <Text style={{ fontFamily: "Fira Sans", fontSize: 16 }}>Spotify</Text>
-            </View>
-          </View>
           <Badges />
         </View>
         <View
           style={[
             styles.rightContent,
             medium && { width: 300, alignSelf: "center", marginTop: 48 },
-            xsmall && { marginTop: 24 },
+            small && { marginTop: 24 },
           ]}
         >
           <YouTube

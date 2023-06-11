@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { Footer, Header, Main, Navbar, Reviews } from "../containers";
-import { View } from "react-native";
+import { Footer, Features, Header, Main, Navbar, Reviews } from "../containers";
+import { StyleSheet, Text, View } from "react-native";
+import { Badges } from "../containers";
 import { useScale } from "../hooks";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -35,14 +36,30 @@ const app = initializeApp(firebaseConfig);
 })();
 
 export default () => {
-  const { xsmall } = useScale();
+  const { small } = useScale();
   return (
-    <View style={xsmall ? { gap: 24, padding: 24 } : { gap: 48, padding: 48 }}>
+    <View style={small ? { gap: 24, padding: 24 } : { gap: 48, padding: 48 }}>
       <Header />
       <Main />
       <Reviews />
+      <Features />
+      <Text
+        // should probably be based on height, not width
+        style={[styles.call, { alignSelf: "center", fontSize: 32 }, small && { fontSize: 16 }]}
+      >
+        {"🫵  Join us on Lyrist for free  ✍️"}
+      </Text>
+      <Badges />
       <Navbar />
       <Footer />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  call: {
+    fontFamily: "Fira Sans",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});
