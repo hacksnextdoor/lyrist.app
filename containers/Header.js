@@ -38,7 +38,7 @@ export function Header() {
       {menuIsOpen && (
         <View style={styles.menuLinks}>
           <Link href={""} style={{ textDecoration: "none" }}>
-            <Text style={styles.tryPlus}>Try Lyrist Plus+</Text>
+            <Text style={styles.tryPlus}>Try Lyrist+</Text>
           </Link>
           <Link href={""} style={{ textDecoration: "none" }}>
             <Text style={styles.signIn}>Sign in</Text>
@@ -60,6 +60,7 @@ const createStyles = (scale) => ({
     justifyContent: "space-between",
   },
   links: {
+    display: "none",
     flexDirection: "row",
     alignItems: "center",
   },

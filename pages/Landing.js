@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { Footer, Features, Header, Main, Navbar, Reviews } from "../containers";
+import { Footer, Features, Header, Main, Navbar, Pricing, Reviews } from "../containers";
 import { StyleSheet, Text, View } from "react-native";
 import { Badges } from "../containers";
 import { useScale } from "../hooks";
@@ -43,11 +43,12 @@ export default () => {
       <Main />
       <Reviews />
       <Features />
+      <Pricing />
       <Text
         // should probably be based on height, not width
         style={[styles.call, { alignSelf: "center", fontSize: 32 }, small && { fontSize: 16 }]}
       >
-        {"🫵  Join us on Lyrist for free  ✍️"}
+        {"Try it out for free!"}
       </Text>
       <Badges />
       <Navbar />
