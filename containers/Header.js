@@ -15,6 +15,18 @@ export function Header() {
         <View style={styles.logoContainer}>
           <Image alt={"logo"} src={"/logo.png"} fill sizes="" />
         </View>
+        <Link
+          href="https://www.producthunt.com/posts/lyrist?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-lyrist"
+          target="_blank"
+        >
+          <Image
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=402246&theme=light"
+            alt="Lyrist - Write&#0032;lyrics&#0032;to&#0032;music&#0032;you&#0032;find&#0032;online | Product Hunt"
+            // style="width: 250px; height: 54px;"
+            width={small ? 125 : 250}
+            height={small ? 27 : 54}
+          />
+        </Link>
         {small ? (
           <View style={styles.menu}>
             {menuIsOpen ? (
@@ -56,6 +68,7 @@ const createStyles = (scale) => ({
     alignSelf: "center",
   },
   subSection: {
+    alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
   },
