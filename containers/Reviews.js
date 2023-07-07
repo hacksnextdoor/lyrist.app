@@ -6,31 +6,33 @@ import { useScale } from "../hooks";
 export function Reviews() {
   const { small, medium } = useScale();
   return (
-    <View style={styles.section}>
-      <View style={styles.reviews}>
-        {reviews.map(({ id, content, name, stars }) => (
-          <View
-            key={id}
-            style={[
-              styles.card,
-              styles.cardShadow,
-              small ? { width: "100%" } : medium ? { width: "49%" } : { width: "24%" },
-            ]}
-          >
-            <View style={styles.stars}>
-              {Array.from(Array(stars), (_, k) => (
-                <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-              ))}
-              {Array.from(Array(5 - stars), (_, k) => (
-                <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
-              ))}
+    <div id={"reviews"}>
+      <View style={styles.section}>
+        <View style={styles.reviews}>
+          {reviews.map(({ id, content, name, stars }) => (
+            <View
+              key={id}
+              style={[
+                styles.card,
+                styles.cardShadow,
+                small ? { width: "100%" } : medium ? { width: "49%" } : { width: "24%" },
+              ]}
+            >
+              <View style={styles.stars}>
+                {Array.from(Array(stars), (_, k) => (
+                  <FaStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+                ))}
+                {Array.from(Array(5 - stars), (_, k) => (
+                  <FaRegStar key={k} color="#FEBB43" style={{ marginRight: 2 }} />
+                ))}
+              </View>
+              <Text style={styles.content}>"{content}"</Text>
+              <Text style={styles.name}>{name}</Text>
             </View>
-            <Text style={styles.content}>"{content}"</Text>
-            <Text style={styles.name}>{name}</Text>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
-    </View>
+    </div>
   );
 }
 

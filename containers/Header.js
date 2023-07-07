@@ -2,18 +2,45 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { FaBars, FaRegTimesCircle } from "react-icons/fa";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useScale } from "../hooks";
 
 export function Header() {
   const { scale, small } = useScale();
   const styles = createStyles(scale);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [line0, setLine0] = useState(false);
+  const [line1, setLine1] = useState(false);
   return (
     <View style={styles.section}>
-      <View style={styles.subSection}>
-        <View style={styles.logoContainer}>
-          <Image alt={"logo"} src={"/logo.png"} fill sizes="" />
+      <View
+        style={[
+          styles.subSection,
+          small && { flexDirection: "column", alignItems: "flex-start", gap: 24 },
+        ]}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 20 }}>
+          <View style={styles.logoContainer}>
+            <Image alt={"logo"} src={"/logo.png"} fill sizes="" />
+          </View>
+          <Link
+            accessibilityrole="link"
+            href={"#reviews"}
+            style={{ textDecoration: line0 ? "underline" : "none", textDecorationColor: "black" }}
+          >
+            <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
+              <Text style={styles.link}>Reviews</Text>
+            </Pressable>
+          </Link>
+          <Link
+            accessibilityrole="link"
+            href={"#pricing"}
+            style={{ textDecoration: line1 ? "underline" : "none", textDecorationColor: "black" }}
+          >
+            <Pressable onHoverIn={() => setLine1(true)} onHoverOut={() => setLine1(false)}>
+              <Text style={styles.link}>Pricing</Text>
+            </Pressable>
+          </Link>
         </View>
         <Link
           href="https://www.producthunt.com/posts/lyrist?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-lyrist"
@@ -71,6 +98,10 @@ const createStyles = (scale) => ({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  link: {
+    fontFamily: "Fira Sans",
+    fontSize: 16,
   },
   links: {
     display: "none",
