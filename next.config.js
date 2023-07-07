@@ -26,6 +26,12 @@ const nextConfig = {
         basePath: false,
       },
       {
+        source: "/demo",
+        destination: "https://www.youtube.com/watch?v=NUhlzDv9m9g",
+        permanent: false,
+        basePath: false,
+      },
+      {
         source: "/ios",
         destination: "https://itunes.apple.com/us/app/rapbook/id1352247113",
         permanent: false,
