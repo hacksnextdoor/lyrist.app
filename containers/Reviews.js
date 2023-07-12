@@ -6,7 +6,7 @@ import { useScale } from "../hooks";
 export function Reviews() {
   const { small, medium } = useScale();
   return (
-    <div id={"reviews"}>
+    <div id={"reviews"} style={{ alignSelf: "center" }}>
       <View style={styles.section}>
         <View style={styles.reviews}>
           {reviews.map(({ id, content, name, stars }) => (
@@ -38,7 +38,6 @@ export function Reviews() {
 
 const styles = StyleSheet.create({
   section: {
-    alignSelf: "center",
     maxWidth: 1200,
   },
   reviews: {
