@@ -43,6 +43,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: "/openmic",
+        destination: "https://forms.gle/G4fo4SBPDjvwkLAk7",
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
