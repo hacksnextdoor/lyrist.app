@@ -1,16 +1,14 @@
 import Head from "next/head";
 
-function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }) {
+  const description =
+    "Find audio from the world's largest platforms to write songs, make poetry, and take notes. Share your creations with others!";
   return (
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Lyrist - Find audio from anywhere, then write.</title>
-        <meta
-          name="description"
-          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
-          key="desc"
-        />
+        <title>Lyrist - The all-in-one toolkit for songwriters</title>
+        <meta name="description" content={description} key="desc" />
         {/* Favicons */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -21,10 +19,7 @@ function MyApp({ Component, pageProps }) {
         <meta name="theme-color" content="#ffffff" />
         {/* Message link preview */}
         <meta property="og:title" content="Lyrist" />
-        <meta
-          property="og:description"
-          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
-        />
+        <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://lyrist.app" />
         <meta property="og:image" content="https://lyrist.app/alternate-logo-fb.png" />
@@ -34,15 +29,10 @@ function MyApp({ Component, pageProps }) {
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@lyristapp" />
         <meta name="twitter:title" content="Lyrist" />
-        <meta
-          name="twitter:description"
-          content="Select from the world's largest platforms to write songs, make poetry, and take notes all on one screen!"
-        />
+        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://lyrist.app/alternate-logo-tw.png" />
       </Head>
       <Component {...pageProps} />
     </>
   );
 }
-
-export default MyApp;

@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { Footer, Features, Header, Main, Navbar, Pricing, Reviews } from "../containers";
 import { StyleSheet, Text, View } from "react-native";
-import { Badges } from "../containers";
+import { Badges, Footer, Features, Header, Main, Navbar, Pricing, Reviews } from "../containers";
 import { useScale } from "../hooks";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries

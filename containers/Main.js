@@ -31,12 +31,11 @@ export function Main() {
           ]}
         >
           <Text style={[styles.title, small && { fontSize: 32, textAlign: "left" }]}>
-            Find <Text style={{ color: "#007AFF" }}>audio</Text> from anywhere, then{" "}
-            <Text style={{ color: "#007AFF" }}>write.</Text>
+            The <Text style={{ color: "#007AFF" }}>all-in-one</Text> toolkit for songwriters
           </Text>
           <Text style={[styles.subtitle, small && { fontSize: 16, textAlign: "left" }]}>
-            Select from the world's largest platforms to write songs, make poetry, and take notes
-            all on one screen!
+            Find audio from the world's largest platforms to write songs, make poetry, and take
+            notes. Share your creations with others!
           </Text>
           <Badges />
         </View>
