@@ -1,32 +1,82 @@
-import {StyleSheet, Text, View} from 'react-native';
-import {Badges, Footer, Features, Header, Main, Navbar, Pricing, Reviews} from '../components';
+import Link from 'next/link';
+import {useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {Badges, Footer, Features, Header, Main, Navbar, Reviews} from '../components';
 import {useScale} from '../hooks';
+import {LyristText} from '../packages/components';
+import {LYRIST_BLUE, TURQUOISE} from '../packages/constants';
 
 export function Landing() {
-  const {small} = useScale();
+  const {small, medium} = useScale();
+  const [line0, setLine0] = useState(false);
   return (
-    <View style={small ? {gap: 24, padding: 24} : {gap: 48, padding: 48}}>
-      <Header />
-      <Main />
-      <Reviews />
-      <Features />
-      <Pricing />
-      <Text
-        // should probably be based on height, not width
-        style={[styles.call, {alignSelf: 'center', fontSize: 32}, small && {fontSize: 16}]}>
-        {'Try it out for free!'}
-      </Text>
-      <Badges />
-      <Navbar />
-      <Footer />
-    </View>
+    <>
+      <View
+        style={
+          small ? {gap: 32, padding: 32} : medium ? {gap: 40, padding: 40} : {gap: 48, padding: 48}
+        }>
+        <Header />
+        <Main />
+        <Reviews />
+        <Features />
+        <Link
+          role="link"
+          href={'/redirect'}
+          style={{alignSelf: 'center', textDecoration: 'none', paddingTop: 24}}>
+          {/* PASSING INLINE FUNCTIONS RESULTS IN A RERENDER!!!!! <Pressable onHoverIn={() => setLine3(true)} onHoverOut={() => setLine3(false)}> */}
+          <LyristText
+            style={[
+              styles.signIn,
+              small && {paddingVertical: 10, paddingHorizontal: 12, alignSelf: 'center'},
+            ]}
+            weight={'Medium'}>
+            Try the web app
+          </LyristText>
+          {/* </Pressable> */}
+        </Link>
+        <Badges />
+        <Navbar />
+        <Footer />
+        <View />
+        <View />
+      </View>
+      <LyristText style={[styles.title, {fontSize: small ? 16 : medium ? 24 : 32}]}>
+        Want unlimited storage? Get{' '}
+        <Link role="link" href={'/pricing'} style={{textDecoration: 'none'}}>
+          <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
+            <LyristText
+              style={[
+                {color: TURQUOISE, fontSize: small ? 16 : medium ? 24 : 32},
+                line0 && {textDecorationLine: 'underline'},
+              ]}>
+              Lyrist Plus
+            </LyristText>
+          </Pressable>
+        </Link>{' '}
+        for $9 per month.
+      </LyristText>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  call: {
-    fontFamily: 'Fira Sans',
+  signIn: {
+    backgroundColor: LYRIST_BLUE,
+    color: 'white',
+    borderRadius: 5,
     fontSize: 16,
-    fontWeight: '600',
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    color: 'white',
+  },
+  title: {
+    color: 'white',
+    alignItems: 'center',
+    textAlign: 'center',
+    backgroundColor: 'black',
+    position: 'fixed',
+    bottom: 0,
+    width: '100%',
+    paddingVertical: 20,
   },
 });

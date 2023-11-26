@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     gap: 16,
     width: 296,
+    margin: 'auto',
   },
   input: {
     height: 40,

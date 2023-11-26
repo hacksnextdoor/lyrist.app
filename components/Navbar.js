@@ -32,7 +32,7 @@ export function Navbar() {
         <View style={[styles.navigation, medium && {flexDirection: 'column'}]}>
           <Link
             href={'https://app.loopedin.io/lyrist'}
-            style={{textDecoration: line1 ? 'underline' : 'none', textDecorationColor: 'black'}}
+            style={{textDecoration: line1 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine1(true)} onHoverOut={() => setLine1(false)}>
               <Text style={styles.link}>Roadmap</Text>
@@ -40,7 +40,7 @@ export function Navbar() {
           </Link>
           <Link
             href={'/faq'}
-            style={{textDecoration: line2 ? 'underline' : 'none', textDecorationColor: 'black'}}
+            style={{textDecoration: line2 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine2(true)} onHoverOut={() => setLine2(false)}>
               <Text style={styles.link}>FAQ</Text>
@@ -48,7 +48,7 @@ export function Navbar() {
           </Link>
           <Link
             href={'/terms'}
-            style={{textDecoration: line3 ? 'underline' : 'none', textDecorationColor: 'black'}}
+            style={{textDecoration: line3 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine3(true)} onHoverOut={() => setLine3(false)}>
               <Text style={styles.link}>Terms of Use</Text>
@@ -56,7 +56,7 @@ export function Navbar() {
           </Link>
           <Link
             href={'/privacy'}
-            style={{textDecoration: line4 ? 'underline' : 'none', textDecorationColor: 'black'}}
+            style={{textDecoration: line4 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine4(true)} onHoverOut={() => setLine4(false)}>
               <Text style={styles.link}>Privacy Policy</Text>
@@ -64,7 +64,7 @@ export function Navbar() {
           </Link>
           <Link
             href={'mailto:lyrist.app@gmail.com'}
-            style={{textDecoration: line5 ? 'underline' : 'none', textDecorationColor: 'black'}}>
+            style={{textDecoration: line5 ? 'underline black' : 'none'}}>
             <Pressable onHoverIn={() => setLine5(true)} onHoverOut={() => setLine5(false)}>
               <Text style={styles.link}>Contact Us</Text>
             </Pressable>

@@ -154,6 +154,7 @@ export function PageScreen() {
   useEffect(() => {
     if (!user) {
       // seems like an anti-pattern to have to listen for user changes here
+      setEditorLoading(false);
       return;
     }
     // if (editorLoading && initialPage?.id == null) {

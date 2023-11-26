@@ -1,50 +1,62 @@
 [
   {
-    "id": 1,
-    "content": "Finally an app that lets you write lyrics with the beat on the same screen!! Also has a nice rhyme lookup built in. 10/10 recommend. Makes writing a new song way easier, don’t need to use Notes anymore. 🔥",
+    "content": "I've clocked in probably over 100 songs on this app. Personally I'd recommend.",
+    "name": "Circle dot",
+    "stars": 5
+  },
+  {
+    "content": "I love this! It makes songwriting super easy and fun while removing the hassle of switching from one app to another. I feel like overall it's a nice way to keep you organized.",
+    "name": "Elvira M",
+    "stars": 5
+  },
+  {
+    "content": "Finally an app that lets you write lyrics with the beat on the same screen!! Also has a nice rhyme lookup built in. 10/10 recommend. Makes writing a new song way easier, don't need to use Notes anymore. 🔥",
     "name": "AgarPlayer76",
     "stars": 5
   },
   {
-    "id": 2,
-    "content": "Everything is organized and simple to use. Though I’m not a song writer this app does make it much easier to write to music. You can even play inspirational instrumentals and write poetry as well.",
+    "content": "Everything is organized and simple to use. Though I'm not a song writer this app does make it much easier to write to music. You can even play inspirational instrumentals and write poetry as well.",
     "name": "bastienMarc",
     "stars": 5
   },
   {
-    "id": 3,
-    "content": "Definitely a cool app and I use it a lot. It’s super simple and easy-to-use and If you like to vibe out and write this is the app for you! I recommend it. 👌",
+    "content": "Definitely a cool app and I use it a lot. It's super simple and easy-to-use and If you like to vibe out and write this is the app for you! I recommend it. 👌",
     "name": "Malia-M",
     "stars": 5
   },
   {
-    "id": 4,
-    "content": "This app is perfect for any musician or anyone who loves to write! It’s great to see something like this out, because it is unlike anything else on the market.",
+    "content": "Great concept to create on the go while listening to other music to find some inspiration.",
+    "name": "ramiya d",
+    "stars": 5
+  },
+  {
+    "content": "This app is perfect for any musician or anyone who loves to write! It's great to see something like this out, because it is unlike anything else on the market.",
     "name": "nicole asf165",
     "stars": 5
   },
   {
-    "id": 5,
-    "content": "This app is by far one of the best I’ve used. It’s so convenient to have the beat there while writing.",
+    "content": "This app is by far one of the best I've used. It's so convenient to have the beat there while writing.",
     "name": "Dj",
     "stars": 5
   },
   {
-    "id": 6,
     "content": "Yo this app has the missing key with that youtube search. As of right now I only use this literally because I love the idea that much & see the potential everytime I'm on it. I don't normally leave comments but I had to for this one. I think its a good app though forreal.",
     "name": "pokemonmaster",
     "stars": 5
   },
   {
-    "id": 7,
     "content": "This app is everything you're looking for if you hear a song and want to go in! It is a nice way to keep you organized!",
     "name": "bnboateng",
     "stars": 5
   },
   {
-    "id": 8,
-    "content": "Sometimes inspiration strikes while you’re exploring other music, but you lose your ideas by the time you’re in a space to write it down, LOVE the note feature during videos!! My favorite part so far is the rhyming word feature and challenge posed by timed writing.",
+    "content": "Sometimes inspiration strikes while you're exploring other music, but you lose your ideas by the time you're in a space to write it down, LOVE the note feature during videos!! My favorite part so far is the rhyming word feature and challenge posed by timed writing.",
     "name": "jaimejaleh",
     "stars": 4
+  },
+  {
+    "content": "This is an amazing product. Love the idea. Exciting time to get better at writing.",
+    "name": "Naresh M",
+    "stars": 5
   }
 ]

@@ -4,7 +4,7 @@ const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   : 'http://localhost:3000';
 const tagline = 'The all-in-one toolkit for songwriters';
 const description =
-  "Discover instrumentals from the world's largest audio platforms then write lyrics, take notes, share your content, and more!";
+  "Discover beats, write lyrics, find rhymes, cure your writer's block, and share content without tedious app switching!";
 
 export const viewport = {
   themeColor: '#ffffff',

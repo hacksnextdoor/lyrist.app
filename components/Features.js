@@ -1,146 +1,117 @@
-import {
-  FaBook,
-  FaFileAlt,
-  FaPencilAlt,
-  FaRegLightbulb,
-  FaSearch,
-  FaStopwatch,
-  FaUniversity,
-  FaVolumeUp,
-} from 'react-icons/fa';
-import {StyleSheet, Text, View} from 'react-native';
+import Image from 'next/image';
+import {FaBook, FaPencilAlt, FaSearch, FaShareAlt, FaStopwatch} from 'react-icons/fa';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useScale} from '../hooks';
+import {useState} from 'react';
+import {LYRIST_BLUE} from '../packages/constants';
 
 export function Features() {
-  const {small} = useScale();
+  const {small, medium} = useScale();
+  const ICON_SIZE = small ? 16 : medium ? 24 : 32;
+  const GIF_HEIGHT = small ? 240 : medium ? 320 : 400;
+  const GIF_WIDTH = GIF_HEIGHT * (442 / 300); // h:w = 300:442 or 300:443
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const features = [
+    {
+      subtitle: 'Choose a platform first',
+      img: <Image src={'/search.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'search gif'} />,
+      icon: (
+        <Pressable onPress={() => setCurrentIndex(0)}>
+          <FaSearch
+            color={currentIndex === 0 ? LYRIST_BLUE : 'rgba(0, 0, 0, 0.5)'}
+            size={ICON_SIZE * 1.5}
+          />
+        </Pressable>
+      ),
+    },
+    {
+      subtitle: 'After selecting, start writing',
+      img: <Image src={'/write.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'write gif'} />,
+      icon: (
+        <Pressable onPress={() => setCurrentIndex(1)}>
+          <FaPencilAlt
+            color={currentIndex === 1 ? LYRIST_BLUE : 'rgba(0, 0, 0, 0.5)'}
+            size={ICON_SIZE * 1.5}
+          />
+        </Pressable>
+      ),
+    },
+    {
+      subtitle: 'Find word associations',
+      img: <Image src={'/words.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'words gif'} />,
+      icon: (
+        <Pressable onPress={() => setCurrentIndex(2)}>
+          <FaBook
+            color={currentIndex === 2 ? LYRIST_BLUE : 'rgba(0, 0, 0, 0.5)'}
+            size={ICON_SIZE * 1.5}
+          />
+        </Pressable>
+      ),
+    },
+    {
+      subtitle: "Prevent writer's block",
+      img: <Image src={'/block.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'block gif'} />,
+      icon: (
+        <Pressable onPress={() => setCurrentIndex(3)}>
+          <FaStopwatch
+            color={currentIndex === 3 ? LYRIST_BLUE : 'rgba(0, 0, 0, 0.5)'}
+            size={ICON_SIZE * 1.5}
+          />
+        </Pressable>
+      ),
+    },
+    {
+      subtitle: 'Share what you wrote',
+      img: <Image src={'/share.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'share gif'} />,
+      icon: (
+        <Pressable onPress={() => setCurrentIndex(4)}>
+          <FaShareAlt
+            color={currentIndex === 4 ? LYRIST_BLUE : 'rgba(0, 0, 0, 0.5)'}
+            size={ICON_SIZE * 1.5}
+          />
+        </Pressable>
+      ),
+    },
+  ];
+  const {img} = features[currentIndex];
   return (
-    <View style={styles.section}>
-      <View style={[styles.features, small && {flexDirection: 'column', gap: 16}]}>
-        <View style={[styles.feature, small && {padding: 16}]}>
-          <View style={styles.content}>
-            <Text
-              style={[
-                styles.title,
-                {textAlign: 'right'},
-                small && {fontSize: 16, textAlign: 'left'},
-              ]}>
-              Choose a platform first
-            </Text>
-            <Text
-              style={[
-                styles.description,
-                {textAlign: 'right'},
-                small && {fontSize: 16, textAlign: 'left'},
-              ]}>
-              <Text style={{color: '#077AFF'}}>Search</Text> to get results from YouTube or
-              SoundCloud.
-            </Text>
-          </View>
-          <View style={[styles.icons, small && {display: 'none'}]}>
-            <FaSearch size={80} />
-            <FaVolumeUp size={80} />
-          </View>
-        </View>
+    <div id={'features'}>
+      <View style={styles.section}>
+        <Text style={[styles.title, {fontSize: ICON_SIZE * 2}]}>Many tools, one app</Text>
         <View
-          style={[
-            styles.feature,
-            {backgroundColor: '#077AFF22', borderRadius: 8},
-            small && {padding: 16},
-          ]}>
-          <View style={[styles.icons, small && {display: 'none'}]}>
-            <FaPencilAlt size={80} />
-            <FaUniversity size={80} />
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: ICON_SIZE,
+            height: GIF_HEIGHT,
+          }}>
+          <View style={{gap: ICON_SIZE}}>
+            {features.map(({icon}, index) => (
+              <View key={index} style={{flexDirection: 'row'}}>
+                {icon}
+              </View>
+            ))}
           </View>
-          <View style={styles.content}>
-            <Text style={[styles.title, small && {fontSize: 16}]}>
-              After selecting, start writing
-            </Text>
-            <Text style={[styles.description, small && {fontSize: 16}]}>
-              Your text will be saved automatically in{' '}
-              <Text style={{color: '#077AFF'}}>My Library</Text>.
-            </Text>
-          </View>
-        </View>
-        <View style={[styles.feature, small && {padding: 16}]}>
-          <View style={styles.content}>
-            <Text
-              style={[
-                styles.title,
-                {textAlign: 'right'},
-                small && {fontSize: 16, textAlign: 'left'},
-              ]}>
-              Enhance your creativity
-            </Text>
-            <Text
-              style={[
-                styles.description,
-                {textAlign: 'right'},
-                small && {fontSize: 16, textAlign: 'left'},
-              ]}>
-              Learn rhymes, synonyms, and antonyms of new words with the{' '}
-              <Text style={{color: '#077AFF'}}>Word Finder</Text>.
-            </Text>
-          </View>
-          <View style={[styles.icons, small && {display: 'none'}]}>
-            <FaRegLightbulb size={80} />
-            <FaBook size={80} />
-          </View>
-        </View>
-        <View
-          style={[
-            styles.feature,
-            {backgroundColor: '#077AFF22', borderRadius: 8},
-            small && {padding: 16},
-          ]}>
-          <View style={[styles.icons, small && {display: 'none'}]}>
-            <FaStopwatch size={80} />
-            <FaFileAlt size={80} />
-          </View>
-          <View style={styles.content}>
-            <Text style={[styles.title, small && {fontSize: 16}]}>Feeling stuck?</Text>
-            <Text style={[styles.description, small && {fontSize: 16}]}>
-              <Text style={{color: '#077AFF'}}>Writer's Block</Text> forces you to write without
-              judgment by setting a timer.
-            </Text>
-          </View>
+          <View style={{gap: 16}}>{img}</View>
         </View>
       </View>
-    </View>
+    </div>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    maxWidth: 1000,
     width: '100%',
     alignSelf: 'center',
-  },
-  features: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  feature: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    padding: 32,
-  },
-  icons: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    flexDirection: 'row',
-  },
-  content: {
-    flex: 1,
-    width: '100%',
-    gap: 8,
+    justifyContent: 'center',
+    padding: 24,
+    gap: 24,
   },
   title: {
+    fontSize: 64,
     fontFamily: 'Fira Sans',
     fontWeight: '600',
-    fontSize: 32,
-  },
-  description: {
-    fontFamily: 'Fira Sans',
-    fontSize: 32,
+    textAlign: 'center',
   },
 });

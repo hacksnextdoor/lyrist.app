@@ -1,7 +1,11 @@
-import {StyleSheet, Text, View} from 'react-native';
+import Link from 'next/link';
+import {useState} from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import YouTube from 'react-youtube';
 import {useScale} from '../hooks';
 import {Badges} from './Badges';
+import {LYRIST_BLUE} from '../packages/constants';
+import {LyristText} from '../packages/components';
 
 const onPlayerReady = event => {
   // access to player in all event handlers via event.target
@@ -20,6 +24,7 @@ const opts = {
 
 export function Main() {
   const {small, medium} = useScale();
+  const [line0, setLine0] = useState(false);
   return (
     <View style={styles.section}>
       <View style={[styles.subSection, medium && {flexDirection: 'column'}]}>
@@ -29,12 +34,26 @@ export function Main() {
             medium && {width: '100%', alignItems: 'center'},
             small && {gap: 24},
           ]}>
-          <Text style={[styles.title, small && {fontSize: 32, textAlign: 'left'}]}>
-            The <Text style={{color: '#007AFF'}}>all-in-one</Text> toolkit for songwriters
-          </Text>
-          <Text style={[styles.subtitle, small && {fontSize: 16, textAlign: 'left'}]}>
-            Discover instrumentals from the world's largest audio platforms then write lyrics, take
-            notes, share your content, and more!
+          <LyristText style={[styles.title, small && {fontSize: 32, textAlign: 'center'}]}>
+            The{' '}
+            <Link role="link" href={'#features'} style={{textDecoration: 'none'}}>
+              <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
+                <LyristText
+                  style={[
+                    styles.title,
+                    {color: LYRIST_BLUE},
+                    small && {fontSize: 32},
+                    line0 && {textDecorationLine: 'underline'},
+                  ]}>
+                  all-in-one
+                </LyristText>
+              </Pressable>
+            </Link>{' '}
+            toolkit for songwriters
+          </LyristText>
+          <Text style={[styles.subtitle, small && {fontSize: 16, textAlign: 'center'}]}>
+            Discover beats, write lyrics, find rhymes, cure your writer's block, and share content
+            without tedious app switching!
           </Text>
           <Badges />
         </View>
@@ -87,5 +106,4 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     width: '100%',
   },
-  rightContent: {},
 });
