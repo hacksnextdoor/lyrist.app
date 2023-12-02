@@ -54,7 +54,7 @@ export function AppHeader() {
           alignItems: 'center',
         }}>
         <Link href={'/'}>
-          <Image src="/lyrist-black.png" width={32} height={32} alt="Lyrist logo" />
+          <Image src="/logo-black.png" width={32} height={32} alt="Lyrist logo" />
         </Link>
         <LyristText
           onPress={() => {
@@ -82,7 +82,6 @@ export function AppHeader() {
         ) : user ? (
           <>
             {hasPlus ? null : (
-              // PASSING INLINE FUNCTIONS RESULTS IN A RERENDER!!!!! <Pressable onHoverIn={() => setLine3(true)} onHoverOut={() => setLine3(false)}>
               <LyristText
                 onPress={() => {
                   logFirebaseEvent(BTN_PLUS_SUBSCRIPTION_PRESSED);

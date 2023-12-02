@@ -67,7 +67,7 @@ export function MyLibraryScreen() {
             setCopiedTitle(item.title);
             setTimeout(() => {
               setCopiedTitle(null);
-            }, 2000);
+            }, 3000);
           }
         }}
         onPressItem={handlePressItem}
@@ -178,8 +178,8 @@ export function MyLibraryScreen() {
               maxWidth: 296,
             }}>
             <View style={{gap: 8}}>
-              <LyristText weight={'SemiBold'}>Share</LyristText>
-              <LyristText>You copied text from {copiedTitle}</LyristText>
+              <LyristText weight={'SemiBold'}>You copied text</LyristText>
+              <LyristText>Now you can share your content in {copiedTitle}.</LyristText>
             </View>
           </View>
         ) : null}

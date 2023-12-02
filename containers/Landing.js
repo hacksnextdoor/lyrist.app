@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {Badges, Footer, Features, Header, Main, Navbar, Reviews} from '../components';
 import {useScale} from '../hooks';
@@ -9,6 +9,13 @@ import {LYRIST_BLUE, TURQUOISE} from '../packages/constants';
 export function Landing() {
   const {small, medium} = useScale();
   const [line0, setLine0] = useState(false);
+
+  // HACK FOR AVOIDING HYDRATION FAILURES
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  // DELETE THIS EVENTUALLY
+
   return (
     <>
       <View
@@ -23,7 +30,6 @@ export function Landing() {
           role="link"
           href={'/redirect'}
           style={{alignSelf: 'center', textDecoration: 'none', paddingTop: 24}}>
-          {/* PASSING INLINE FUNCTIONS RESULTS IN A RERENDER!!!!! <Pressable onHoverIn={() => setLine3(true)} onHoverOut={() => setLine3(false)}> */}
           <LyristText
             style={[
               styles.signIn,
@@ -32,7 +38,6 @@ export function Landing() {
             weight={'Medium'}>
             Try the web app
           </LyristText>
-          {/* </Pressable> */}
         </Link>
         <Badges />
         <Navbar />

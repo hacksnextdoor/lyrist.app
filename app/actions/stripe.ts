@@ -24,7 +24,7 @@ export default async function createCheckoutSession(
       : recurring && recurring.interval === 'year'
       ? {trial_period_days: 30}
       : {},
-    success_url: `${headers().get('origin')}/pricing/result?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${headers().get('origin')}/pricing?checkout-session-id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${headers().get('origin')}/pricing`,
     customer_email: userEmail,
   });

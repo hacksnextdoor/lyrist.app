@@ -8,6 +8,7 @@ const AuthContext = createContext<{
   user: firebase.User | null;
   userLoading: boolean;
   hasPlus: boolean;
+  plusLoading: boolean;
   openAuthModal: boolean;
   setOpenAuthModal: Dispatch<SetStateAction<boolean>>;
   setPlusStatus: (userId: firebase.User['uid']) => void;
@@ -23,15 +24,21 @@ export function useAuthContext() {
 
 export function AuthProvider({children}) {
   const [userLoading, setUserLoading] = useState(true);
-  const [user, setUser] = useState<firebase.User | null>(null);
   const [hasPlus, setPlus] = useState(false);
+  const [plusLoading, setPlusLoading] = useState(false);
+  const [user, setUser] = useState<firebase.User | null>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
+
   const setPlusStatus = async (userId: string) => {
     try {
+      setPlusLoading(true);
       let data = await fetch(`/api/plus/${userId}`, {cache: 'no-store'});
       let json = await data.json();
       setPlus(json);
-    } catch {}
+    } catch {
+    } finally {
+      setPlusLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,7 +63,15 @@ export function AuthProvider({children}) {
 
   return (
     <AuthContext.Provider
-      value={{user, userLoading, hasPlus, openAuthModal, setOpenAuthModal, setPlusStatus}}>
+      value={{
+        user,
+        userLoading,
+        hasPlus,
+        plusLoading,
+        openAuthModal,
+        setOpenAuthModal,
+        setPlusStatus,
+      }}>
       <AuthModal isOpen={openAuthModal} onClose={() => setOpenAuthModal(false)} />
       {children}
     </AuthContext.Provider>

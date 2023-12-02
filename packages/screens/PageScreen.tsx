@@ -55,12 +55,12 @@ export function PageScreen() {
   }
 
   const [playerLoading, setPlayerLoading] = useState(true);
-  const [message, setMessage] = useState('dev status here');
+  const [message, setMessage] = useState('player status');
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(true);
 
   const [body, setBody] = useState('');
-  const [editorError, setEditorError] = useState<Error | null>(null);
+  const [editorMessage, setEditorMessage] = useState('editor status');
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [editorLoading, setEditorLoading] = useState(true);
   const {hasPlus, user, setOpenAuthModal} = useAuthContext();
@@ -90,11 +90,12 @@ export function PageScreen() {
 
   const OPERATION_DELAY = 3000; // weird stuff in the browser like touching the url cancels this method
   const handleChangeTextDebounced = useDebouncedCallback(async text => {
-    // UNSAVE
+    setEditorMessage('SYNCING');
     if (pageId && text.length === 0) {
       const currentPage = findPageFromPageId(pageId)!; // page should always exist in list of pages
       const {audio} = currentPage;
       await PageManager.removePage(pageId);
+      setEditorMessage('UNSAVED');
       setId(null);
       if (audio) {
         setAudio(JSON.stringify(audio));
@@ -103,10 +104,10 @@ export function PageScreen() {
       }
       return;
     }
-    // SAVE
     if (!pageId) {
       const newId = generateId();
       await PageManager.createPage(newId, audio, '', text);
+      setEditorMessage('CREATED');
       setId(newId);
       if (audio) {
         setAudio(null);
@@ -116,6 +117,7 @@ export function PageScreen() {
       return;
     }
     await PageManager.updatePage(pageId, text);
+    setEditorMessage('UPDATED');
   }, OPERATION_DELAY);
 
   const [mobile, setMobile] = useState(false);
@@ -154,19 +156,10 @@ export function PageScreen() {
   useEffect(() => {
     if (!user) {
       // seems like an anti-pattern to have to listen for user changes here
+      setEditorMessage('user has not synced');
       setEditorLoading(false);
       return;
     }
-    // if (editorLoading && initialPage?.id == null) {
-    //   // Visual State: NEW
-    //   setEditorLoading(false);
-    //   return;
-    // }
-
-    // if (currentPage == null) {
-    //   // Visual State: LOADING
-    //   return;
-    // }
 
     let ref = database().ref(`pages/${pageId}/body`);
 
@@ -178,14 +171,14 @@ export function PageScreen() {
         // Visual state: DISCARDED
         setBody('');
       }
-      setEditorError(null);
       if (editorLoading) {
         setEditorLoading(false);
       }
+      setEditorMessage('synced body with database');
     };
 
     const onError = (a: Error) => {
-      setEditorError(a);
+      setEditorMessage(a.message);
       if (editorLoading) {
         setEditorLoading(false);
       }
@@ -211,7 +204,7 @@ export function PageScreen() {
       {inDevEnv() && (
         <>
           <LyristText>player: {message}</LyristText>
-          <LyristText style={{color: ALIZARIN}}>editor: {editorError?.message}</LyristText>
+          <LyristText>editor: {editorMessage}</LyristText>
         </>
       )}
       <View style={{width: 405, maxWidth: 405, height: 720, maxHeight: 720}}>
@@ -274,6 +267,7 @@ export function PageScreen() {
             color={'black'}
             inputAccessoryViewID={'PageScreen'}
             onChangeText={(text: string) => {
+              setEditorMessage('TYPING');
               if (!lockEditor && !hasPlus && text.length > 10000) {
                 editorRef.current?.blur();
                 setShowSizeModal(true);

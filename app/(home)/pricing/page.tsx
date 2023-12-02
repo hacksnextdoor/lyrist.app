@@ -1,4 +1,5 @@
 'use client';
+import {useQueryState} from 'next-usequerystate';
 import {useEffect, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import Stripe from 'stripe';
@@ -18,10 +19,11 @@ export default function Page() {
   const styles = StyleSheet.create({
     featureText: {flexDirection: 'row', alignItems: 'center', paddingTop: 4},
   });
+  const [checkoutSessionId] = useQueryState('checkout-session-id');
   const [pricesLoading, setPricesLoading] = useState(true);
   const [pricesError, setPricesError] = useState<Error | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
-  const {user, setOpenAuthModal} = useAuthContext();
+  const {user, setOpenAuthModal, plusLoading, setPlusStatus, hasPlus} = useAuthContext();
 
   const handlePurchasePackage = (purchasesPackage: Package) => {
     if (user) {
@@ -55,6 +57,23 @@ export default function Page() {
 
     getSubscriptionOptions();
   }, []);
+
+  useEffect(() => {
+    // handle purchase completion via checkoutSessionId
+    if (user && checkoutSessionId) {
+      setPlusStatus(user.uid);
+    }
+  }, [user, checkoutSessionId]);
+
+  if (plusLoading) {
+    return <ActivityIndicator color={LYRIST_BLUE} />;
+  }
+
+  if (hasPlus) {
+    return (
+      <LyristText style={{textAlign: 'center'}}>Thanks for purchasing Lyrist Plus!</LyristText>
+    );
+  }
 
   return (
     <View
@@ -130,7 +149,7 @@ export default function Page() {
           <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
             ·{' '}
           </LyristText>
-          <LyristText>Cross-platform access (iOS, Android, 🔜 Web)</LyristText>
+          <LyristText>Cross-platform support on iOS, Android, and Web</LyristText>
         </View>
         <View style={styles.featureText}>
           <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>

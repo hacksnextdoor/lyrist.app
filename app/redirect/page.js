@@ -5,7 +5,7 @@ import {ActivityIndicator, View, useWindowDimensions} from 'react-native';
 import auth from '../../packages/firebase/firebase-auth-web';
 import {logFirebaseEvent} from '../../packages/firebase';
 import {LyristText} from '../../packages/components';
-import {USER_SIGNED_IN} from '../../packages/constants';
+import {LYRIST_BLUE, USER_SIGNED_IN} from '../../packages/constants';
 
 export default function Page() {
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function Page() {
         height,
       }}>
       <LyristText>{message}</LyristText>
-      <ActivityIndicator color={'#007AFF'} />
+      <ActivityIndicator color={LYRIST_BLUE} />
     </View>
   );
 }

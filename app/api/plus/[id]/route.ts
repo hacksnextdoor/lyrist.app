@@ -1,4 +1,4 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 
 /**
  * Check for a plus subscription purchased on stripe
@@ -19,7 +19,14 @@ export async function GET(_, {params}) {
     json.subscriber?.entitlements?.plus &&
     Object.keys(json.subscriber.entitlements.plus).length > 0
   ) {
-    hasPlus = true;
+    const plusObj = json.subscriber.entitlements.plus;
+    // check grace period first then normal expiration date
+    const today = new Date().toISOString();
+    if (
+      (plusObj.grace_period_expires_date && today < plusObj.grace_period_expires_date) ||
+      (plusObj.expires_date && today < plusObj.expires_date)
+    )
+      hasPlus = true;
   }
   return NextResponse.json(hasPlus);
 }
