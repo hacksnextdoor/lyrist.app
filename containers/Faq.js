@@ -7,7 +7,7 @@ export function FAQ() {
         <Text role="header" style={styles.pageTitle}>
           Frequently Asked Questions
         </Text>
-        <Text style={styles.sectionText}>Last updated June 22nd, 2022</Text>
+        <Text style={styles.sectionText}>Last updated December 17th, 2023</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Where is the email I just sent myself?</Text>
@@ -28,6 +28,23 @@ export function FAQ() {
         <Text style={styles.sectionTitle}>What if I delete the app off my phone?</Text>
         <Text style={styles.sectionText}>
           Lyrist supports cloud storage so you can access your data from any device.
+        </Text>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>How can I close my account?</Text>
+        <Text style={styles.sectionText}>
+          To close your account and delete your data permanently, email us at{' '}
+          <Text
+            role="link"
+            href={'mailto:lyrist.app@gmail.com'}
+            style={[styles.text, {textDecorationLine: 'underline'}]}>
+            lyrist.app@gmail.com
+          </Text>
+          . After you close your account, we email you a link which you can use to reactivate it
+          within 7 days. After those 7 days, your account cannot be reactivated and the process to
+          delete your data will be initiated. You can always create a new one. Note: You can use the
+          same email address to create a new account after 14 days from the date of closing your
+          account.
         </Text>
       </View>
       <View style={styles.section}>
