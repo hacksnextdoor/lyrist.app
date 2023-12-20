@@ -1,11 +1,11 @@
 import type firebase from 'firebase/compat';
 import {createContext, useContext, useEffect, useState} from 'react';
-import auth from '../firebase/firebase-auth-web';
 import database from '../firebase/firebase-database-web';
 import {Page} from '../types';
+import {useAuthContext} from './AuthProvider';
 
 export const PagesContext = createContext<{
-  pages: Page[];
+  pages: Page[] | null;
   pagesLoading: boolean;
   error: Error | null;
   findPageFromAudio: (idToFind: string) => Page | undefined;
@@ -21,44 +21,42 @@ export function usePagesContext() {
 }
 
 export function PagesProvider({children}) {
+  const {user} = useAuthContext();
   const [pagesLoading, setPagesLoading] = useState(true);
-  const [pages, setPages] = useState<Page[]>([]);
+  const [pages, setPages] = useState<Page[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const findPageFromAudio = (idToFind: string) => pages.find(page => page.audio?.id === idToFind);
-  const findPageFromPageId = (idToFind: string) => pages.find(page => page.id === idToFind);
+  const findPageFromAudio = (idToFind: string) => pages?.find(page => page.audio?.id === idToFind);
+  const findPageFromPageId = (idToFind: string) => pages?.find(page => page.id === idToFind);
 
   useEffect(() => {
     let ref: firebase.database.Query;
 
-    const onValue = (snapshot: firebase.database.DataSnapshot) => {
-      if (snapshot && snapshot.val()) {
-        setPages(Object.values(snapshot.val()));
-      } else {
-        setPages([]);
-      }
-    };
+    if (user) {
+      setPagesLoading(true);
+      ref = database().ref(`authors/${user.uid}/pages`).orderByChild('dateLastModified');
+      const onValue = (snapshot: firebase.database.DataSnapshot) => {
+        if (snapshot && snapshot.val()) {
+          setPages(Object.values(snapshot.val()));
+        } else {
+          setPages([]);
+        }
+        setPagesLoading(false);
+        setError(null);
+      };
 
-    const unsubscribe = auth().onAuthStateChanged(user => {
-      if (user) {
-        ref = database().ref(`authors/${user.uid}/pages`).orderByChild('dateLastModified');
-
-        const onError = (a: Error) => {
-          setError(a);
-        };
-
-        ref.on('value', onValue, onError);
-      } else {
-        ref?.off('value', onValue);
-      }
-
+      const onError = (a: Error) => {
+        setError(a);
+        setPagesLoading(false);
+      };
+      ref.on('value', onValue, onError);
+    } else {
       setPagesLoading(false);
-    });
+    }
 
     return () => {
-      unsubscribe();
-      ref?.off('value', onValue);
+      ref?.off('value');
     };
-  }, [pagesLoading]);
+  }, [user]);
 
   return (
     <PagesContext.Provider

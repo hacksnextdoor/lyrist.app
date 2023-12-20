@@ -56,6 +56,7 @@ export function SearchScreen() {
         setSearchError(null);
       } catch (e) {
         setSearchError(e);
+        setSearchResults([]);
       } finally {
         setSearchLoading(false);
       }

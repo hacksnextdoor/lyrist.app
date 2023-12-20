@@ -101,6 +101,7 @@ export function AppHeader() {
             <LyristText
               onPress={async () => {
                 await auth().signOut();
+                window.localStorage.clear();
                 logFirebaseEvent(USER_SIGNED_OUT);
                 router.push('/');
               }}>

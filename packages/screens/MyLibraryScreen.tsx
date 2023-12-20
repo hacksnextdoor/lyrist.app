@@ -2,7 +2,7 @@ import {useRouter} from 'next/navigation';
 import {useCallback, useRef, useState} from 'react';
 import {Animated, Clipboard, Modal, Pressable, StyleSheet, View} from 'react-native';
 import {LyristText, PageItem} from '../components';
-import {LYRIST_BLUE} from '../constants';
+import {LYRIST_BLUE, MAX_PAGES} from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
 import {decrypt} from '../encryption';
 import {PageManager} from '../firebase';
@@ -20,8 +20,8 @@ export function MyLibraryScreen() {
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
   const {hasPlus, user, setOpenAuthModal} = useAuthContext();
-  const {pages, pagesLoading} = usePagesContext();
-  const pagesLeftBasicUser = Math.max(0, 3 - pages.length);
+  const {pages, pagesLoading, error} = usePagesContext();
+  const pagesLeftBasicUser = Math.max(0, MAX_PAGES - (pages?.length ?? 0));
   const pagesToFilter = pages?.sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1));
 
   /* REFS */
@@ -88,7 +88,7 @@ export function MyLibraryScreen() {
             <LyristText>·</LyristText>
             {user ? (
               <LyristText onPress={() => router.push('/pricing')}>
-                {pagesLeftBasicUser} free pages left
+                {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left
               </LyristText>
             ) : (
               <LyristText onPress={() => setOpenAuthModal(true)}>Sign In</LyristText>
@@ -98,10 +98,12 @@ export function MyLibraryScreen() {
       </View>
       {pagesLoading ? (
         <LyristText style={{paddingHorizontal: normalize(12)}}>Getting pages...</LyristText>
+      ) : error ? (
+        <LyristText>{error.message}</LyristText>
       ) : (
         <View style={{flex: 1, paddingBottom: normalize(48)}}>
-          {pagesToFilter.length > 0 ? (
-            pagesToFilter.map((item, index) => handleRenderItem({item, index}))
+          {pagesToFilter?.length ?? 0 > 0 ? (
+            pagesToFilter?.map((item, index) => handleRenderItem({item, index}))
           ) : (
             <LyristText style={{paddingHorizontal: normalize(12)}}>
               Use Search to find audio and start typing!

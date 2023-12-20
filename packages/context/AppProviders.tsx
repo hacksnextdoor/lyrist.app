@@ -1,6 +1,7 @@
 import {AuthProvider} from './AuthProvider';
 import {PagesProvider} from './PagesProvider';
 
+// keep the order
 const providers = [
   AuthProvider,
   PagesProvider,

@@ -72,3 +72,6 @@ export const ALL_QUOTAS_EXCEEDED_ERROR =
 export const NO_RESULTS_FOUND = 'No results found.';
 export const SOMETHING_WENT_WRONG_ERROR = 'Something went wrong, please try again.';
 export const SONGS_REQUEST_ERROR = `${NO_RESULTS_FOUND} Try different search terms.`;
+
+/* Plus */
+export const MAX_PAGES = 3;

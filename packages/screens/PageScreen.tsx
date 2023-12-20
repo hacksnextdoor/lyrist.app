@@ -6,10 +6,10 @@ import ReactPlayer from 'react-player';
 import {useDebouncedCallback} from 'use-debounce';
 import {Editor, LyristText} from '../components';
 import {
-  ALIZARIN,
   LYRICS_PAGE_ENTERED,
   LYRICS_PAGE_EXITED,
   LYRIST_BLUE,
+  MAX_PAGES,
   TURQUOISE,
 } from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
@@ -63,21 +63,37 @@ export function PageScreen() {
   const [editorMessage, setEditorMessage] = useState('editor status');
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [editorLoading, setEditorLoading] = useState(true);
-  const {hasPlus, user, setOpenAuthModal} = useAuthContext();
-  const {findPageFromPageId, pages} = usePagesContext();
-  const MAX_PAGES = 3;
-  let isInFreeSet = false;
-  if (pageId) {
-    isInFreeSet = pages
-      .sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1))
-      .slice(0, MAX_PAGES)
-      .some(page => page.id === pageId);
-  }
-  const lockEditor = pages.length >= MAX_PAGES && !hasPlus && !isInFreeSet;
+  const {hasPlus, user, userLoading, setOpenAuthModal} = useAuthContext();
+  const {findPageFromPageId, pages, pagesLoading} = usePagesContext();
+  const pagesLeftBasicUser = Math.max(0, 3 - (pages?.length ?? 0));
 
   /* REFS */
   const playerRef = useRef<ReactPlayer>(null);
   const editorRef = useRef<TextInput>(null);
+  const lockEditor = useRef<boolean | null>(null);
+
+  /**
+   * hacky way of handling the following cases
+   * - coming from search screen (pages have loaded already)
+   * - coming from library screen (pages have loaded already)
+   * - entering page for the first time (pages loading)
+   *    could have pageId (exist in library)
+   *    or not have pageId (search)
+   *
+   */
+  let isInFreeSet = false;
+  if (lockEditor.current == null && pages) {
+    if (audioStr) {
+      lockEditor.current = pages.length >= MAX_PAGES && !hasPlus;
+    }
+    if (pageId) {
+      isInFreeSet = pages
+        .sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1))
+        .slice(0, Math.min(MAX_PAGES, pages.length))
+        .some(page => page.id === pageId);
+      lockEditor.current = !hasPlus && !isInFreeSet;
+    }
+  }
 
   /* EVENTS */
   const handlePlay = () => {
@@ -90,7 +106,6 @@ export function PageScreen() {
 
   const OPERATION_DELAY = 3000; // weird stuff in the browser like touching the url cancels this method
   const handleChangeTextDebounced = useDebouncedCallback(async text => {
-    setEditorMessage('SYNCING');
     if (pageId && text.length === 0) {
       const currentPage = findPageFromPageId(pageId)!; // page should always exist in list of pages
       const {audio} = currentPage;
@@ -142,7 +157,6 @@ export function PageScreen() {
     };
   }, []);
 
-  /* EFFECTS */
   useEffect(() => {
     logFirebaseEvent(LYRICS_PAGE_ENTERED);
     return () => {
@@ -201,17 +215,33 @@ export function PageScreen() {
   /* JSX */
   return (
     <View style={{alignItems: 'center'}}>
-      {inDevEnv() && (
-        <>
-          <LyristText>player: {message}</LyristText>
-          <LyristText>editor: {editorMessage}</LyristText>
-        </>
-      )}
       <View style={{width: 405, maxWidth: 405, height: 720, maxHeight: 720}}>
+        {pagesLoading ? (
+          <LyristText>Loading...</LyristText>
+        ) : (
+          !lockEditor.current && (
+            <LyristText
+              onPress={() => router.push('/pricing')}
+              style={{paddingVertical: normalize(12), textAlign: 'center'}}>
+              You have {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left. Get{' '}
+              <LyristText style={{color: TURQUOISE}} weight={'Medium'}>
+                Lyrist Plus
+              </LyristText>{' '}
+              for more!
+            </LyristText>
+          )
+        )}
+        {inDevEnv() && (
+          <>
+            <LyristText>player: {message}</LyristText>
+            <LyristText>editor: {editorMessage}</LyristText>
+          </>
+        )}
         {playerLoading ? (
           <LyristText>Loading player</LyristText>
         ) : url ? (
           <View style={{aspectRatio: 16 / 9}}>
+            {/* https://stackoverflow.com/questions/51969269/embedded-youtube-video-doesnt-work-on-local-server */}
             <ReactPlayer
               url={url}
               width="100%"
@@ -234,9 +264,9 @@ export function PageScreen() {
             />
           </View>
         ) : null}
-        {editorLoading ? (
-          <LyristText>Loading editor</LyristText>
-        ) : lockEditor ? (
+        {editorLoading || pagesLoading || userLoading ? (
+          <LyristText>Loading...</LyristText>
+        ) : lockEditor.current ? (
           <LyristText
             onPress={() => router.push('/pricing')}
             style={{
@@ -268,7 +298,7 @@ export function PageScreen() {
             inputAccessoryViewID={'PageScreen'}
             onChangeText={(text: string) => {
               setEditorMessage('TYPING');
-              if (!lockEditor && !hasPlus && text.length > 10000) {
+              if (!lockEditor.current && !hasPlus && text.length > 10000) {
                 editorRef.current?.blur();
                 setShowSizeModal(true);
                 return;
