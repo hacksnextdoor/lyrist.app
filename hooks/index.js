@@ -1,1 +1,1 @@
-export * from "./useScale";
+export * from './useScale';

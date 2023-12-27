@@ -1,0 +1,28 @@
+import firebase from 'firebase/compat/app';
+
+const firebaseConfig =
+  process.env.NODE_ENV === 'development'
+    ? {
+        apiKey: 'AIzaSyD7EC8mi2lqqgOBGsBpH5sx4Fie38uju2w',
+        authDomain: 'lyrist-dev.firebaseapp.com',
+        databaseURL: 'https://lyrist-dev-default-rtdb.firebaseio.com',
+        projectId: 'lyrist-dev',
+        storageBucket: 'lyrist-dev.appspot.com',
+        messagingSenderId: '751037515388',
+        appId: '1:751037515388:web:3d2b5f8511bd1a5a2febf9',
+        measurementId: 'G-JYC42WS0X0',
+      }
+    : {
+        apiKey: 'AIzaSyARt0IiVWYb_fFlZ_gw--VUsZykPVkQrCc',
+        authDomain: 'rapbook-4a2f5.firebaseapp.com',
+        databaseURL: 'https://rapbook-4a2f5.firebaseio.com',
+        projectId: 'rapbook-4a2f5',
+        storageBucket: 'rapbook-4a2f5.appspot.com',
+        messagingSenderId: '563495375201',
+        appId: '1:563495375201:web:6862eb90fe8819c8c27520',
+        measurementId: 'G-WNDLPLKW2S',
+      };
+
+export function initFirebase() {
+  firebase.initializeApp(firebaseConfig);
+}

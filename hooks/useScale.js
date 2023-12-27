@@ -1,4 +1,4 @@
-import { useWindowDimensions, Platform } from "react-native";
+import {useWindowDimensions, Platform} from 'react-native';
 
 // Determine if the device pixel density and size are tablet-like.
 // For better accuracy, you can also use the react-native-device-info library.
@@ -14,9 +14,9 @@ function isTabletLike(windowDimensions) {
 // Returns a scaling function that, given an input number, scale it to suit
 // devices with different sizes and pixel densities.
 export function useScale() {
-  const { height, width } = useWindowDimensions();
+  const {height, width} = useWindowDimensions();
   let baseWidth;
-  if (Platform.OS === "android" || Platform.OS === "ios") {
+  if (Platform.OS === 'android' || Platform.OS === 'ios') {
     // Fixed base width that has worked well for most of my use cases
     baseWidth = isTabletLike() ? 520 : 350;
   } else {
@@ -28,8 +28,8 @@ export function useScale() {
   }
   const shorterWindowDimension = width > height ? height : width;
 
-  const scale = (size) => (width / baseWidth) * size;
+  const scale = size => (width / baseWidth) * size;
   const small = width < 569;
   const medium = width < 850;
-  return { small, medium, scale };
+  return {small, medium, scale};
 }
