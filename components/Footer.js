@@ -3,7 +3,7 @@ import {StyleSheet, Text, View} from 'react-native';
 export function Footer() {
   return (
     <View style={styles.section}>
-      <Text style={styles.copyright}>ⓒ 2023 Lyrist LLC</Text>
+      <Text style={styles.copyright}>ⓒ 2024 Lyrist LLC</Text>
     </View>
   );
 }
