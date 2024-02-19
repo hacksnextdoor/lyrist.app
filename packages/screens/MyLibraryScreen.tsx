@@ -1,6 +1,6 @@
 import {useRouter} from 'next/navigation';
 import {useCallback, useRef, useState} from 'react';
-import {Animated, Clipboard, Modal, Pressable, StyleSheet, View} from 'react-native';
+import {Animated, Button, Clipboard, Modal, Pressable, StyleSheet, View} from 'react-native';
 import {LyristText, PageItem} from '../components';
 import {LYRIST_BLUE, MAX_PAGES} from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
@@ -18,6 +18,7 @@ export function MyLibraryScreen() {
 
   /* STATE */
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+  const [pageToDownload, setPageToDownload] = useState<Page | null>(null);
   const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
   const {hasPlus, user, setOpenAuthModal} = useAuthContext();
   const {pages, pagesLoading, error} = usePagesContext();
@@ -63,16 +64,53 @@ export function MyLibraryScreen() {
             window.navigator.share(shareObj);
             // logFirebaseEvent(LYRICS_SHARED);
           } else {
-            Clipboard.setString(copiedText);
+            copyToClipboard(copiedText);
             setCopiedTitle(item.title);
             setTimeout(() => {
               setCopiedTitle(null);
             }, 3000);
           }
         }}
+        onSave={async () => 
+          {
+            try {
+                  //const itemBody = await fetch(`api/pages/${item.id}/body`);
+                  const itemBody = database().ref(`pages/${item.id}/body`).once('value');
+                   if (!itemBody) {
+                    throw new Error('Failed to fetch data');
+                  } 
+                  const bodyText = await (await itemBody).val();
+                  const copiedText = `${item.title}\n${decrypt(bodyText)}\nhttps://lyrist.app`;
+
+                  // Create a Blob from the text
+                  const blob = new Blob([copiedText], { type: 'text/plain' });
+
+                  // Create a temporary URL for the Blob
+                  const url = URL.createObjectURL(blob);
+
+                  // Create an anchor element
+                  const anchor = document.createElement('a');
+                  anchor.href = url;
+                  anchor.download = `${item.title}.txt`; // Set the filename
+
+                  // Simulate a click on the anchor element to trigger the download
+                  document.body.appendChild(anchor);
+                  anchor.click();
+
+                  // Clean up
+                  URL.revokeObjectURL(url);
+                  document.body.removeChild(anchor);
+                } catch (error) {
+                  console.error('Error saving text:', error);
+                }
+          }
+                          
+        }
         onPressItem={handlePressItem}
       />
-    ),
+       /* New button for downloading text */
+      
+  ),  
     [handlePressItem],
   );
 
@@ -81,7 +119,7 @@ export function MyLibraryScreen() {
     <View style={{flex: 1, gap: 8, paddingVertical: normalize(12)}}>
       <View style={{flexDirection: 'row', gap: 8, paddingHorizontal: normalize(12)}}>
         <LyristText style={{}} weight={'Medium'}>
-          My Library
+          My Libraryyyy
         </LyristText>
         {hasPlus ? null : (
           <>
@@ -186,6 +224,50 @@ export function MyLibraryScreen() {
           </View>
         ) : null}
       </Modal>
+      <Modal animationType="fade" transparent={true} visible={!!pageToDownload}>
+        <Pressable
+          disabled={true}
+          style={[
+            StyleSheet.absoluteFill,
+            {backgroundColor: 'rgba(0,0,0,0.4)'},
+            {cursor: 'auto'} as any,
+          ]}
+        />
+        {copiedTitle ? (
+          <View
+            style={{
+              borderLeftWidth: 5,
+              borderLeftColor: LYRIST_BLUE,
+              alignItems: 'center',
+              backgroundColor: 'white',
+              borderRadius: 5,
+              justifyContent: 'center',
+              margin: 'auto',
+              padding: normalize(16),
+              maxWidth: 296,
+            }}>
+            <View style={{gap: 8}}>
+              <LyristText weight={'SemiBold'}>Text to download</LyristText>
+              <LyristText>Now you can share your content in {copiedTitle}.</LyristText>
+            </View>
+          </View>
+        ) : null}
+      </Modal>
     </View>
+    
   );
+
+
 }
+const copyToClipboard = async (text:any) => {
+   try {
+    // Use the modern Clipboard API to copy text
+    await navigator.clipboard.writeText(text);
+
+    // Optional: Notify the user or perform any other action after copying
+    console.log('Your text is copied to clipboard:', text);
+  } catch (error) {
+    console.error('Error copying text to clipboard:', error);
+  }
+}
+

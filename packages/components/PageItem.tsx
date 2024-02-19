@@ -1,5 +1,5 @@
 import {memo} from 'react';
-import {SlShare, SlSocialSoundcloud, SlSocialYoutube, SlTrash} from 'react-icons/sl';
+import {SlShare, SlSocialSoundcloud, SlSocialYoutube, SlTrash, SlCloudDownload} from 'react-icons/sl';
 import {
   Animated,
   ImageBackground,
@@ -19,6 +19,7 @@ export type PageItemProps = {
   isNew?: boolean;
   onDelete: () => void;
   onShare: () => void;
+  onSave: () => void;
   onPressItem: (page: Page, index: number) => void;
   page: Page;
 };
@@ -33,6 +34,7 @@ export function PageItemUnmemoized({
   isNew,
   onDelete,
   onShare,
+  onSave,
   onPressItem,
   page,
 }: PageItemProps) {
@@ -143,6 +145,9 @@ export function PageItemUnmemoized({
             </Pressable>
             <Pressable onPress={() => onDelete()}>
               <SlTrash size={20} />
+            </Pressable>
+             <Pressable onPress={() => onSave()}>
+              <SlCloudDownload size={20} />
             </Pressable>
           </View>
         </View>

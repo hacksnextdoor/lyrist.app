@@ -105,7 +105,7 @@ export function SearchScreen() {
   return (
     <View style={{flex: 1, gap: 8, paddingVertical: normalize(12)}}>
       <LyristText style={{paddingHorizontal: normalize(12)}} weight={'Medium'}>
-        Search
+        Searchhhh
       </LyristText>
       <View
         style={{
