@@ -49,6 +49,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/meet',
+        destination: 'https://calendar.app.google/sy5huqZBieyu8pu68',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
