@@ -1,9 +1,10 @@
 import {NextResponse} from 'next/server';
 
 /**
- * Check for a plus subscription purchased on stripe
+ * API reference
  * https://www.revenuecat.com/reference/subscribers
  */
+
 export async function GET(_, {params}) {
   const url = `https://api.revenuecat.com/v1/subscribers/${params.id}`;
   const apiKey = process.env.PURCHASES_API_KEY_WEB;
