@@ -15,10 +15,22 @@ export async function GET(_, {params}) {
     },
     cache: 'no-cache',
   });
-  const json = await response.json();
-  let invites: string[] = [];
-  if (json.subscriber?.subscriber_attributes?.invites?.value) {
-    invites = JSON.parse(json.subscriber.subscriber_attributes.invites.value);
+  if (response.status >= 200 && response.status <= 299) {
+    const json = await response.json();
+    if (!json) {
+      return NextResponse.json(['no json for some reason']);
+    }
+    if (!json.subscriber) {
+      return NextResponse.json(['no subscriber for some reason']);
+    }
+    if (!json.subscriber.subscriber_attributes) {
+      return NextResponse.json(['no subscriber for some reason']);
+    }
+    let invites: string[] = [];
+    if (json.subscriber.subscriber_attributes.invites?.value) {
+      invites = JSON.parse(json.subscriber.subscriber_attributes.invites.value);
+    }
+    return NextResponse.json(invites);
   }
-  return NextResponse.json(invites);
+  return NextResponse.json([response]);
 }
