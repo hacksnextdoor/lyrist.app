@@ -9,7 +9,10 @@ export async function POST(req: Request) {
   try {
     const {input} = await req.json();
     if (!input) {
-      throw new Error('input is not given');
+      return new Response(JSON.stringify({error: 'input was not given'}), {
+        headers: {'Content-Type': 'application/json'},
+        status: 400,
+      });
     }
     const client = new AzureOpenAI({endpoint, apiKey, apiVersion, deployment});
     const stream = client.beta.chat.completions.stream({
@@ -17,7 +20,7 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content:
-            'You are professional songwriting assistant. Please only answer questions about songwriting and music. Questions that refer to Word Finder should be answered with information about Lyrist the app itself such as "selecting words in one of your pages activates the word finder via the sparkle button in the dashboard above the keyboard."',
+            'You are professional songwriting assistant. Please only answer questions about songwriting and music. Questions that refer to Word Finder should be answered with information about Lyrist the app itself such as "going to one of your pages activating the word finder by selecting a word or pressing the sparkle button in the dashboard above the keyboard to find rhymes."',
         },
         {role: 'user', content: input},
       ],
@@ -42,6 +45,9 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    console.error(e);
+    return new Response(JSON.stringify({error: e.message}), {
+      headers: {'Content-Type': 'application/json'},
+      status: 500,
+    });
   }
 }
