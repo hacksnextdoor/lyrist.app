@@ -55,6 +55,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/pitch',
+        destination: 'https://1drv.ms/p/s!AoIPBhqDp9yHmAL1ZqqK70QO7NHx?e=gRZyxF',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
