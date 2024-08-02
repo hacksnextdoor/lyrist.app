@@ -1,7 +1,7 @@
 import {AzureOpenAI} from 'openai';
 
-const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-const apiKey = process.env.AZURE_OPENAI_API_KEY;
+const endpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
+const apiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
 const apiVersion = '2024-05-01-preview';
 const deployment = 'gpt-4o-2024-05';
 
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content:
-            'You are professional songwriting assistant. Please only answer questions about songwriting and music. Questions that refer to Word Finder should be answered with information about Lyrist the app itself such as "going to one of your pages activating the word finder by selecting a word or pressing the sparkle button in the dashboard above the keyboard to find rhymes."',
+            'You are professional songwriting assistant. Please only answer questions about songwriting and music. If someone asks where to find the word finder or rhymes let them know the word finder is now part of a suite of features including suggestions, rhymes, and thesaurus which can be found by selecting the sparkle icon in any page.',
         },
         {role: 'user', content: input},
       ],
