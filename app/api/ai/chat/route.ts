@@ -1,5 +1,7 @@
 import {AzureOpenAI} from 'openai';
 
+export const maxDuration = 60;
+
 const endpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
 const apiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
 const apiVersion = '2024-05-01-preview';
@@ -45,9 +47,19 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    return new Response(JSON.stringify({error: e.message}), {
+    let statusCode = 500;
+    let errorMessage = 'Internal Server Error';
+
+    if (e.response) {
+      statusCode = e.response.status || 500;
+      errorMessage = e.response.data?.error?.message || 'Internal Server Error';
+    } else if (e.message) {
+      errorMessage = e.message;
+    }
+
+    return new Response(JSON.stringify({error: errorMessage}), {
       headers: {'Content-Type': 'application/json'},
-      status: 500,
+      status: statusCode,
     });
   }
 }
