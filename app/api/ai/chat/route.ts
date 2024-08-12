@@ -1,6 +1,6 @@
 import {AzureOpenAI} from 'openai';
 
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 const endpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT;
 const apiKey = process.env.AZURE_OPENAI_CHAT_API_KEY;
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       ],
       model: deployment,
       stream: true,
-      max_tokens: 256,
+      // max_tokens: 256,
     });
     // inspired by https://upstash.com/blog/sse-streaming-llm-responses
     const customReadable = new ReadableStream({
@@ -41,7 +41,6 @@ export async function POST(req: Request) {
     return new Response(customReadable, {
       headers: {
         Connection: 'keep-alive',
-        'Content-Encoding': 'none',
         'Cache-Control': 'no-cache, no-transform',
         'Content-Type': 'text/event-stream; charset=utf-8',
       },
