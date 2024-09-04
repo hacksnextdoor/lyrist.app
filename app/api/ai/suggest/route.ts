@@ -1,5 +1,7 @@
 import {AzureOpenAI} from 'openai';
 
+export const maxDuration = 30;
+
 const endpoint = process.env.AZURE_OPENAI_COMPLETIONS_ENDPOINT;
 const apiKey = process.env.AZURE_OPENAI_COMPLETIONS_API_KEY;
 const apiVersion = '2024-05-01-preview';
