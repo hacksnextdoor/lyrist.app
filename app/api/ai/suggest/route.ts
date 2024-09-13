@@ -1,4 +1,6 @@
 import {AzureOpenAI} from 'openai';
+import {APIPromise} from 'openai/core';
+import {Completion} from 'openai/resources';
 
 export const maxDuration = 30;
 
@@ -22,14 +24,26 @@ export async function POST(req: Request) {
     } in ${
       genre ?? 'any genre of'
     } music for the following text: ${input}. No two lines should be the same nor should be ${input}. ${
-      rhyme.length > 0 ? `Every line needs to rhyme with ${rhyme}` : 'Lines do not have to rhyme'
-    }. Please format the array without preceding numbers, preceding dashes, or preceding bullet points. Make sure each item separated by "\n".`;
+      rhyme.length > 0
+        ? `Every line needs to rhyme with ${rhyme} and near rhymes like "orange" and "door hinge" are acceptable.`
+        : 'Lines do not have to rhyme'
+    }. Please format the array without preceding numbers, preceding dashes, preceding bullet points. Each line should be considered one element in the array. Here is an example format:
 
-    const response = await client.completions.create({
-      model: deployment,
-      prompt: prompt,
-      max_tokens: 256,
-    });
+Line 1
+Line 2
+Line 3
+...
+Line 16`;
+
+    const response = await retryRequest(() =>
+      client.completions.create({
+        model: deployment,
+        prompt: prompt,
+        max_tokens: 192,
+        best_of: 1,
+        temperature: generateTemperature(),
+      }),
+    );
     const suggestions = response.choices[0].text
       .trim()
       .split('\n')
@@ -52,4 +66,27 @@ export async function POST(req: Request) {
       status: 500,
     });
   }
+}
+
+async function retryRequest(requestFn: () => APIPromise<Completion>, retries = 3, delay = 1000) {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await requestFn();
+    } catch (e) {
+      lastError = e;
+      if (e.response?.status === 429 && i < retries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+      } else {
+        break;
+      }
+    }
+  }
+  throw lastError;
+}
+
+function generateTemperature() {
+  const possibleValues = [0, 0.1, 0.2, 0.3, 0.4, 0.5];
+  const randomIndex = Math.floor(Math.random() * possibleValues.length);
+  return possibleValues[randomIndex];
 }
