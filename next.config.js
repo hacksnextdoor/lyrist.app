@@ -61,6 +61,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/peytspencer/where-i-wanna-be',
+        destination: 'https://distrokid.com/hyperfollow/peytspencer/where-i-wanna-be',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
