@@ -67,6 +67,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/creators',
+        destination: 'https://forms.fillout.com/t/vEBe5ABuNaus',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
