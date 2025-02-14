@@ -19,10 +19,11 @@ export async function GET() {
   });
   const prices: Stripe.ApiList<Stripe.Price> = await pricesResponse.json();
   const products: Stripe.ApiList<Stripe.Product> = await productsResponse.json();
-
-  // Consolidate the two arrays based on matching the "id" property in products and the "product" property in prices
   const consolidatedArray = prices.data.reduce(
     (result: {price: Stripe.Price; product: Stripe.Product}[], currentPrice) => {
+      if (!currentPrice.active) {
+        return result;
+      }
       const matchingProduct = products.data.find(
         item2 => item2 && item2.id === currentPrice.product,
       );
