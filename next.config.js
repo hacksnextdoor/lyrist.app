@@ -73,6 +73,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/survey',
+        destination: 'https://forms.fillout.com/t/jef8fqiwjzus',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
