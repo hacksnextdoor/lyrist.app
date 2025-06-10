@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {useState} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useScale} from '../hooks';
+import {LyristText} from '../packages/components';
 
 export function Navbar() {
   const {small, medium} = useScale();
@@ -18,7 +19,7 @@ export function Navbar() {
           styles.subSection,
           medium && {flexDirection: 'column', alignItems: 'flex-start', gap: 20},
         ]}>
-        <View style={styles.social}>
+        {/* <View style={styles.social}>
           <Link role="link" href={'https://instagram.com/lyrist.app'} target={'_blank'}>
             <Image alt={'instagram'} src={'/instagram.png'} width={24} height={24} />
           </Link>
@@ -28,14 +29,14 @@ export function Navbar() {
           <Link role="link" href={'https://twitter.com/lyristapp'} target={'_blank'}>
             <Image alt={'twitter'} src={'/twitter.png'} width={24} height={24} />
           </Link>
-        </View>
+        </View> */}
         <View style={[styles.navigation, medium && {flexDirection: 'column'}]}>
           <Link
             href={'https://app.loopedin.io/lyrist'}
             style={{textDecoration: line1 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine1(true)} onHoverOut={() => setLine1(false)}>
-              <Text style={styles.link}>Roadmap</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>Roadmap</LyristText>
             </Pressable>
           </Link>
           <Link
@@ -43,7 +44,7 @@ export function Navbar() {
             style={{textDecoration: line2 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine2(true)} onHoverOut={() => setLine2(false)}>
-              <Text style={styles.link}>FAQ</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>FAQ</LyristText>
             </Pressable>
           </Link>
           <Link
@@ -51,7 +52,7 @@ export function Navbar() {
             style={{textDecoration: line3 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine3(true)} onHoverOut={() => setLine3(false)}>
-              <Text style={styles.link}>Terms of Use</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>Terms of Use</LyristText>
             </Pressable>
           </Link>
           <Link
@@ -59,14 +60,14 @@ export function Navbar() {
             style={{textDecoration: line4 ? 'underline black' : 'none'}}
             target={'_blank'}>
             <Pressable onHoverIn={() => setLine4(true)} onHoverOut={() => setLine4(false)}>
-              <Text style={styles.link}>Privacy Policy</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>Privacy Policy</LyristText>
             </Pressable>
           </Link>
           <Link
             href={'mailto:lyrist.app@gmail.com'}
             style={{textDecoration: line5 ? 'underline black' : 'none'}}>
             <Pressable onHoverIn={() => setLine5(true)} onHoverOut={() => setLine5(false)}>
-              <Text style={styles.link}>Contact Us</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>Contact Us</LyristText>
             </Pressable>
           </Link>
         </View>
@@ -76,9 +77,8 @@ export function Navbar() {
           <Image
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=402246&theme=light"
             alt="Lyrist - Write&#0032;lyrics&#0032;to&#0032;music&#0032;you&#0032;find&#0032;online | Product Hunt"
-            // style="width: 250px; height: 54px;"
-            width={small ? 125 : 250}
-            height={small ? 27 : 54}
+            width={250}
+            height={54}
           />
         </Link>
       </View>
@@ -89,7 +89,7 @@ export function Navbar() {
 const styles = StyleSheet.create({
   section: {
     alignSelf: 'center',
-    maxWidth: 1000,
+    maxWidth: 1400,
     width: '100%',
   },
   subSection: {
@@ -105,9 +105,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: 120,
-  },
-  link: {
-    fontFamily: 'Fira Sans',
-    fontSize: 16,
   },
 });

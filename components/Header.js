@@ -1,10 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {useState} from 'react';
-import {Pressable, Text, View} from 'react-native';
+import {Pressable, View} from 'react-native';
 import {useScale} from '../hooks';
 import {LyristText} from '../packages/components';
-import {LYRIST_BLUE} from '../packages/constants';
 
 export function Header() {
   const {scale, small} = useScale();
@@ -19,21 +18,21 @@ export function Header() {
           </View>
           <Link
             role="link"
-            href={'#reviews'}
+            href={'/pricing'}
             style={{textDecoration: line0 ? 'underline black' : 'none'}}>
             {/* FIXME: PASSING INLINE FUNCTIONS LIKE BELOW RESULTS IN A RERENDER */}
             <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
-              <Text style={styles.link}>Reviews</Text>
+              <LyristText style={{fontSize: small ? 16 : 24}}>Pricing</LyristText>
             </Pressable>
           </Link>
         </View>
         <Link role="link" href={'/redirect'} style={{textDecoration: 'none'}}>
           <LyristText
             style={[
-              styles.signIn,
+              styles.tryApp,
               small && {paddingVertical: 10, paddingHorizontal: 12, alignSelf: 'center'},
-            ]}
-            weight={'Medium'}>
+              {fontSize: small ? 16 : 24},
+            ]}>
             Try the web app
           </LyristText>
         </Link>
@@ -44,7 +43,7 @@ export function Header() {
 
 const createStyles = scale => ({
   section: {
-    maxWidth: 1000,
+    maxWidth: 1400,
     width: '100%',
     alignSelf: 'center',
   },
@@ -52,10 +51,6 @@ const createStyles = scale => ({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  link: {
-    fontFamily: 'Fira Sans',
-    fontSize: 16,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -67,13 +62,12 @@ const createStyles = scale => ({
     width: scale(140.4375),
     height: scale(47.625),
   },
-  signIn: {
-    backgroundColor: LYRIST_BLUE,
-    color: 'white',
-    borderRadius: 5,
-    fontSize: 16,
-    paddingVertical: 20,
+  tryApp: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderRadius: 8,
+    borderWidth: 2,
     paddingHorizontal: 24,
-    color: 'white',
+    paddingVertical: 16,
   },
 });

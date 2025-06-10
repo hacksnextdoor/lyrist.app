@@ -6,3 +6,5 @@ export * from './Header';
 export * from './Main';
 export * from './Navbar';
 export * from './Reviews';
+export * from './Roadmap';
+export * from './Tagline';

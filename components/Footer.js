@@ -1,9 +1,12 @@
 import {StyleSheet, Text, View} from 'react-native';
+import {useScale} from '../hooks';
+import {LyristText} from '../packages/components';
 
 export function Footer() {
+  const {small} = useScale();
   return (
     <View style={styles.section}>
-      <Text style={styles.copyright}>ⓒ 2024 Lyrist LLC</Text>
+      <LyristText style={{color: 'gray', fontSize: small ? 16 : 24}}>ⓒ 2025 Lyrist LLC</LyristText>
     </View>
   );
 }
@@ -11,12 +14,7 @@ export function Footer() {
 const styles = StyleSheet.create({
   section: {
     alignSelf: 'center',
-    maxWidth: 1000,
+    maxWidth: 1400,
     width: '100%',
-  },
-  copyright: {
-    color: 'gray',
-    fontFamily: 'Fira Sans',
-    fontSize: 16,
   },
 });

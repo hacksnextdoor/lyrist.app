@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import {FaBook, FaPencilAlt, FaSearch, FaShareAlt, FaStopwatch} from 'react-icons/fa';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import {useScale} from '../hooks';
 import {useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {useScale} from '../hooks';
+import {LyristText} from '../packages/components';
 import {LYRIST_BLUE} from '../packages/constants';
 
 export function Features() {
@@ -13,7 +14,7 @@ export function Features() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const features = [
     {
-      subtitle: 'Choose a platform first',
+      subtitle: 'Search YouTube or SoundCloud',
       img: <Image src={'/search.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'search gif'} />,
       icon: (
         <Pressable onPress={() => setCurrentIndex(0)}>
@@ -37,7 +38,7 @@ export function Features() {
       ),
     },
     {
-      subtitle: 'Find word associations',
+      subtitle: 'Find rhymes and other related words',
       img: <Image src={'/words.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'words gif'} />,
       icon: (
         <Pressable onPress={() => setCurrentIndex(2)}>
@@ -49,7 +50,7 @@ export function Features() {
       ),
     },
     {
-      subtitle: "Prevent writer's block",
+      subtitle: "Time yourself to overcome writer's block",
       img: <Image src={'/block.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'block gif'} />,
       icon: (
         <Pressable onPress={() => setCurrentIndex(3)}>
@@ -61,7 +62,7 @@ export function Features() {
       ),
     },
     {
-      subtitle: 'Share what you wrote',
+      subtitle: 'Share your content!',
       img: <Image src={'/share.gif'} width={GIF_WIDTH} height={GIF_HEIGHT} alt={'share gif'} />,
       icon: (
         <Pressable onPress={() => setCurrentIndex(4)}>
@@ -73,11 +74,13 @@ export function Features() {
       ),
     },
   ];
-  const {img} = features[currentIndex];
+  const {img, subtitle} = features[currentIndex];
   return (
     <div id={'features'}>
       <View style={styles.section}>
-        <Text style={[styles.title, {fontSize: ICON_SIZE * 2}]}>Many tools, one app</Text>
+        <LyristText style={{fontSize: ICON_SIZE * 2, textAlign: 'center'}} weight={'Medium'}>
+          {subtitle}
+        </LyristText>
         <View
           style={{
             flexDirection: 'row',
@@ -105,13 +108,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     justifyContent: 'center',
-    padding: 24,
     gap: 24,
-  },
-  title: {
-    fontSize: 64,
-    fontFamily: 'Fira Sans',
-    fontWeight: '600',
-    textAlign: 'center',
   },
 });

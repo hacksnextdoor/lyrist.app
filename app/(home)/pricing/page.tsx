@@ -6,9 +6,10 @@ import Stripe from 'stripe';
 import {LyristText} from '../../../packages/components';
 import {useAuthContext} from '../../../packages/context';
 import {normalize} from '../../../packages/utils';
-import {LYRIST_BLUE, TURQUOISE} from '../../../packages/constants';
+import {LYRIST_BLUE} from '../../../packages/constants';
 import {formatAmountForDisplay} from '../../../utils/stripe-helpers';
 import createCheckoutSession from '../../actions/stripe';
+import {Features} from '../../../packages/components/Features';
 
 type Package = {
   price: Stripe.Price;
@@ -16,9 +17,6 @@ type Package = {
 };
 
 export default function Page() {
-  const styles = StyleSheet.create({
-    featureText: {flexDirection: 'row', alignItems: 'center', paddingTop: 4},
-  });
   const [checkoutSessionId] = useQueryState('checkout-session-id');
   const [pricesLoading, setPricesLoading] = useState(true);
   const [pricesError, setPricesError] = useState<Error | null>(null);
@@ -115,73 +113,7 @@ export default function Page() {
           </Pressable>
         ))
       )}
-      <View style={{gap: 4}}>
-        <LyristText style={{fontSize: normalize(24)}} weight={'Medium'}>
-          Plus
-        </LyristText>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14), color: TURQUOISE}} weight={'SemiBold'}>
-            +{' '}
-          </LyristText>
-          <LyristText>Everything in Basic</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14), color: TURQUOISE}} weight={'SemiBold'}>
-            +{' '}
-          </LyristText>
-          <LyristText>Unlimited pages</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14), color: TURQUOISE}} weight={'SemiBold'}>
-            🔜{' '}
-          </LyristText>
-          <LyristText>Smart suggestions</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText>and more!</LyristText>
-        </View>
-      </View>
-      <View>
-        <LyristText style={{fontSize: normalize(24)}} weight={'Medium'}>
-          Basic (Free tier)
-        </LyristText>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            ·{' '}
-          </LyristText>
-          <LyristText>Cross-platform support on iOS, Android, and Web</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            ·{' '}
-          </LyristText>
-          <LyristText>Sync across multiple devices</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            ·{' '}
-          </LyristText>
-          <LyristText>Encrypted page content</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            ·{' '}
-          </LyristText>
-          <LyristText>Writer's Block</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            🔜{' '}
-          </LyristText>
-          <LyristText>Import via links</LyristText>
-        </View>
-        <View style={styles.featureText}>
-          <LyristText style={{fontSize: normalize(14)}} weight={'SemiBold'}>
-            🔜{' '}
-          </LyristText>
-          <LyristText>Data export</LyristText>
-        </View>
-      </View>
+      <Features />
     </View>
   );
 }

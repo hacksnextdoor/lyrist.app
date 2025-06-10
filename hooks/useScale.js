@@ -31,5 +31,6 @@ export function useScale() {
   const scale = size => (width / baseWidth) * size;
   const small = width < 569;
   const medium = width < 850;
-  return {small, medium, scale};
+  const large = width < 1500; // this is just being used for the tagline
+  return {small, medium, large, scale};
 }

@@ -1,14 +1,20 @@
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {Badges, Footer, Features, Header, Main, Navbar, Reviews} from '../components';
+import {Badges, Footer, Features, Header, Main, Navbar, Roadmap, Tagline} from '../components';
 import {useScale} from '../hooks';
 import {LyristText} from '../packages/components';
-import {LYRIST_BLUE, TURQUOISE} from '../packages/constants';
+import {TURQUOISE} from '../packages/constants';
+
+const CREAM_BACKGROUND = '#FFFBF5';
 
 export function Landing() {
   const {small, medium} = useScale();
   const [line0, setLine0] = useState(false);
+  const [picked] = useState(() => {
+    const choices = ['unlimited storage', 'unlimited AI-powered suggestions'];
+    return choices[Math.floor(Math.random() * choices.length)];
+  });
 
   // HACK FOR AVOIDING HYDRATION FAILURES
   const [mounted, setMounted] = useState(false);
@@ -17,25 +23,52 @@ export function Landing() {
   // DELETE THIS EVENTUALLY
 
   return (
-    <>
+    <View style={{backgroundColor: CREAM_BACKGROUND}}>
       <View
-        style={
-          small ? {gap: 32, padding: 32} : medium ? {gap: 40, padding: 40} : {gap: 48, padding: 48}
-        }>
+        style={[
+          small ? {gap: 32, padding: 32} : medium ? {gap: 48, padding: 40} : {gap: 64, padding: 48},
+        ]}>
         <Header />
+        <Tagline />
         <Main />
-        <Reviews />
         <Features />
+        <View style={{maxWidth: 1400, width: '100%', alignSelf: 'center'}}>
+          <Link role="link" href={'/pricing'} style={{textDecoration: 'none'}}>
+            <Pressable
+              style={[styles.card, styles.cardShadow, {padding: small ? 16 : medium ? 20 : 24}]}>
+              <LyristText
+                style={{
+                  color: 'white',
+                  fontSize: small ? 16 : medium ? 24 : 32,
+                  textAlign: 'center',
+                }}>
+                We would like to stay{' '}
+                <LyristText
+                  style={{color: 'white', fontSize: small ? 16 : medium ? 24 : 32}}
+                  weight={'Medium'}>
+                  ad-free
+                </LyristText>{' '}
+                for as long as possible.{small || medium ? ' ' : '\n'}Consider supporting Lyrist by
+                purchasing Plus.
+              </LyristText>
+            </Pressable>
+          </Link>
+        </View>
+        <Roadmap />
         <Link
           role="link"
           href={'/redirect'}
-          style={{alignSelf: 'center', textDecoration: 'none', paddingTop: 24}}>
+          style={{
+            alignSelf: 'center',
+            textDecoration: 'none',
+            paddingTop: 24,
+          }}>
           <LyristText
             style={[
-              styles.signIn,
+              styles.tryApp,
               small && {paddingVertical: 10, paddingHorizontal: 12, alignSelf: 'center'},
-            ]}
-            weight={'Medium'}>
+              {fontSize: small ? 16 : 24},
+            ]}>
             Try the web app
           </LyristText>
         </Link>
@@ -44,44 +77,77 @@ export function Landing() {
         <Footer />
         <View />
         <View />
+        <View />
       </View>
-      <LyristText style={[styles.title, {fontSize: small ? 16 : medium ? 24 : 32}]}>
-        Want unlimited storage? Get{' '}
+      <View
+        style={[
+          styles.footer,
+          {
+            marginHorizontal: small ? 32 : medium ? 40 : 48,
+            padding: small ? 16 : medium ? 20 : 24,
+          },
+        ]}>
         <Link role="link" href={'/pricing'} style={{textDecoration: 'none'}}>
           <Pressable onHoverIn={() => setLine0(true)} onHoverOut={() => setLine0(false)}>
             <LyristText
               style={[
-                {color: TURQUOISE, fontSize: small ? 16 : medium ? 24 : 32},
+                {fontSize: small ? 16 : medium ? 24 : 32},
                 line0 && {textDecorationLine: 'underline'},
-              ]}>
-              Lyrist Plus
+                {textAlign: 'center'},
+              ]}
+              weight={'Medium'}>
+              Get{' '}
+              <LyristText
+                style={[
+                  {color: TURQUOISE, fontSize: small ? 16 : medium ? 24 : 32},
+                  line0 && {textDecorationLine: 'underline'},
+                ]}
+                weight={'Medium'}>
+                {picked}
+              </LyristText>{' '}
+              for $9.99 per month
             </LyristText>
           </Pressable>
-        </Link>{' '}
-        for $9 per month.
-      </LyristText>
-    </>
+        </Link>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  signIn: {
-    backgroundColor: LYRIST_BLUE,
-    color: 'white',
-    borderRadius: 5,
-    fontSize: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    color: 'white',
+  card: {
+    justifyContent: 'center',
+    borderRadius: 8,
+    gap: 16,
+    backgroundColor: TURQUOISE,
   },
-  title: {
-    color: 'white',
-    alignItems: 'center',
-    textAlign: 'center',
-    backgroundColor: 'black',
-    position: 'fixed',
-    bottom: 0,
-    width: '100%',
-    paddingVertical: 20,
+  cardShadow: {
+    shadowColor: '#171717',
+    shadowOffset: {width: 0.3, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  tryApp: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderRadius: 8,
+    borderWidth: 2,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
+  footer: {
+    maxWidth: 1400,
+    alignSelf: 'center',
+    position: 'sticky',
+    bottom: 32,
+    zIndex: 10,
+    borderRadius: 64,
+    borderColor: TURQUOISE,
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: 'hidden', // clip the blur to the rounded border
+    // frost-glass:
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    backdropFilter: 'blur(10px)', // <-- key
+    WebkitBackdropFilter: 'blur(10px)', // <-- for Safari
   },
 });
