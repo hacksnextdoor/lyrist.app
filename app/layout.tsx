@@ -2,9 +2,9 @@ const name = 'Lyrist';
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
   : 'http://localhost:3000';
-const tagline = 'The all-in-one toolkit for songwriters';
+const tagline = "Find a beat, beat writer's block";
 const description =
-  "Discover beats, write lyrics, find rhymes, cure your writer's block, and share content without tedious app switching!";
+  "The all-in-one toolkit for songwriters - discover beats, write lyrics, find rhymes, cure your writer's block, and share content without tedious app switching!";
 
 export const viewport = {
   themeColor: '#ffffff',
@@ -21,14 +21,17 @@ export const metadata = {
     description,
     type: 'website',
     // url: "https://lyrist.app",
-    images: ['/alternate-logo-fb.png'],
+    images: ['/lyrist-2025.png'],
     siteName: name,
     video: 'https://www.youtube.com/v/NUhlzDv9m9g',
   },
   twitter: {
-    card: 'summary',
-    images: ['/alternate-logo-tw.png'],
+    card: 'summary_large_image',
+    images: ['/lyrist-2025.png'],
+    title: name,
+    description,
     site: '@lyristapp',
+    creator: '@peytspencer',
   },
 };
 
