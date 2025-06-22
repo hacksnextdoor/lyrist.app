@@ -21,7 +21,7 @@ export function MyLibraryScreen() {
   const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
   const {hasPlus, user, setOpenAuthModal} = useAuthContext();
   const {pages, pagesLoading, error} = usePagesContext();
-  const pagesLeftBasicUser = Math.max(0, MAX_PAGES - (pages?.length ?? 0));
+  const pagesLeftFreeTier = Math.max(0, MAX_PAGES - (pages?.length ?? 0));
   const pagesToFilter = pages?.sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1));
 
   /* REFS */
@@ -88,7 +88,7 @@ export function MyLibraryScreen() {
             <LyristText>·</LyristText>
             {user ? (
               <LyristText onPress={() => router.push('/pricing')}>
-                {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left
+                {pagesLeftFreeTier} free page{pagesLeftFreeTier !== 1 && 's'} left
               </LyristText>
             ) : (
               <LyristText onPress={() => setOpenAuthModal(true)}>Sign In</LyristText>

@@ -65,7 +65,7 @@ export function PageScreen() {
   const [editorLoading, setEditorLoading] = useState(true);
   const {hasPlus, user, userLoading, setOpenAuthModal} = useAuthContext();
   const {findPageFromPageId, pages, pagesLoading} = usePagesContext();
-  const pagesLeftBasicUser = Math.max(0, 3 - (pages?.length ?? 0));
+  const pagesLeftFreeTier = Math.max(0, 3 - (pages?.length ?? 0));
 
   /* REFS */
   const playerRef = useRef<ReactPlayer>(null);
@@ -223,7 +223,7 @@ export function PageScreen() {
             <LyristText
               onPress={() => router.push('/pricing')}
               style={{paddingVertical: normalize(12), textAlign: 'center'}}>
-              You have {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left. Get{' '}
+              You have {pagesLeftFreeTier} free page{pagesLeftFreeTier !== 1 && 's'} left. Get{' '}
               <LyristText style={{color: TURQUOISE}} weight={'Medium'}>
                 Lyrist Plus
               </LyristText>{' '}

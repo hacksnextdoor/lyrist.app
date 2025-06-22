@@ -5,11 +5,14 @@ import {Badges, Footer, Features, Header, Main, Navbar, Roadmap, Tagline} from '
 import {useScale} from '../hooks';
 import {LyristText} from '../packages/components';
 import {TURQUOISE} from '../packages/constants';
+import Image from 'next/image';
 
 const CREAM_BACKGROUND = '#FFFBF5';
+const ESPRESSO_TEXT = '#4A443F';
 
 export function Landing() {
   const {small, medium} = useScale();
+  const FONT_SIZE = small ? 32 : medium ? 48 : 68;
   const [line0, setLine0] = useState(false);
   const [picked] = useState(() => {
     const choices = ['unlimited storage', 'unlimited AI-powered suggestions'];
@@ -21,6 +24,14 @@ export function Landing() {
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   // DELETE THIS EVENTUALLY
+
+  // pick your tokens up front
+  const SIZES = {small: 228, medium: 342, large: 456};
+  const RADII = {small: 8, medium: 12, large: 16};
+
+  // inside your component
+  const size = small ? SIZES.small : medium ? SIZES.medium : SIZES.large;
+  const radius = small ? RADII.small : medium ? RADII.medium : RADII.large;
 
   return (
     <View style={{backgroundColor: CREAM_BACKGROUND}}>
@@ -54,6 +65,48 @@ export function Landing() {
             </Pressable>
           </Link>
         </View>
+        <View
+          style={{
+            backgroundColor: ESPRESSO_TEXT,
+            marginHorizontal: small ? -32 : medium ? -40 : -48,
+          }}>
+          <View
+            style={{
+              maxWidth: 1400,
+              padding: small ? 32 : medium ? 40 : 48,
+              alignSelf: 'center',
+              justifyContent: 'center',
+              gap: 24,
+            }}>
+            <LyristText
+              style={{fontSize: FONT_SIZE, color: 'white', textAlign: 'center'}}
+              weight={'Medium'}>
+              Introducing your founding rapper
+            </LyristText>
+            <View
+              style={[
+                {flexDirection: 'row', gap: 32, justifyContent: 'space-between'},
+                medium && {flexDirection: 'column', alignItems: 'center', gap: 20},
+              ]}>
+              <View
+                style={{
+                  width: size, // square box
+                  aspectRatio: 2 / 3, // height = width
+                  borderRadius: radius, // consistent rounding
+                  overflow: 'hidden', // clip to the rounded shape
+                  position: 'relative', // for next/image `fill`
+                }}>
+                <Image
+                  src="/new-era-1b.jpeg"
+                  alt="New Era"
+                  fill // stretch to parent
+                  style={{objectFit: 'cover'}}
+                />
+              </View>
+              <LyristText>What's up! Peyt rhymes with heat. Check out some of mine!</LyristText>
+            </View>
+          </View>
+        </View>
         <Roadmap />
         <Link
           role="link"
@@ -75,7 +128,6 @@ export function Landing() {
         <Badges />
         <Navbar />
         <Footer />
-        <View />
         <View />
         <View />
       </View>
