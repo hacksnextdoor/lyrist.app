@@ -11,6 +11,7 @@ export const CARROT = '#e67e22';
 export const ALIZARIN = '#e74c3c';
 export const CLOUDS = '#ecf0f1';
 export const CONCRETE = '#95a5a6';
+export const CREAM_BACKGROUND = '#FFFBF5';
 /* Dark */
 export const GREEN_SEA = '#16a085';
 export const NEPHRITIS = '#27ae60';
