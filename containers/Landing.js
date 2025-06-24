@@ -4,9 +4,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {Badges, Footer, Features, Header, Main, Navbar, Roadmap, Tagline} from '../components';
 import {useScale} from '../hooks';
 import {LyristText} from '../packages/components';
-import {TURQUOISE} from '../packages/constants';
-
-const CREAM_BACKGROUND = '#FFFBF5';
+import {CREAM_BACKGROUND, TURQUOISE} from '../packages/constants';
 
 export function Landing() {
   const {small, medium} = useScale();
