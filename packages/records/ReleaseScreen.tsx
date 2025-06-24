@@ -60,8 +60,8 @@ export function ReleaseScreen() {
       </LyristText>
 
       <LyristText style={textStyles.quote}>
-        They say "truthfulness is the foundation of all human virtues"{'\n'}I promise I won't lie or
-        do anything to hurt you{'\n'}
+        They say, "truthfulness is the foundation of all human virtues"{'\n'}I promise I won't lie
+        or do anything to hurt you{'\n'}
         Ya presence is a gift I probably don't deserve you{'\n'}
         Take you out for dinner I'm never gonna desert you{'\n'}
       </LyristText>
@@ -73,7 +73,7 @@ export function ReleaseScreen() {
       </LyristText>
 
       <LyristText style={textStyles.quote}>
-        Love lights a flame in the heart that is cold{'\n'}
+        They say, "love lights a flame in the heart that is cold"{'\n'}
         All that glimmers don't compare to a heart that is gold{'\n'}
         The hardship of heartbreak we both been thru it{'\n'}
         My last name same as yours has a ring to it
