@@ -1,13 +1,13 @@
 import {AzureOpenAI} from 'openai';
 import {APIPromise} from 'openai/core';
-import {Completion} from 'openai/resources';
+import {ChatCompletion} from 'openai/resources';
 
 export const maxDuration = 30;
 
 const endpoint = process.env.AZURE_OPENAI_COMPLETIONS_ENDPOINT;
 const apiKey = process.env.AZURE_OPENAI_COMPLETIONS_API_KEY;
-const apiVersion = '2024-05-01-preview';
-const deployment = 'gpt-35-turbo-instruct-0914';
+const apiVersion = '2024-04-01-preview';
+const deployment = 'gpt-4.1';
 
 export async function POST(req: Request) {
   try {
@@ -19,43 +19,57 @@ export async function POST(req: Request) {
       });
     }
     const client = new AzureOpenAI({endpoint, apiKey, apiVersion, deployment});
-    const prompt = `You are a world-class songwriter. Generate a set of 16 lines I can add to this current line based on ${
-      topic ?? 'any topic'
-    } in ${
-      genre ?? 'any genre of'
-    } music for the following text: ${input}. No two lines should be the same nor should be ${input}. ${
-      rhyme.length > 0
-        ? `Every line needs to rhyme with ${rhyme} and near rhymes like "orange" and "door hinge" are acceptable.`
-        : 'Lines do not have to rhyme'
-    }. Please format the array without preceding numbers, preceding dashes, preceding bullet points. Each line should be considered one element in the array. Here is an example format:
 
-Line 1
-Line 2
-Line 3
-...
-Line 16`;
+    const rhymeInstruction =
+      rhyme && rhyme.length > 0
+        ? `Every single line MUST rhyme with the word "${rhyme}". Near rhymes (slant rhymes) are highly encouraged for creativity (e.g., 'time' and 'sublime', 'orange' and 'door hinge').`
+        : 'The lines should NOT rhyme. Focus instead on powerful storytelling, vivid imagery, and thematic continuation.';
+
+    const systemPrompt = `## ROLE ##
+You are Lyrist, an expert AI songwriting assistant. Your purpose is to help songwriters by providing creative, high-quality, and contextually relevant lyrical suggestions. You are known for your cleverness and ability to match any genre and topic.
+
+## TASK ##
+Generate exactly 32 creative and unique lines of lyrics that could FOLLOW the user's current line.
+
+## RULES ##
+1.  **Uniqueness:** Every line must be unique. Do NOT repeat the user's input line.
+2.  **Relevance:** All lines must thematically connect to the user's current line, genre, and topic.
+3.  **Rhyme Scheme:** ${rhymeInstruction}
+4.  **Format:** Provide the output as a plain list of 32 lines, separated only by newlines.
+    - DO NOT use numbers (1., 2.).
+    - DO NOT use dashes (-).
+    - DO NOT use quotes ("").
+    - DO NOT include any introduction like "Here are your lines:".
+`;
 
     const response = await retryRequest(() =>
-      client.completions.create({
+      client.chat.completions.create({
         model: deployment,
-        prompt: prompt,
-        max_tokens: 192,
-        best_of: 1,
-        temperature: generateTemperature(),
+        messages: [
+          {role: 'system', content: systemPrompt},
+          {
+            role: 'user',
+            content: `Here is the context:\n- User's Current Line: "${input}"\n- Song Genre: ${
+              genre ?? 'Not specified'
+            }\n- Song Topic: ${topic ?? 'Not specified'}`,
+          },
+        ],
+        max_tokens: 256,
+        temperature: generateCreativeTemperature(),
       }),
     );
-    const suggestions = response.choices[0].text
+
+    const suggestions = (response.choices[0].message.content ?? '')
       .trim()
       .split('\n')
       .map(line =>
         line
-          .replace(/^\d+\)\s*/, '') // Remove numeric prefixes like "1)", "2)", etc.
-          .replace(/(^"|"$)/g, '') // Remove double quotes
-          .replace(/^-/, '') // Remove dashes at the beginning
-          .replace(/\.$/, '') // Remove periods at the end
+          .replace(/^(\d+\.|-)\s*/, '') // Remove numeric or dash prefixes
+          .replace(/(^"|"$)/g, '') // Remove quotes at start/end
           .trim(),
       )
-      .filter(val => val.length > 0);
+      .filter(val => val.length > 0 && val.toLowerCase() !== input.toLowerCase());
+
     return new Response(JSON.stringify(suggestions), {
       headers: {'Content-Type': 'application/json'},
       status: 201,
@@ -68,7 +82,11 @@ Line 16`;
   }
 }
 
-async function retryRequest(requestFn: () => APIPromise<Completion>, retries = 3, delay = 1000) {
+async function retryRequest(
+  requestFn: () => APIPromise<ChatCompletion>,
+  retries = 3,
+  delay = 1000,
+) {
   let lastError: any;
   for (let i = 0; i < retries; i++) {
     try {
@@ -85,8 +103,8 @@ async function retryRequest(requestFn: () => APIPromise<Completion>, retries = 3
   throw lastError;
 }
 
-function generateTemperature() {
-  const possibleValues = [0, 0.1, 0.2, 0.3, 0.4, 0.5];
+function generateCreativeTemperature() {
+  const possibleValues = [0.5, 0.6, 0.7, 0.8, 0.9];
   const randomIndex = Math.floor(Math.random() * possibleValues.length);
   return possibleValues[randomIndex];
 }
