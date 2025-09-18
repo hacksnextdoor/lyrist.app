@@ -79,6 +79,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+      {
+        source: '/form/video',
+        destination: 'https://forms.fillout.com/t/hBdZuS53kkus',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   reactStrictMode: true,
