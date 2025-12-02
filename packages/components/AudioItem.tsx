@@ -1,13 +1,6 @@
 // import { useTheme } from "@react-navigation/native";
 import {memo} from 'react';
-import {
-  Image,
-  ImageStyle,
-  ListRenderItemInfo,
-  StyleSheet,
-  TouchableHighlight,
-  View,
-} from 'react-native';
+import {Image, ListRenderItemInfo, StyleSheet, TouchableHighlight, View} from 'react-native';
 import {SlPencil} from 'react-icons/sl';
 // import SimpleLineIcon from "react-native-vector-icons/SimpleLineIcons";
 // import { useStyles } from "../hooks";

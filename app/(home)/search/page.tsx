@@ -1,4 +1,4 @@
-import {SearchScreen} from '../../../packages/screens';
+import {SearchScreen} from 'packages/screens';
 
 export function generateMetadata({searchParams}) {
   return {

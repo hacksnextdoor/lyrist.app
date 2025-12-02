@@ -7,7 +7,7 @@ import {NextResponse} from 'next/server';
 
 export async function GET(_, {params}) {
   const url = `https://api.revenuecat.com/v1/subscribers/${params.id}`;
-  const apiKey = process.env.PURCHASES_API_KEY_WEB;
+  const apiKey = process.env.NEXT_PUBLIC_PURCHASES_API_KEY_WEB;
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',

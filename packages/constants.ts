@@ -1,5 +1,7 @@
 /* Colors */
 export const LYRIST_BLUE = '#007aff';
+export const LYRIST_PINK = '#ff007a';
+export const LYRIST_GREEN = '#7aff00';
 /* Light */
 export const TURQUOISE = '#1abc9c';
 export const EMERALD = '#2ecc71';

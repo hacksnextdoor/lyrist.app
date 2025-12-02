@@ -5,7 +5,14 @@ initFirebase();
 
 const firestore = firebase.firestore;
 
-// Want to do local development?
-// Uncomment this and use `yarn test:emulator:start`
-// firestore().useEmulator('http://localhost:8080');
+// Automatically connect to emulator in development
+if (
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+  process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true'
+) {
+  firestore().useEmulator('localhost', 8080);
+  console.log('🔥 Firestore connected to emulator');
+}
+
 export default firestore;

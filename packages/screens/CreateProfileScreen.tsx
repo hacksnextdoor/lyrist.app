@@ -1,7 +1,8 @@
 // import auth from "@react-native-firebase/auth";
 // import firestore from "@react-native-firebase/firestore";
 // import { useNavigation } from "@react-navigation/native";
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {getAuth, signOut} from 'firebase/auth';
+import {useEffect, useRef, useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {ActivityIndicator, BackHandler, StyleSheet, TextInput, View} from 'react-native';
 import {FormButton, FormInput, FormContainer, LyristText} from '../components';
@@ -201,8 +202,6 @@ export function CreateProfileScreen() {
           <FormInput
             blurOnSubmit={false}
             control={control as any}
-            enablesReturnKeyAutomatically
-            iconName={'user'}
             label={'First Name*'}
             name={'firstName'}
             onSubmitEditing={() => lastNameRef.current?.focus()}
@@ -224,8 +223,6 @@ export function CreateProfileScreen() {
           />
           <FormInput
             control={control as any}
-            enablesReturnKeyAutomatically
-            iconName={'user'}
             label={'Last Name*'}
             name={'lastName'}
             onSubmitEditing={() => isValid && setScreen(2)}
@@ -257,7 +254,6 @@ export function CreateProfileScreen() {
         <View>
           <FormInput
             control={control as any}
-            iconName={'phone'}
             keyboardType={'numeric'}
             label={'Phone Number'}
             name={'phone'}
@@ -267,9 +263,7 @@ export function CreateProfileScreen() {
           />
           <FormInput
             autoCapitalize={'none'}
-            brand={true}
             control={control as any}
-            iconName={'instagram'}
             label={'Instagram'}
             name={'instagram'}
             placeholder={'instagram_username'}
@@ -277,9 +271,7 @@ export function CreateProfileScreen() {
           />
           <FormInput
             autoCapitalize={'none'}
-            brand={true}
             control={control as any}
-            iconName={'tiktok'}
             label={'TikTok'}
             name={'tiktok'}
             placeholder={'tiktok_username'}
@@ -287,9 +279,7 @@ export function CreateProfileScreen() {
           />
           <FormInput
             autoCapitalize={'none'}
-            brand={true}
             control={control as any}
-            iconName={'twitter'}
             label={'Twitter'}
             name={'twitter'}
             placeholder={'twitter_username'}
@@ -297,9 +287,7 @@ export function CreateProfileScreen() {
           />
           <FormInput
             autoCapitalize={'words'}
-            brand={true}
             control={control as any}
-            iconName={'youtube'}
             label={'YouTube'}
             name={'youtube'}
             placeholder={'YouTube channel name'}
@@ -315,7 +303,7 @@ export function CreateProfileScreen() {
       )}
       <View style={styles.subView}>
         {screen === 1 && (
-          <LyristText onPress={() => {}} style={styles.textColor}>
+          <LyristText onPress={() => signOut(getAuth())} style={styles.textColor}>
             Start over
           </LyristText>
         )}

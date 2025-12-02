@@ -78,48 +78,39 @@ export function MyLibraryScreen() {
 
   /* JSX */
   return (
-    <View style={{flex: 1, gap: 8, paddingVertical: normalize(12)}}>
-      <View style={{flexDirection: 'row', gap: 8, paddingHorizontal: normalize(12)}}>
-        <LyristText style={{}} weight={'Medium'}>
-          My Library
-        </LyristText>
-        {hasPlus ? null : (
-          <>
-            <LyristText>·</LyristText>
-            {user ? (
-              <LyristText onPress={() => router.push('/pricing')}>
-                {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left
-              </LyristText>
-            ) : (
-              <LyristText onPress={() => setOpenAuthModal(true)}>Sign In</LyristText>
-            )}
-          </>
-        )}
-      </View>
-      {pagesLoading ? (
-        <LyristText style={{paddingHorizontal: normalize(12)}}>Getting pages...</LyristText>
-      ) : error ? (
-        <LyristText>{error.message}</LyristText>
-      ) : (
-        <View style={{flex: 1, paddingBottom: normalize(48)}}>
-          {pagesToFilter?.length ?? 0 > 0 ? (
-            pagesToFilter?.map((item, index) => handleRenderItem({item, index}))
-          ) : (
-            <LyristText style={{paddingHorizontal: normalize(12)}}>
-              Use Search to find audio and start typing!
-            </LyristText>
+    <View style={styles.container}>
+      <View style={styles.innerContainer}>
+        <View style={styles.header}>
+          <LyristText weight={'Medium'}>My Library</LyristText>
+          {hasPlus ? null : (
+            <>
+              <LyristText>·</LyristText>
+              {user ? (
+                <LyristText onPress={() => router.push('/pricing')}>
+                  {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left
+                </LyristText>
+              ) : (
+                <LyristText onPress={() => setOpenAuthModal(true)}>Sign In</LyristText>
+              )}
+            </>
           )}
-          {/* <FlatList<Page>
-            data={pagesToFilter}
-            renderItem={handleRenderItem}
-            ListEmptyComponent={
-              <LyristText style={{ paddingHorizontal: normalize(12) }}>
+        </View>
+        {pagesLoading ? (
+          <LyristText style={styles.loadingText}>Getting pages...</LyristText>
+        ) : error ? (
+          <LyristText>{error.message}</LyristText>
+        ) : (
+          <View style={styles.resultsContainer}>
+            {pagesToFilter?.length ?? 0 > 0 ? (
+              pagesToFilter?.map((item, index) => handleRenderItem({item, index}))
+            ) : (
+              <LyristText style={styles.emptyText}>
                 Use Search to find audio and start typing!
               </LyristText>
-            }
-          /> */}
-        </View>
-      )}
+            )}
+          </View>
+        )}
+      </View>
       <Modal animationType="fade" transparent={true} visible={!!pageToDelete}>
         <Pressable
           onPress={() => setPageToDelete(null)}
@@ -189,3 +180,32 @@ export function MyLibraryScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  innerContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 600,
+    gap: 8,
+    paddingVertical: normalize(12),
+  },
+  header: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: normalize(12),
+  },
+  loadingText: {
+    paddingHorizontal: normalize(12),
+  },
+  resultsContainer: {
+    flex: 1,
+    paddingBottom: normalize(48),
+  },
+  emptyText: {
+    paddingHorizontal: normalize(12),
+  },
+});

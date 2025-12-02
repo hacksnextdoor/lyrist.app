@@ -1,13 +1,5 @@
 import {Ref, forwardRef} from 'react';
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TextInputProps,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Platform, StyleSheet, TextInput, TextInputProps} from 'react-native';
 import {normalize} from '../utils';
 
 export type EditorProps = {
@@ -16,7 +8,6 @@ export type EditorProps = {
   onChangeText?: (lyrics: string) => void;
   text: string;
   color?: string;
-  turnOnEditMode?: () => void;
 } & TextInputProps;
 
 export const Editor = forwardRef(
@@ -31,7 +22,6 @@ export const Editor = forwardRef(
       onFocus,
       placeholder,
       text,
-      turnOnEditMode,
     }: EditorProps,
     ref: Ref<TextInput>,
   ) => (

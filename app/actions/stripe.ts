@@ -5,7 +5,7 @@ import type {Stripe} from 'stripe';
 import {redirect} from 'next/navigation';
 import {headers} from 'next/headers';
 
-import {stripe} from '../../utils/stripe';
+import {stripe} from 'lib/stripe';
 
 export default async function createCheckoutSession(
   lineItem: Stripe.Checkout.SessionCreateParams.LineItem,
@@ -24,7 +24,7 @@ export default async function createCheckoutSession(
       : recurring && recurring.interval === 'year'
       ? {trial_period_days: 30}
       : {},
-    success_url: `${headers().get('origin')}/pricing?checkout-session-id={CHECKOUT_SESSION_ID}`,
+    success_url: `${headers().get('origin')}/search?checkout-session-id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${headers().get('origin')}/pricing`,
     customer_email: userEmail,
   });

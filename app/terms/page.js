@@ -1,4 +1,4 @@
-import {Terms} from '../../containers';
+import {Terms} from 'site/Terms';
 
 export const metadata = {
   title: 'Terms & Conditions',

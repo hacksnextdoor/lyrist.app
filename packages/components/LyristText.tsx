@@ -11,13 +11,11 @@ const TextWeight: Record<string, TextStyle['fontWeight']> = {
   Regular: '400',
   Thin: '100',
 };
-export type TextStatus = 'error';
 
 export type LyristTextProps = PropsWithChildren<
   TextProps & {
     // pressable?: { onPress: () => void; style?: TouchableOpacityProps["style"] };
     pressableStyle?: PressableProps['style'];
-    status?: TextStatus;
     weight?: keyof typeof TextWeight;
   }
 >;
@@ -27,7 +25,6 @@ export function LyristText({
   numberOfLines,
   onPress,
   pressableStyle,
-  status,
   style,
   weight = 'Regular',
 }: LyristTextProps) {

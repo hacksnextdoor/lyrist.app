@@ -1,4 +1,4 @@
-import {Privacy} from '../../containers';
+import {Privacy} from 'site/Privacy';
 
 export const metadata = {
   title: 'Privacy Policy',

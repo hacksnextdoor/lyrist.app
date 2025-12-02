@@ -2,7 +2,7 @@ import type {Stripe} from 'stripe';
 
 import {NextResponse} from 'next/server';
 
-import {stripe} from '../../../../utils/stripe';
+import {stripe} from 'lib/stripe';
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
           // A payment was made, usually a recurring payments for a subscription
           // Provision access to your service
           data = event.data.object as Stripe.Checkout.Session;
-          const apiKey = process.env.PURCHASES_API_KEY_WEB;
+          const apiKey = process.env.NEXT_PUBLIC_PURCHASES_API_KEY_WEB;
           const apiUrl = 'https://api.revenuecat.com/v1/receipts';
           const requestData = {
             app_user_id: data.metadata.userId,

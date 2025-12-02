@@ -1,10 +1,13 @@
+'use client';
 import {AuthProvider} from './AuthProvider';
 import {PagesProvider} from './PagesProvider';
+import {RevenueCatProvider} from './RevenueCatProvider';
 
 // keep the order
 const providers = [
   AuthProvider,
   PagesProvider,
+  RevenueCatProvider,
   // Add more providers here
 ];
 

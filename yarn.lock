@@ -522,6 +522,11 @@
     invariant "^2.2.4"
     nullthrows "^1.1.1"
 
+"@revenuecat/purchases-js@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-js/-/purchases-js-1.18.3.tgz#f7056e9a2d57b0a2779402efa7f92505e39b9229"
+  integrity sha512-n43M5aRqC3dnWizJPx930cJSZ9M3UxiTiFri/4msH4wmqIb30nRspDdoEt79cGybUxcSt85Ma/Ot7AYmn/IClg==
+
 "@stripe/react-stripe-js@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@stripe/react-stripe-js/-/react-stripe-js-2.3.1.tgz#2b9d120238369844f35387e2de1efe2471684d51"

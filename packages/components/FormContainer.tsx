@@ -8,20 +8,18 @@ import {
   ScrollViewProps,
   StatusBar,
   StyleSheet,
-  useWindowDimensions,
   View,
   ViewProps,
   ViewStyle,
 } from 'react-native';
+import {useHydratedDimensions} from '../hooks/useScale';
 // import {useStyles} from '../hooks';
 // import { showFeedbackDialog } from "../utils";
-import {LyristText} from './LyristText';
 
 export type FormContainerProps = PropsWithChildren<
   ViewProps & {
     backgroundColor?: ViewStyle['backgroundColor'];
     backgroundImage?: ImageURISource['uri'];
-    onFAQPress?: () => void;
   } & ScrollViewProps
 >;
 
@@ -30,10 +28,9 @@ export function FormContainer({
   backgroundColor,
   children,
   backgroundImage,
-  onFAQPress,
   style,
 }: FormContainerProps) {
-  const {height} = useWindowDimensions();
+  const {height} = useHydratedDimensions();
   const styles = //useStyles(() =>
     StyleSheet.create({
       image: {flex: 1},

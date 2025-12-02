@@ -27,6 +27,13 @@ export function Features() {
       <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
         {/* <Ionicon name={'diamond'} color={TURQUOISE} size={20} /> */}
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <LyristText>Record your ideas </LyristText>
+          <Soon />
+        </View>
+      </View>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+        {/* <Ionicon name={'diamond'} color={TURQUOISE} size={20} /> */}
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <LyristText>LyrAssist </LyristText>
           <Soon />
         </View>

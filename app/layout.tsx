@@ -1,8 +1,10 @@
+import {AppProviders} from 'packages/context/AppProviders';
+
 const name = 'Lyrist';
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
   : 'http://localhost:3000';
-const tagline = "Find a beat, beat writer's block";
+const tagline = "Find type beats, beat writer's block";
 const description =
   "The all-in-one toolkit for songwriters - discover beats, write lyrics, find rhymes, cure your writer's block, and share content without tedious app switching!";
 
@@ -62,7 +64,9 @@ export default function RootLayout({children}) {
           key="smart-banner"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

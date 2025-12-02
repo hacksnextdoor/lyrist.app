@@ -1,9 +1,14 @@
-import {FAQ} from '../../containers';
+import {PageWrapper} from 'site/PageWrapper';
+import {FaqSection} from 'site/FaqSection';
 
 export const metadata = {
   title: 'FAQ',
 };
 
 export default function FaqPage() {
-  return <FAQ />;
+  return (
+    <PageWrapper>
+      <FaqSection />
+    </PageWrapper>
+  );
 }

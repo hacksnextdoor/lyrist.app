@@ -16,7 +16,6 @@ import {Page} from '../types';
 export type PageItemProps = {
   animatedValue?: Animated.Value;
   index: ListRenderItemInfo<typeof PageItem>['index'];
-  isNew?: boolean;
   onDelete: () => void;
   onShare: () => void;
   onPressItem: (page: Page, index: number) => void;
@@ -30,7 +29,6 @@ export const PageItem = memo(PageItemUnmemoized);
 export function PageItemUnmemoized({
   animatedValue,
   index,
-  isNew,
   onDelete,
   onShare,
   onPressItem,
@@ -99,7 +97,6 @@ export function PageItemUnmemoized({
           }),
         }}>
         <View style={styles.rowContainer}>
-          {/* {isNew && <Dot style={styles.dot} />} */}
           {page.audio && (
             <View style={styles.audioView}>
               <ImageBackground

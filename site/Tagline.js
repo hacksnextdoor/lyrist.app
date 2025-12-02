@@ -1,0 +1,56 @@
+'use client';
+import {useMemo, memo} from 'react';
+import {StyleSheet, View} from 'react-native';
+import {useScale, useHydratedDimensions} from 'packages/hooks/useScale';
+import {LyristText} from 'packages/components';
+import {TryInput} from './TryInput';
+
+const MAX_WIDTH = 1400;
+const BASE_FONT_SIZE = 81.6;
+const START_COLOR = '#000000';
+
+export const Tagline = memo(function Tagline() {
+  const {large} = useScale();
+  const {width} = useHydratedDimensions();
+  const viewportWidth = useMemo(() => width || MAX_WIDTH, [width]);
+  const scaledFontSize = useMemo(
+    () => Math.min(BASE_FONT_SIZE, (viewportWidth / MAX_WIDTH) * BASE_FONT_SIZE),
+    [viewportWidth],
+  );
+  const heroMarginTop = useMemo(() => (large ? 24 : 8), [large]);
+
+  return (
+    <View style={styles.section}>
+      <View style={styles.taglineRow}>
+        <LyristText style={[styles.line1, {fontSize: scaledFontSize}]} weight={'Medium'}>
+          Find{' '}
+        </LyristText>
+        <TryInput showStamp />
+      </View>
+      <LyristText
+        style={{fontSize: scaledFontSize, marginTop: heroMarginTop, alignSelf: 'center'}}
+        weight={'Medium'}>
+        beat writer's block
+      </LyristText>
+    </View>
+  );
+});
+
+const styles = StyleSheet.create({
+  section: {
+    maxWidth: MAX_WIDTH,
+    alignSelf: 'center',
+  },
+  taglineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+  },
+  line1: {
+    color: START_COLOR,
+    textAlign: 'center',
+    flexShrink: 0,
+  },
+});

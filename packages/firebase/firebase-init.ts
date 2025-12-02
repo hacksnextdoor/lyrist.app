@@ -24,5 +24,6 @@ const firebaseConfig =
       };
 
 export function initFirebase() {
+  process.env.NODE_ENV === 'development' && console.log('firebase init', firebaseConfig);
   firebase.initializeApp(firebaseConfig);
 }

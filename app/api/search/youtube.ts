@@ -109,14 +109,8 @@ function buildChannelsUrlYouTube(channelIds) {
   return `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelIds}&maxResults=50`;
 }
 
-const {
-  YOUTUBE_API_KEY_DEV, // this fails every time
-  YOUTUBE_API_KEY,
-  YOUTUBE_API_KEY2,
-  YOUTUBE_API_KEY3,
-  YOUTUBE_API_KEY4,
-  YOUTUBE_API_KEY5,
-} = process.env;
+const {YOUTUBE_API_KEY, YOUTUBE_API_KEY2, YOUTUBE_API_KEY3, YOUTUBE_API_KEY4, YOUTUBE_API_KEY5} =
+  process.env;
 
 const keys = inDevEnv()
   ? [YOUTUBE_API_KEY2]
@@ -159,8 +153,6 @@ async function fetchDataWithRetry(url: string) {
   }
 
   throw new Error(
-    inDevEnv()
-      ? JSON.stringify({fetchedResult, retries} ?? {}, null, 1)
-      : ALL_QUOTAS_EXCEEDED_ERROR,
+    inDevEnv() ? JSON.stringify({fetchedResult, retries}, null, 1) : ALL_QUOTAS_EXCEEDED_ERROR,
   );
 }

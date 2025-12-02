@@ -3,9 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {LyristText} from '../components';
-import {useScale} from '../../hooks';
+import {useScale} from '../hooks/useScale';
 import {CREAM_BACKGROUND} from '../constants';
-import {memo, useEffect, useMemo, useState} from 'react';
+import {memo, useMemo} from 'react';
 
 const SpotifyIframe = memo(() => (
   <View style={styles.widget}>
@@ -31,12 +31,6 @@ export function ReleaseScreen() {
     }),
     [fontSize, lineHeight],
   );
-
-  // HACK FOR AVOIDING HYDRATION FAILURES
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-  // DELETE THIS EVENTUALLY
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -10,8 +10,6 @@ import {normalize} from '../utils';
 import {LyristText} from './LyristText';
 
 export type FormInputProps = {
-  brand?: boolean;
-  iconName: string;
   label: string;
 } & TextInputProps &
   ViewStyle &
@@ -30,12 +28,10 @@ export const FormInput = forwardRef(
     {
       autoCapitalize,
       autoFocus,
-      brand,
       blurOnSubmit,
       control,
       defaultValue,
       editable,
-      iconName,
       keyboardType,
       label,
       name,
@@ -80,7 +76,6 @@ export const FormInput = forwardRef(
         error: {color: ALIZARIN, marginTop: 8},
       });
     // );
-    // const Icon = brand ? FontAwesome5Icon : SimpleLineIcon;
     return (
       <View>
         <LyristText style={[styles.name, style]} weight={'Regular'}>
@@ -93,9 +88,6 @@ export const FormInput = forwardRef(
           render={({field: {onBlur, onChange, value}, fieldState: {error}}) => (
             <>
               <View style={styles.container}>
-                {/* <View style={styles.iconContainer}>
-                  <Icon brand={brand} color={"white"} name={iconName} size={20} />
-                </View> */}
                 <View style={styles.inputContainer}>
                   <TextInput
                     autoCapitalize={autoCapitalize}
