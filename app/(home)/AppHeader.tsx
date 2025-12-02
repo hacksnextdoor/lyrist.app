@@ -20,7 +20,7 @@ import {logFirebaseEvent} from '../../packages/firebase';
 export function AppHeader() {
   const router = useRouter();
   const pathname = usePathname();
-  const {hasPlus, user, userLoading, setOpenAuthModal} = useAuthContext();
+  const {hasPlus, hasProfile, user, userLoading, setOpenAuthModal} = useAuthContext();
 
   if (pathname === '/profile/new' || pathname?.includes('editor')) {
     return null;
@@ -33,10 +33,11 @@ export function AppHeader() {
   }, []);
 
   useEffect(() => {
-    if (user && user.displayName == null) {
+    // Only redirect after auth loading completes to avoid race conditions
+    if (!userLoading && user && !hasProfile) {
       router.replace('/profile/new');
     }
-  }, [user]);
+  }, [userLoading, user, hasProfile]);
 
   return (
     <View

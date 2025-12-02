@@ -59,7 +59,7 @@ export function CreateProfileScreen() {
   const [screen, setScreen] = useState(1);
   const [loading, setLoading] = useState(false);
   const [complete, setComplete] = useState(false);
-  const {user, userLoading} = useAuthContext();
+  const {user, userLoading, hasProfile, setHasProfile} = useAuthContext();
 
   const {
     control,
@@ -107,6 +107,7 @@ export function CreateProfileScreen() {
         displayName: `${formValues.firstName} ${formValues.lastName}`,
       });
       logFirebaseEvent(USER_CREATED_PROFILE);
+      setHasProfile(true);
       setLoading(false);
       setComplete(true);
       router.replace('/search');
@@ -121,19 +122,23 @@ export function CreateProfileScreen() {
 
   /* EFFECTS */
   useEffect(() => {
-    // last resort to fix unsynced clients issue
-    async function tryUpdateDisplayName() {
-      const snapshot = await firestore().collection('users').doc(user?.uid).get();
-      const data = snapshot.data();
-      if (data && data.firstName && data.lastName) {
-        setLoading(true);
-        await user?.updateProfile({displayName: `${data.firstName} ${data.lastName}`});
-        setLoading(false);
-        router.replace('/search');
+    // Migration helper: if user has profile in Firestore but no displayName,
+    // update their displayName from stored data
+    async function syncDisplayName() {
+      if (!user || user.displayName) return;
+      
+      try {
+        const snapshot = await firestore().collection('users').doc(user.uid).get();
+        const data = snapshot.data();
+        if (data?.firstName && data?.lastName) {
+          await user.updateProfile({displayName: `${data.firstName} ${data.lastName}`});
+        }
+      } catch {
+        // Ignore errors - they'll create a new profile
       }
     }
-    tryUpdateDisplayName();
-  }, []);
+    syncDisplayName();
+  }, [user]);
 
   useEffect(() => {
     firstNameRef.current?.focus();
@@ -155,10 +160,10 @@ export function CreateProfileScreen() {
   }, [screen]);
 
   useEffect(() => {
-    if (user?.displayName) {
+    if (hasProfile) {
       router.replace('/search');
     }
-  }, [user]);
+  }, [hasProfile]);
 
   if (userLoading || loading) {
     return <ActivityIndicator color={LYRIST_BLUE} />;

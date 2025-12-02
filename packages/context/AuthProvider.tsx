@@ -3,6 +3,7 @@ import type firebase from 'firebase/compat';
 import {Dispatch, SetStateAction, createContext, useContext, useEffect, useState} from 'react';
 import {Modal, Pressable, StyleSheet} from 'react-native';
 import auth from '../firebase/firebase-auth-web';
+import firestore from '../firebase/firebase-firestore-web';
 import analytics from '../firebase/firebase-analytics-web';
 import {OtpAuth} from '../components/OtpAuth';
 
@@ -11,9 +12,11 @@ const AuthContext = createContext<{
   userLoading: boolean;
   hasPlus: boolean;
   plusLoading: boolean;
+  hasProfile: boolean;
   openAuthModal: boolean;
   setOpenAuthModal: Dispatch<SetStateAction<boolean>>;
   setPlusStatus: (userId: firebase.User['uid']) => Promise<void>;
+  setHasProfile: Dispatch<SetStateAction<boolean>>;
 } | null>(null);
 
 export function useAuthContext() {
@@ -28,6 +31,7 @@ export function AuthProvider({children}) {
   const [userLoading, setUserLoading] = useState(true);
   const [hasPlus, setPlus] = useState(false);
   const [plusLoading, setPlusLoading] = useState(false);
+  const [hasProfile, setHasProfile] = useState(false);
   const [user, setUser] = useState<firebase.User | null>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
 
@@ -45,16 +49,28 @@ export function AuthProvider({children}) {
     }
   };
 
+  const checkProfile = async (userId: string) => {
+    try {
+      const doc = await firestore().collection('users').doc(userId).get();
+      setHasProfile(doc.exists);
+      return doc.exists;
+    } catch {
+      setHasProfile(false);
+      return false;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async user => {
       if (user) {
         setUser(user);
         analytics().setUserId(user.uid);
         // analytics().setUserProperties({country: getCountry()});
-        await setPlusStatus(user.uid);
+        await Promise.all([setPlusStatus(user.uid), checkProfile(user.uid)]);
       } else {
         setUser(null);
         setPlus(false);
+        setHasProfile(false);
       }
       setUserLoading(false);
     });
@@ -71,9 +87,11 @@ export function AuthProvider({children}) {
         userLoading,
         hasPlus,
         plusLoading,
+        hasProfile,
         openAuthModal,
         setOpenAuthModal,
         setPlusStatus,
+        setHasProfile,
       }}>
       {children}
       <Modal visible={openAuthModal} onRequestClose={closeAuthModal} transparent>

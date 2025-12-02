@@ -127,7 +127,9 @@ export function Header() {
                 styles.sessionButton,
                 hoveredItem === 'session' && styles.sessionButtonHover,
               ]}>
-              <LyristText style={{fontSize: showHamburger ? 16 : 24}}>Go to app</LyristText>
+              <LyristText style={{fontSize: showHamburger ? 16 : 24}}>
+                {user?.displayName ?? 'Go to app'}
+              </LyristText>
             </Pressable>
           ) : (
             <Pressable
