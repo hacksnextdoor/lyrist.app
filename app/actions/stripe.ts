@@ -19,10 +19,12 @@ export default async function createCheckoutSession(
     metadata: {userId},
     subscription_data: headers().get('origin')?.includes('localhost')
       ? {}
+      : recurring && recurring.interval === 'week'
+      ? {trial_period_days: 3}
       : recurring && recurring.interval === 'month'
-      ? {trial_period_days: 7}
+      ? {trial_period_days: 3}
       : recurring && recurring.interval === 'year'
-      ? {trial_period_days: 30}
+      ? {trial_period_days: 3}
       : {},
     success_url: `${headers().get('origin')}/search?checkout-session-id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${headers().get('origin')}/pricing`,

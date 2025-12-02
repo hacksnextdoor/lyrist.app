@@ -126,7 +126,7 @@ export function CreateProfileScreen() {
     // update their displayName from stored data
     async function syncDisplayName() {
       if (!user || user.displayName) return;
-      
+
       try {
         const snapshot = await firestore().collection('users').doc(user.uid).get();
         const data = snapshot.data();

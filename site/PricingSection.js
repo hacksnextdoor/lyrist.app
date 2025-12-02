@@ -1,7 +1,6 @@
 'use client';
 import {useState, useCallback, useMemo, memo} from 'react';
-import {View, Pressable, StyleSheet, Modal, ActivityIndicator} from 'react-native';
-import {OtpAuth} from '../packages/components/OtpAuth';
+import {View, Pressable, StyleSheet, ActivityIndicator} from 'react-native';
 import {useAuthContext} from '../packages/context';
 import {LyristText} from '../packages/components';
 import {useScale} from '../packages/hooks/useScale';
@@ -275,13 +274,7 @@ export const PricingSection = memo(function PricingSection({
                         <LyristText style={{fontSize: 48, lineHeight: 44}} weight="Medium">
                           {option.price}
                         </LyristText>
-                        <LyristText>
-                          {hasPlus
-                            ? 'Go to app'
-                            : user
-                            ? 'Subscribe now'
-                            : 'Start 3-day free trial'}
-                        </LyristText>
+                        <LyristText>{hasPlus ? 'Go to app' : 'Start 3-day free trial'}</LyristText>
                       </>
                     )}
                   </View>
