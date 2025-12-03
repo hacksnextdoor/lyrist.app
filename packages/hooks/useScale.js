@@ -1,5 +1,5 @@
 import {useWindowDimensions, Platform} from 'react-native';
-import {useState, useEffect} from 'react';
+import {useHydration} from './useHydration';
 
 // Default dimensions for SSR to prevent hydration mismatch
 const SSR_WIDTH = 1024;
@@ -8,11 +8,7 @@ const SSR_HEIGHT = 768;
 // Hook that returns stable dimensions during SSR, then real dimensions after hydration
 function useHydratedDimensions() {
   const dimensions = useWindowDimensions();
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  const hydrated = useHydration();
 
   // During SSR and initial client render, use defaults to prevent mismatch
   if (!hydrated && Platform.OS === 'web') {

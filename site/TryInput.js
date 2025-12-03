@@ -1,11 +1,12 @@
 'use client';
 import {useRouter} from 'next/navigation';
-import {useState, useEffect, useMemo, useCallback, memo} from 'react';
+import {useState, useEffect, useMemo, memo} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
 import {LyristText} from 'packages/components';
 import {FiSearch} from 'react-icons/fi';
 import {LYRIST_BLUE} from 'packages/constants';
 import {useScale, useHydratedDimensions} from 'packages/hooks/useScale';
+import {useLoading} from 'packages/context/LoadingProvider';
 
 const GLOBAL_ARTISTS = [
   'Drake',
@@ -245,12 +246,9 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
   const [text, setText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
+  const [currentArtistIndex, setCurrentArtistIndex] = useState(0);
   const [caretVisible, setCaretVisible] = useState(true);
-
-  const getCurrentFullArtist = useCallback(() => {
-    const i = loopNum % artists.length;
-    return artists[i].toLowerCase();
-  }, [loopNum, artists]);
+  const {showLoading, isLoading} = useLoading();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -262,6 +260,11 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
   useEffect(() => {
     const i = loopNum % artists.length;
     const fullText = artists[i].toLowerCase();
+
+    // Update current artist index when we start typing a new artist
+    if (!isDeleting && text === '') {
+      setCurrentArtistIndex(i);
+    }
 
     let timer;
 
@@ -292,7 +295,10 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
   const router = useRouter();
 
   const handleNavigate = async () => {
-    const fullArtist = getCurrentFullArtist();
+    if (isLoading) return; // Prevent double-clicks
+
+    showLoading('Finding type beats...');
+    const fullArtist = artists[currentArtistIndex].toLowerCase();
     const query = `${fullArtist} type beats`;
 
     try {

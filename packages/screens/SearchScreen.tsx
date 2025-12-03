@@ -181,9 +181,6 @@ export function SearchScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <LyristText style={styles.title} weight={'Medium'}>
-          Search
-        </LyristText>
         <View style={styles.platformTabs}>
           {AUDIO_PLATFORMS.map(platform => {
             const plat = platform.toLowerCase();
@@ -311,7 +308,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 600,
     gap: 8,
-    paddingVertical: normalize(12),
   },
   title: {
     paddingHorizontal: normalize(12),

@@ -4,7 +4,7 @@
 import {getAuth, signOut} from 'firebase/auth';
 import {useEffect, useRef, useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
-import {ActivityIndicator, BackHandler, StyleSheet, TextInput, View} from 'react-native';
+import {ActivityIndicator, BackHandler, Platform, StyleSheet, TextInput, View} from 'react-native';
 import {FormButton, FormInput, FormContainer, LyristText} from '../components';
 // import { useStyles } from "../hooks";
 // import { createUserAsync, resetLoading, setLoading, signOutAsync } from "../store";
@@ -61,6 +61,22 @@ export function CreateProfileScreen() {
   const [complete, setComplete] = useState(false);
   const {user, userLoading, hasProfile, setHasProfile} = useAuthContext();
 
+  // Check if user signed in with Google (has displayName already)
+  const isGoogleUser = user?.providerData?.some(p => p?.providerId === 'google.com');
+  const hasGoogleName = isGoogleUser && user?.displayName;
+
+  // Parse Google display name into first/last
+  const [googleFirstName, googleLastName] = hasGoogleName
+    ? user.displayName!.split(' ').reduce(
+        (acc, part, i, arr) => {
+          if (i === 0) return [part, ''];
+          if (i === arr.length - 1) return [acc[0], part];
+          return [acc[0] + ' ' + part, acc[1]];
+        },
+        ['', ''],
+      )
+    : ['', ''];
+
   const {
     control,
     formState: {isValid},
@@ -68,15 +84,22 @@ export function CreateProfileScreen() {
   } = useForm<FormValues>({
     mode: 'all',
     defaultValues: {
-      firstName: '',
+      firstName: googleFirstName,
       instagram: '',
-      lastName: '',
+      lastName: googleLastName,
       phone: '',
       tiktok: '',
       twitter: '',
       youtube: '',
     },
   });
+
+  // Skip to step 2 if Google user with name
+  useEffect(() => {
+    if (hasGoogleName && screen === 1) {
+      setScreen(2);
+    }
+  }, [hasGoogleName, screen]);
 
   /* REFS */
   const firstNameRef = useRef<TextInput>(null);
@@ -98,14 +121,28 @@ export function CreateProfileScreen() {
   const createProfile: SubmitHandler<FormValues> = async formValues => {
     try {
       setLoading(true);
+
+      // Use Google's displayName if available, otherwise construct from form
+      const displayName = hasGoogleName
+        ? user!.displayName!
+        : `${formValues.firstName} ${formValues.lastName}`;
+
       await createFunction('createUser')({
         id: user!.uid,
         email: user!.email,
         ...formValues,
+        // For Google users, use the parsed names
+        firstName: hasGoogleName ? googleFirstName : formValues.firstName,
+        lastName: hasGoogleName ? googleLastName : formValues.lastName,
       });
-      await user!.updateProfile({
-        displayName: `${formValues.firstName} ${formValues.lastName}`,
-      });
+
+      // Only update profile if not already set (non-Google users)
+      if (!hasGoogleName) {
+        await user!.updateProfile({
+          displayName,
+        });
+      }
+
       logFirebaseEvent(USER_CREATED_PROFILE);
       setHasProfile(true);
       setLoading(false);
@@ -115,9 +152,7 @@ export function CreateProfileScreen() {
       setLoading(false);
       setComplete(false);
       throw new Error(`${SOMETHING_WENT_WRONG_ERROR}${JSON.stringify(e)}`);
-      // yield put(createUserAsync.failure(err));
     }
-    // dispatchCreateUser({ id: currentUser!.uid, email: currentUser!.email, ...formValues });
   };
 
   /* EFFECTS */
@@ -145,18 +180,20 @@ export function CreateProfileScreen() {
   }, []);
 
   useEffect(() => {
-    const backToStep1 = () => {
-      if (screen === 2) {
-        setScreen(1);
-        return true;
-      } else {
-        return false;
-      }
-    };
+    if (Platform.OS !== 'web') {
+      const backToStep1 = () => {
+        if (screen === 2) {
+          setScreen(1);
+          return true;
+        } else {
+          return false;
+        }
+      };
 
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backToStep1);
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backToStep1);
 
-    return () => backHandler.remove();
+      return () => backHandler.remove();
+    }
   }, [screen]);
 
   useEffect(() => {
@@ -308,7 +345,12 @@ export function CreateProfileScreen() {
       )}
       <View style={styles.subView}>
         {screen === 1 && (
-          <LyristText onPress={() => signOut(getAuth())} style={styles.textColor}>
+          <LyristText
+            onPress={async () => {
+              await signOut(getAuth());
+              router.replace('/');
+            }}
+            style={styles.textColor}>
             Start over
           </LyristText>
         )}

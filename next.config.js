@@ -57,7 +57,8 @@ const nextConfig = {
       },
       {
         source: '/pitch',
-        destination: 'https://1drv.ms/p/s!AoIPBhqDp9yHmAL1ZqqK70QO7NHx?e=gRZyxF',
+        destination:
+          'https://1drv.ms/b/c/87dca7831a060f82/IQR7dy3JxMpuRL-ZQprjjuVlAWZLlCD9VwZc305IIeD9moE',
         permanent: false,
         basePath: false,
       },

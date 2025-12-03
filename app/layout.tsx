@@ -1,4 +1,5 @@
 import {AppProviders} from 'packages/context/AppProviders';
+import './globals.css';
 
 const name = 'Lyrist';
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -65,6 +66,10 @@ export default function RootLayout({children}) {
         />
       </head>
       <body>
+        <div id="loading-screen">
+          <img src="/logo-black.png" alt="Lyrist" />
+          <div className="loading-spinner" />
+        </div>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -153,7 +153,10 @@ export function OtpAuth({onSuccess, onDismiss}: {onSuccess?: () => void; onDismi
             placeholderTextColor="gray"
             keyboardType="email-address"
             autoCapitalize="none"
+            autoFocus
             style={styles.textInput}
+            onSubmitEditing={() => email && !loading && handleSendCode()}
+            returnKeyType="go"
           />
         </View>
         <Pressable
@@ -203,11 +206,13 @@ export function OtpAuth({onSuccess, onDismiss}: {onSuccess?: () => void; onDismi
               placeholderTextColor="gray"
               keyboardType="number-pad"
               maxLength={EXPECTED_CODE_LENGTH}
+              autoFocus
               style={[
                 styles.textInput,
                 success && styles.inputSuccess,
                 failure && styles.inputFailure,
               ]}
+              returnKeyType="go"
             />
           </View>
           <LyristText style={styles.timer}>Code expires in {formatTime(timeLeft)}</LyristText>

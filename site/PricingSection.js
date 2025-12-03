@@ -1,10 +1,11 @@
 'use client';
 import {useState, useCallback, useMemo, memo} from 'react';
-import {View, Pressable, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, Pressable, StyleSheet} from 'react-native';
 import {useAuthContext} from '../packages/context';
+import {useLoading} from '../packages/context/LoadingProvider';
 import {LyristText} from '../packages/components';
 import {useScale} from '../packages/hooks/useScale';
-import {TURQUOISE, LYRIST_BLUE} from '../packages/constants';
+import {TURQUOISE} from '../packages/constants';
 import {FaCheck} from 'react-icons/fa';
 import createCheckoutSession from '../app/actions/stripe';
 import {SectionTitle} from './SectionTitle';
@@ -60,9 +61,9 @@ export const PricingSection = memo(function PricingSection({
   showMessage = true,
 }) {
   const {small, medium, large} = useScale();
-  const {user, hasPlus, plusLoading} = useAuthContext();
+  const {user, hasPlus, plusLoading, setOpenAuthModal} = useAuthContext();
+  const {showLoading, hideLoading, setLoadingMessage, isLoading} = useLoading();
   const [hoveredPriceCard, setHoveredPriceCard] = useState(null);
-  const [showOtpModal, setShowOtpModal] = useState(false);
   const [processingCheckout, setProcessingCheckout] = useState(null); // Track which option is processing
 
   const pageGap = useMemo(() => (small ? 32 : medium ? 48 : 64), [small, medium]);
@@ -81,19 +82,22 @@ export const PricingSection = memo(function PricingSection({
 
       // If user already has plus, redirect to app
       if (hasPlus) {
+        setProcessingCheckout(option.name);
+        showLoading('Going to app...');
         window.location.href = '/search';
         return;
       }
 
-      // If not logged in, show auth modal
+      // If not logged in, show auth modal from context
       if (!user) {
-        setShowOtpModal(true);
+        setOpenAuthModal(true);
         return;
       }
 
       // If logged in but no plus, create checkout session
       try {
         setProcessingCheckout(option.name);
+        showLoading('Preparing checkout...');
 
         // Get the actual pricing data from Stripe
         const pricingResponse = await fetch('/api/pricing');
@@ -130,6 +134,8 @@ export const PricingSection = memo(function PricingSection({
           quantity: 1,
         };
 
+        setLoadingMessage('Redirecting to checkout...');
+
         // Call the server action to create checkout session
         await createCheckoutSession(lineItem, matchingPrice.price.recurring, user.uid, user.email);
       } catch (error) {
@@ -149,9 +155,19 @@ export const PricingSection = memo(function PricingSection({
         alert(errorMessage);
       } finally {
         setProcessingCheckout(null);
+        hideLoading();
       }
     },
-    [user, hasPlus, plusLoading, processingCheckout],
+    [
+      user,
+      hasPlus,
+      plusLoading,
+      processingCheckout,
+      setOpenAuthModal,
+      showLoading,
+      hideLoading,
+      setLoadingMessage,
+    ],
   );
   return (
     <View>
@@ -255,28 +271,17 @@ export const PricingSection = memo(function PricingSection({
                       alignItems: 'center',
                       justifyContent: 'flex-end',
                     }}>
-                    {isProcessing ? (
-                      <>
-                        <ActivityIndicator color={LYRIST_BLUE} />
-                        <LyristText style={{fontSize: 14}}>Processing...</LyristText>
-                      </>
-                    ) : plusLoading ? (
-                      <>
-                        <LyristText>{option.period}</LyristText>
-                        <LyristText style={{fontSize: 48, lineHeight: 44}} weight="Medium">
-                          {option.price}
-                        </LyristText>
-                        <ActivityIndicator size="small" color={LYRIST_BLUE} />
-                      </>
-                    ) : (
-                      <>
-                        <LyristText>{option.period}</LyristText>
-                        <LyristText style={{fontSize: 48, lineHeight: 44}} weight="Medium">
-                          {option.price}
-                        </LyristText>
-                        <LyristText>{hasPlus ? 'Go to app' : 'Start 3-day free trial'}</LyristText>
-                      </>
-                    )}
+                    <LyristText>{option.period}</LyristText>
+                    <LyristText style={{fontSize: 48, lineHeight: 44}} weight="Medium">
+                      {option.price}
+                    </LyristText>
+                    <LyristText>
+                      {plusLoading
+                        ? 'Loading...'
+                        : hasPlus
+                        ? 'Go to app'
+                        : 'Start 3-day free trial'}
+                    </LyristText>
                   </View>
                 </View>
               </Pressable>
