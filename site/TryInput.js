@@ -4,6 +4,7 @@ import {useState, useEffect, useMemo, memo} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
 import {LyristText} from 'packages/components';
 import {FiSearch} from 'react-icons/fi';
+import {TbPointer} from 'react-icons/tb';
 import {LYRIST_BLUE} from 'packages/constants';
 import {useScale, useHydratedDimensions} from 'packages/hooks/useScale';
 import {useLoading} from 'packages/context/LoadingProvider';
@@ -351,6 +352,7 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
         </LyristText>
         {showStamp && (
           <View style={[styles.stamp, small && styles.stampSmall]}>
+            <TbPointer size={small ? 7 : 11} color="white" style={{marginRight: small ? 3 : 4}} />
             <LyristText style={[styles.stampText, small && styles.stampTextSmall]} weight="Medium">
               try it free
             </LyristText>
@@ -391,6 +393,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   stampSmall: {
     bottom: -8,
