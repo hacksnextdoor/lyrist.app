@@ -8,7 +8,7 @@ export function PageWrapper({children, maxWidth = 1400}) {
       style={{
         backgroundColor: CREAM_BACKGROUND,
         minHeight: '100vh',
-        padding: 48,
+        paddingVertical: 48,
       }}>
       <View
         style={{

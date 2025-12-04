@@ -37,14 +37,21 @@ export function Landing() {
         <View id="reviews" style={{paddingVertical: pageGap}}>
           <Reviews />
         </View>
+      </View>
+      {/* Metrics spans full width */}
+      <Metrics />
+      <View
+        style={{
+          gap: pageGap,
+          // padding: pagePadding,
+          maxWidth: 1400,
+          width: '100%',
+          alignSelf: 'center',
+        }}>
         <View id="pricing" style={{paddingVertical: pageGap}}>
           <PricingSection header={'Get the ultimate Lyrist experience with Plus'} />
         </View>
-        <View id="faq" style={{paddingVertical: pageGap}}>
-          <FaqSection collapsible={true} />
-        </View>
       </View>
-      <Metrics />
       <View id="roadmap" style={{backgroundColor: 'white', paddingVertical: pageGap}}>
         <View
           style={{
@@ -55,14 +62,24 @@ export function Landing() {
             alignSelf: 'center',
           }}>
           <Roadmap />
-          <TryInput showStamp />
-          <Badges />
-          <Navbar />
-          <Footer />
-          <View />
-          <View />
-          <View />
         </View>
+      </View>
+      <View
+        style={{
+          gap: pageGap,
+          padding: pagePadding,
+          maxWidth: 1400,
+          width: '100%',
+          alignSelf: 'center',
+        }}>
+        <TryInput showStamp />
+        <Badges />
+        <View id="faq" style={{paddingVertical: pageGap}}>
+          <FaqSection collapsible={true} />
+        </View>
+        <Navbar />
+        <Footer />
+        <View />
       </View>
     </View>
   );

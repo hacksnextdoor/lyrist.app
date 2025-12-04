@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {LyristText} from '../../packages/components';
 import {
@@ -14,17 +14,19 @@ import {
 } from '../../packages/constants';
 import {useAuthContext} from '../../packages/context';
 import auth from '../../packages/firebase/firebase-auth-web';
-import {normalize} from '../../packages/utils';
 import {logFirebaseEvent} from '../../packages/firebase';
+import {useScale} from '../../packages/hooks/useScale';
 
 export function AppHeader() {
+  const {large} = useScale();
   const router = useRouter();
   const pathname = usePathname();
   const {hasPlus, hasProfile, user, userLoading, setOpenAuthModal} = useAuthContext();
+  const [mounted, setMounted] = useState(false);
 
-  if (pathname === '/profile/new' || pathname?.includes('editor')) {
-    return null;
-  }
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     router.prefetch('/search');
@@ -39,13 +41,19 @@ export function AppHeader() {
     }
   }, [userLoading, user, hasProfile]);
 
+  // Early return AFTER all hooks
+  // Hide on profile/new, and hide on desktop editor (mobile editor shows header)
+  if (pathname === '/profile/new' || (large && pathname?.includes('editor'))) {
+    return null;
+  }
+
   return (
     <View
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: normalize(12),
-        paddingVertical: normalize(12),
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         alignItems: 'center',
       }}>
       <View
@@ -78,7 +86,8 @@ export function AppHeader() {
           gap: 16,
           alignItems: 'center',
         }}>
-        {userLoading ? (
+        {/* Only render auth-dependent UI after mount to avoid hydration mismatch */}
+        {!mounted || userLoading ? (
           <LyristText>Signing in...</LyristText>
         ) : user ? (
           <>
@@ -93,8 +102,8 @@ export function AppHeader() {
                   color: 'white',
                   borderRadius: 5,
                   fontSize: 12,
-                  paddingVertical: normalize(8),
-                  paddingHorizontal: normalize(16),
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
                 }}>
                 Get Lyrist Plus
               </LyristText>

@@ -4,7 +4,7 @@ import {normalize} from '../utils';
 
 export type EditorProps = {
   // editMode: boolean;
-  // fontSize: number;
+  fontSize?: number;
   onChangeText?: (lyrics: string) => void;
   text: string;
   color?: string;
@@ -14,7 +14,7 @@ export const Editor = forwardRef(
   (
     {
       color,
-      // fontSize,
+      fontSize = 16,
       // editMode,
       inputAccessoryViewID,
       onBlur,
@@ -26,7 +26,7 @@ export const Editor = forwardRef(
     ref: Ref<TextInput>,
   ) => (
     <TextInput
-      testID={'editor'} // detox fails with accessibilityLabel
+      testID="editor-textarea"
       inputAccessoryViewID={inputAccessoryViewID}
       autoFocus={false}
       autoCorrect={false}
@@ -45,10 +45,11 @@ export const Editor = forwardRef(
         styles.textInput,
         {
           color,
+          fontSize,
           borderColor: 'black',
           borderWidth: StyleSheet.hairlineWidth,
         },
-        Platform.OS === 'web' && ({outline: 'none'} as any),
+        Platform.OS === 'web' && ({outline: 'none', height: '100%', minHeight: 200} as any),
       ]}
       textAlignVertical={'top'}
       underlineColorAndroid={'transparent'}

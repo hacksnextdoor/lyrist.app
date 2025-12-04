@@ -63,7 +63,7 @@ export function AudioItemUnmemoized({index, onPressItem, pageId, audio}: AudioIt
   //   const { colors } = useTheme();
   return (
     <TouchableHighlight
-      testID={`AudioItem${index}`}
+      testID="audio-item"
       onPress={() => onPressItem(pageId ?? null, audio)}
       underlayColor="#AAAAAA">
       <View style={styles.rowContainer}>

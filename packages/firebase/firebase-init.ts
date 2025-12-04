@@ -1,4 +1,7 @@
 import firebase from 'firebase/compat/app';
+import {createLogger} from '../utils/logger';
+
+const log = createLogger('[firebase-init]');
 
 const firebaseConfig =
   process.env.NODE_ENV === 'development'
@@ -23,7 +26,15 @@ const firebaseConfig =
         measurementId: 'G-WNDLPLKW2S',
       };
 
+let initialized = false;
+
 export function initFirebase() {
-  process.env.NODE_ENV === 'development' && console.log('firebase init', firebaseConfig);
+  // Prevent multiple initializations
+  if (initialized || firebase.apps.length > 0) {
+    return;
+  }
+
+  initialized = true;
+  log('firebase init', firebaseConfig);
   firebase.initializeApp(firebaseConfig);
 }

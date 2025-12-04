@@ -11,7 +11,7 @@
 // version: 03
 //
 
-import {PixelRatio, Dimensions} from 'react-native';
+import {PixelRatio, Dimensions, Platform} from 'react-native';
 
 const pixelRatio = PixelRatio.get();
 const deviceHeight = Dimensions.get('window').height;
@@ -27,6 +27,12 @@ const deviceWidth = Dimensions.get('window').width;
 // console.log('normalizeText getPSFLS ->', layoutSize);
 
 export const normalize = (size: number) => {
+  // On web, don't scale - return raw size to avoid SSR/hydration mismatch
+  // The scaling logic is designed for native mobile devices only
+  if (Platform.OS === 'web') {
+    return size;
+  }
+
   if (pixelRatio >= 2 && pixelRatio < 3) {
     // iphone 5s and older Androids
     if (deviceWidth < 360) {

@@ -233,9 +233,11 @@ const styles = StyleSheet.create({
     width: 420,
     maxWidth: '90vw' as any,
     position: 'relative',
+    flex: 1,
+    justifyContent: 'center',
   },
   fixedHeight: {
-    minHeight: 480,
+    minHeight: 400,
   },
   closeButton: {
     position: 'absolute',

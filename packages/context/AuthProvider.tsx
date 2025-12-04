@@ -2,7 +2,7 @@
 import type firebase from 'firebase/compat';
 import {usePathname, useRouter} from 'next/navigation';
 import {Dispatch, SetStateAction, createContext, useContext, useEffect, useState} from 'react';
-import {ActivityIndicator, Modal, Pressable, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Platform, Pressable, StyleSheet, View} from 'react-native';
 import auth from '../firebase/firebase-auth-web';
 import firestore from '../firebase/firebase-firestore-web';
 import analytics from '../firebase/firebase-analytics-web';
@@ -35,6 +35,7 @@ export function useAuthContext() {
 export function AuthProvider({children}) {
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
   const [hasPlus, setPlus] = useState(false);
   const [plusLoading, setPlusLoading] = useState(false);
@@ -43,6 +44,12 @@ export function AuthProvider({children}) {
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState('Loading...');
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // Track first auth check vs sign-in
+
+  // SSR hydration guard - only render modals after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleAuthSuccess = () => {
     setOpenAuthModal(false);
@@ -82,12 +89,18 @@ export function AuthProvider({children}) {
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async user => {
       if (user) {
-        setIsTransitioning(true);
-        setTransitionMessage('Signing in...');
+        // Only show transition overlay on actual sign-in, not page refresh
+        const isSignIn = !isInitialLoad;
+        if (isSignIn) {
+          setIsTransitioning(true);
+          setTransitionMessage('Signing in...');
+        }
         setUser(user);
         analytics().setUserId(user.uid);
         // analytics().setUserProperties({country: getCountry()});
-        setTransitionMessage('Loading your data...');
+        if (isSignIn) {
+          setTransitionMessage('Loading your data...');
+        }
         await Promise.all([setPlusStatus(user.uid), checkProfile(user)]);
         setIsTransitioning(false);
       } else {
@@ -96,6 +109,7 @@ export function AuthProvider({children}) {
         setHasProfile(false);
       }
       setUserLoading(false);
+      setIsInitialLoad(false); // After first auth check, any future auth is a sign-in
     });
 
     return () => {
@@ -119,16 +133,18 @@ export function AuthProvider({children}) {
         setTransitionMessage,
       }}>
       {children}
-      <Modal visible={openAuthModal} onRequestClose={closeAuthModal} transparent>
-        <Pressable style={styles.modalOverlay} onPress={closeAuthModal}>
-          <Pressable onPress={e => e.stopPropagation()}>
+      {/* Auth modal - uses fixed View instead of Modal for mobile web compatibility */}
+      {mounted && openAuthModal && (
+        <View style={[styles.modalOverlay, webFixedStyle as any]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeAuthModal} />
+          <View style={styles.modalContent}>
             <OtpAuth onSuccess={handleAuthSuccess} onDismiss={closeAuthModal} />
-          </Pressable>
-        </Pressable>
-      </Modal>
-      {/* Blocking transition overlay */}
-      <Modal visible={isTransitioning} transparent>
-        <View style={styles.transitionOverlay}>
+          </View>
+        </View>
+      )}
+      {/* Blocking transition overlay - only during active sign-in */}
+      {mounted && isTransitioning && (
+        <View style={[styles.transitionOverlay, webFixedStyle as any]}>
           <View style={styles.transitionCard}>
             <ActivityIndicator size="large" color={LYRIST_BLUE} />
             <LyristText style={styles.transitionText} weight="Medium">
@@ -136,24 +152,38 @@ export function AuthProvider({children}) {
             </LyristText>
           </View>
         </View>
-      </Modal>
+      )}
     </AuthContext.Provider>
   );
 }
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    zIndex: 9999,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 400,
   },
   transitionOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(255,255,255,0.95)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 9999,
   },
   transitionCard: {
     backgroundColor: 'white',
@@ -172,3 +202,11 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+
+// Web-specific fixed positioning (same pattern as LoadingProvider)
+const webFixedStyle =
+  Platform.OS === 'web'
+    ? {
+        position: 'fixed' as const,
+      }
+    : {};

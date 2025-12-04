@@ -36,5 +36,5 @@ export function PricingPageClient() {
     );
   }
 
-  return <PricingSection />;
+  return <PricingSection header={'Take your songwriting to the next level with Lyrist Plus'} />;
 }

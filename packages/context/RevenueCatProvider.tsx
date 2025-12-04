@@ -16,7 +16,10 @@ export function RevenueCatProvider({children}: {children: ReactNode}) {
       Purchases.configure({apiKey, appUserId: ''});
       initializedRef.current = true;
     } catch (error) {
-      console.error('RevenueCat setup failed:', error);
+      // Only log in production - dev environment may have invalid keys
+      if (process.env.NODE_ENV === 'production') {
+        console.error('RevenueCat setup failed:', error);
+      }
     }
   }, []);
 

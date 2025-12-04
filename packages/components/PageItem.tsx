@@ -86,7 +86,7 @@ export function PageItemUnmemoized({
   return (
     <Pressable
       onPress={() => onPressItem(page, index)}
-      testID={`PageItem${index}`}
+      testID="page-item"
       // underlayColor={"#AAAAAA"}
     >
       <Animated.View

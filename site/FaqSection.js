@@ -59,44 +59,41 @@ export function FaqSection({showHeader = true, collapsible = false}) {
       <View
         style={{
           backgroundColor: LYRIST_BLUE,
-          borderRadius: 24,
-          padding: small ? 16 : 32,
-          flexDirection: small ? 'column' : 'row',
-          gap: 32,
+          borderRadius: 12,
+          padding: 24,
+          flexDirection: small ? 'row' : 'row',
+          gap: small ? 16 : 24,
           alignItems: 'center',
-          marginBottom: 32,
-          ...styles.cardShadow,
+          marginBottom: 16,
         }}>
-        <View
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            borderWidth: 2,
-            borderColor: 'white',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexShrink: 0,
-          }}>
-          <GiMicrophone size={48} color={'white'} style={{color: 'white'}} />
-        </View>
-        <View style={{flex: 1, gap: 16}}>
-          <LyristText
-            weight="Medium"
-            style={{fontSize: small ? 16 : 24, color: 'white', textAlign: 'justify'}}>
+        <View style={{flex: 1, gap: 12}}>
+          <LyristText weight="Medium" style={{fontSize: 16, color: 'white'}}>
             What is a type beat?
           </LyristText>
           <LyristText
             style={{
               color: 'white',
-              fontSize: small ? 16 : 24,
-              lineHeight: small ? 24 : 32,
+              fontSize: 16,
+              lineHeight: 24,
               opacity: 0.8,
-              textAlign: 'justify',
             }}>
             Type beats are original sounds made to match the vibe of a particular artist, e.g.,
             "doja cat type beats".​
           </LyristText>
+        </View>
+        <View
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            borderWidth: 2,
+            borderColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexShrink: 0,
+            order: small ? 1 : 1,
+          }}>
+          <GiMicrophone size={36} color={'white'} style={{color: 'white'}} />
         </View>
       </View>
       <View style={styles.faqList}>

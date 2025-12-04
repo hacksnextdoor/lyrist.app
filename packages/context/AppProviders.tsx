@@ -1,4 +1,6 @@
 'use client';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {useState} from 'react';
 import {EmulatorToggle} from '../components';
 import {useHydration} from '../hooks/useHydration';
 import {AuthProvider} from './AuthProvider';
@@ -17,15 +19,27 @@ const providers = [
 
 export const AppProviders = ({children}) => {
   useHydration();
+  // Create QueryClient instance once per app lifecycle
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
 
   const wrapped = providers.reduceRight((child, Provider) => {
     return <Provider>{child}</Provider>;
   }, children);
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       {wrapped}
       <EmulatorToggle />
-    </>
+    </QueryClientProvider>
   );
 };

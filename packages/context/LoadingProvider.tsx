@@ -1,7 +1,7 @@
 'use client';
 import {createContext, useContext, useState, useCallback, useEffect, ReactNode} from 'react';
 import {usePathname} from 'next/navigation';
-import {Modal, View, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, ActivityIndicator, Platform} from 'react-native';
 import {LyristText} from '../components/LyristText';
 import {LYRIST_BLUE} from '../constants';
 
@@ -48,8 +48,9 @@ export function LoadingProvider({children}: {children: ReactNode}) {
   return (
     <LoadingContext.Provider value={{showLoading, hideLoading, setLoadingMessage, isLoading}}>
       {children}
-      <Modal visible={isLoading} transparent>
-        <View style={styles.overlay}>
+      {/* Uses fixed View instead of Modal to work immediately without portal issues */}
+      {isLoading && (
+        <View style={[styles.overlay, webOverlayStyle as any]}>
           <View style={styles.card}>
             <ActivityIndicator size="large" color={LYRIST_BLUE} />
             <LyristText style={styles.text} weight="Medium">
@@ -57,17 +58,22 @@ export function LoadingProvider({children}: {children: ReactNode}) {
             </LyristText>
           </View>
         </View>
-      </Modal>
+      )}
     </LoadingContext.Provider>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(255,255,255,0.95)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 9999,
   },
   card: {
     backgroundColor: 'white',
@@ -86,3 +92,11 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+
+// Web-specific fixed positioning
+const webOverlayStyle =
+  Platform.OS === 'web'
+    ? {
+        position: 'fixed' as const,
+      }
+    : {};

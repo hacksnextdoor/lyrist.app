@@ -1,7 +1,7 @@
 import {useRouter, usePathname} from 'next/navigation';
 import Link from 'next/link';
 import {useQueryState} from 'next-usequerystate';
-import {useState, useRef, useEffect, useCallback} from 'react';
+import {useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import {
   Modal,
   Pressable,
@@ -16,8 +16,7 @@ import {
   Image,
 } from 'react-native';
 import ReactPlayer from 'react-player';
-import {useDebouncedCallback} from 'use-debounce';
-import {AudioItem, Editor, LyristText, PageItem} from '../components';
+import {AudioItem, Editor, LyristText, PageItem, TitleInput} from '../components';
 import {
   LYRICS_PAGE_ENTERED,
   LYRICS_PAGE_EXITED,
@@ -27,20 +26,74 @@ import {
   QUERY_EXECUTED,
   SEARCH_RESULT_SELECTED,
   USER_SIGNED_OUT,
-  LYRIST_PINK,
 } from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
-import {decrypt} from '../encryption';
-import {logFirebaseEvent, PageManager} from '../firebase';
+import {logFirebaseEvent} from '../firebase';
 import auth from '../firebase/firebase-auth-web';
-import database, {generateId} from '../firebase/firebase-database-web';
 import {Audio, AudioPlatform, Page} from '../types';
-import {inDevEnv, normalize} from '../utils';
+import {isDevMode} from '../firebase/emulator-utils';
 import {useScale} from '../hooks/useScale';
+import {useSave, useBatchedSave} from '../hooks/useSave';
 import {FaSistrix} from 'react-icons/fa';
 import {SlSocialSoundcloud, SlSocialYoutube} from 'react-icons/sl';
 
+const LOG_PREFIX = '[PageScreen]';
+
+/**
+ * TODO: Next iterations
+ *
+ * 1. COLLECTIONS SUPPORT
+ *    - Add CollectionContext/Provider for web
+ *    - Allow creating pages within collections
+ *    - Show collection hierarchy in library panel
+ *
+ * 2. OPTIMISTIC UPDATES
+ *    - Update UI immediately on save, rollback on error
+ *    - Use React Query's optimistic update pattern
+ *
+ * 3. OFFLINE SUPPORT
+ *    - Queue saves when offline
+ *    - Sync when back online
+ *    - Show offline indicator
+ *
+ * 4. TITLE EDITING
+ *    - Add inline title editor like mobile app
+ *    - Use batchedSave for title changes
+ *
+ * 5. DELETE PAGES
+ *    - Add swipe-to-delete or context menu
+ *    - Use useDeletePageMutation from page.api.ts
+ *
+ * 6. KEYBOARD SHORTCUTS
+ *    - Cmd+S to force save
+ *    - Cmd+N for new page
+ *    - Cmd+/ for search focus
+ */
+
 const AUDIO_PLATFORMS = ['YouTube', 'SoundCloud'];
+const SAVE_DELAY_MS = 2000;
+
+/**
+ * Parse audio param from URL
+ * Format: platform:id (e.g., "yt:dQw4w9WgXcQ" or "sc:123456789")
+ */
+function parseAudioParam(audioStr: string | null): {platform: AudioPlatform; id: string} | null {
+  if (!audioStr) return null;
+  const [platformPrefix, ...idParts] = audioStr.split(':');
+  const id = idParts.join(':'); // Handle ids that might contain colons
+  if (!id) return null;
+
+  const platform = platformPrefix === 'sc' ? 'soundcloud' : 'youtube';
+  return {platform, id};
+}
+
+/**
+ * Create audio param string for URL
+ */
+function createAudioParam(platform: AudioPlatform, id: string): string {
+  const prefix = platform === 'soundcloud' ? 'sc' : 'yt';
+  return `${prefix}:${id}`;
+}
 
 function getUrl(platform: AudioPlatform, audioId: string) {
   return platform === 'soundcloud'
@@ -53,11 +106,52 @@ export function PageScreen() {
   const router = useRouter();
   const pathname = usePathname();
 
-  /* QUERY STATE */
-  const [audioStr, setAudio] = useQueryState('audio');
-  const [pageId, setId] = useQueryState('id');
-  const [source, setSource] = useQueryState('source');
-  const [sourceId, setSourceId] = useQueryState('source-id');
+  /*
+   * URL STATE - Clean params
+   * - audio: "yt:xyz" or "sc:123" format (platform:id)
+   * - q: search query
+   * - plat: search platform
+   *
+   * pageId is derived from audio via findPageFromAudio() - not stored in URL
+   *
+   * Also supports legacy params from MyLibraryScreen:
+   * - id: pageId (used to look up audio)
+   * - source: platform (youtube/soundcloud)
+   * - source-id: audio id
+   */
+  const [audioParam, setAudioParam] = useQueryState('audio');
+
+  // Legacy params from MyLibraryScreen navigation
+  const [legacyId] = useQueryState('id');
+  const [legacySource] = useQueryState('source');
+  const [legacySourceId] = useQueryState('source-id');
+
+  // Migrate legacy params to new format on mount
+  useEffect(() => {
+    if (legacyId || legacySourceId) {
+      console.log(
+        `${LOG_PREFIX} Migrating legacy params: id=${legacyId}, source=${legacySource}, source-id=${legacySourceId}`,
+      );
+
+      // Build new URL with clean params (audio only, pageId derived internally)
+      const params = new URLSearchParams();
+      if (legacySourceId && legacySource) {
+        const prefix = legacySource === 'soundcloud' ? 'sc' : 'yt';
+        params.set('audio', `${prefix}:${legacySourceId}`);
+      }
+
+      // Replace URL without adding to history
+      const newUrl = `${pathname}?${params.toString()}`;
+      router.replace(newUrl);
+    }
+  }, [legacyId, legacySource, legacySourceId, pathname, router]);
+
+  // Use legacy params as fallback until migration completes
+  const effectiveAudioParam =
+    audioParam ||
+    (legacySourceId && legacySource
+      ? `${legacySource === 'soundcloud' ? 'sc' : 'yt'}:${legacySourceId}`
+      : null);
 
   /* SEARCH STATE */
   const [selectedPlatform, setPlatform] = useQueryState('plat', {defaultValue: 'youtube'});
@@ -70,92 +164,162 @@ export function PageScreen() {
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
 
-  let url: string | null = null;
-  let audio: Audio | null = null;
+  // Parse audio from URL param into Audio object for useSave
+  const initialAudio = useMemo((): Audio | undefined => {
+    if (!effectiveAudioParam) return undefined;
+    const parsed = parseAudioParam(effectiveAudioParam);
+    if (!parsed) return undefined;
+    // Find full audio object from search results or create minimal one
+    const fromSearch = searchResults.find(r => r.id === parsed.id);
+    if (fromSearch) return fromSearch;
+    return {
+      id: parsed.id,
+      platform: parsed.platform,
+      title: '',
+    } as Audio;
+  }, [effectiveAudioParam, searchResults]);
 
-  if (source && sourceId) {
-    url = getUrl(source as AudioPlatform, sourceId);
-  }
-
-  if (audioStr) {
-    audio = JSON.parse(audioStr);
-    if (audio) {
-      url = getUrl(audio.platform, audio.id);
+  // Compute player URL from audio
+  const url = useMemo(() => {
+    if (initialAudio) {
+      return getUrl(initialAudio.platform, initialAudio.id);
     }
-  }
+    return null;
+  }, [initialAudio]);
 
   const [playerLoading, setPlayerLoading] = useState(true);
   const [message, setMessage] = useState('player status');
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(true);
 
-  const [body, setBody] = useState('');
   const [editorMessage, setEditorMessage] = useState('editor status');
   const [showSizeModal, setShowSizeModal] = useState(false);
-  const [editorLoading, setEditorLoading] = useState(true);
   const {hasPlus, user, userLoading, setOpenAuthModal} = useAuthContext();
   const {findPageFromPageId, findPageFromAudio, pages, pagesLoading, error} = usePagesContext();
+
+  // Derive pageId from audio via findPageFromAudio - not stored in URL
+  // This allows clean URLs like /editor?audio=yt:xyz
+  const effectivePageId = useMemo(() => {
+    if (!initialAudio?.id) return null;
+    const page = findPageFromAudio(initialAudio.id);
+    return page?.id ?? null;
+  }, [initialAudio?.id, findPageFromAudio]);
+
+  console.log(
+    `${LOG_PREFIX} URL PARAMS: audioParam=${audioParam}, legacyId=${legacyId}, legacySource=${legacySource}, legacySourceId=${legacySourceId}`,
+  );
+  console.log(
+    `${LOG_PREFIX} EFFECTIVE: effectivePageId=${effectivePageId}, effectiveAudioParam=${effectiveAudioParam}`,
+  );
+
+  /*
+   * USE SAVE - matches mobile exactly
+   * Handles: Firebase listeners, auto-save, page creation
+   * Only attaches listeners when user is authenticated
+   */
+  const {
+    currentId,
+    currentTitle,
+    currentAudio,
+    currentBody,
+    editorLoading,
+    editorKey,
+    triggerSave,
+  } = useSave({
+    initialPage: {id: effectivePageId, audio: initialAudio},
+    userId: user?.uid ?? null,
+  });
+
+  // Batched save for debouncing
+  const {batchedSave, flush} = useBatchedSave(triggerSave, SAVE_DELAY_MS);
+  console.log(
+    `${LOG_PREFIX} RENDER: pageIdParam=${effectivePageId}, audioParam=${effectiveAudioParam}, currentId=${currentId}, editorLoading=${editorLoading}`,
+  );
+
   const pagesLeftBasicUser = Math.max(0, MAX_PAGES - (pages?.length ?? 0));
   const pagesToFilter = pages?.sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1));
+
+  // Same logic as mobile: first N pages (sorted by dateCreated ASC) are "unlocked" for free tier
+  const unlockedPages = useMemo(() => {
+    if (!pages) return [];
+    return [...pages].sort((a, b) => (a.dateCreated < b.dateCreated ? -1 : 1)).slice(0, MAX_PAGES);
+  }, [pages]);
+
+  // reachedFreeLimit: user is NOT Plus AND has >= MAX_PAGES
+  const reachedFreeLimit = !hasPlus && (pages?.length ?? 0) >= MAX_PAGES;
 
   /* REFS */
   const playerRef = useRef<ReactPlayer>(null);
   const editorRef = useRef<TextInput>(null);
-  const lockEditor = useRef<boolean | null>(null);
   const animatedValues = useRef<Map<string, Animated.Value>>();
 
   if (pages) {
     animatedValues.current = new Map(pages.map(page => [page.id!, new Animated.Value(1)]));
   }
 
-  let isInFreeSet = false;
-  if (lockEditor.current == null && pages) {
-    if (audioStr) {
-      lockEditor.current = pages.length >= MAX_PAGES && !hasPlus;
+  // Compute lockEditor EXACTLY like mobile:
+  // - For NEW pages (no effectivePageId): lock if reachedFreeLimit
+  // - For EXISTING pages: lock if reachedFreeLimit AND page is NOT in unlocked set
+  // This is computed fresh each render (not stored in ref) so it updates when page changes
+  const lockEditor = useMemo(() => {
+    if (!pages) return false;
+
+    if (effectiveAudioParam && !effectivePageId) {
+      // New page - check if user can create more (same as SearchScreen)
+      return reachedFreeLimit;
     }
-    if (pageId) {
-      isInFreeSet = pages
-        .sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1))
-        .slice(0, Math.min(MAX_PAGES, pages.length))
-        .some(page => page.id === pageId);
-      lockEditor.current = !hasPlus && !isInFreeSet;
+    if (effectivePageId) {
+      // Existing page - check if it's in the "unlocked" set (same as MyLibraryScreen)
+      const isUnlocked = unlockedPages.some(page => page.id === effectivePageId);
+      return reachedFreeLimit && !isUnlocked;
     }
-  }
+    return false;
+  }, [pages, effectiveAudioParam, effectivePageId, reachedFreeLimit, unlockedPages]);
+
+  // Note: No URL sync needed - pageId is derived from audio via findPageFromAudio
+  // When a new page is created, it automatically becomes associated with the audio
 
   /* EVENTS */
   const handlePlay = () => setPlaying(true);
   const handlePause = () => setPlaying(false);
 
-  const OPERATION_DELAY = 3000;
-  const handleChangeTextDebounced = useDebouncedCallback(async text => {
-    if (pageId && text.length === 0) {
-      const currentPage = findPageFromPageId(pageId)!;
-      const {audio} = currentPage;
-      await PageManager.removePage(pageId);
-      setEditorMessage('UNSAVED');
-      setId(null);
-      if (audio) {
-        setAudio(JSON.stringify(audio));
-        setSource(null);
-        setSourceId(null);
+  /**
+   * Handle title changes - uses batchedSave like mobile
+   */
+  const handleTitleChange = useCallback(
+    (text: string) => {
+      console.log(`${LOG_PREFIX} handleTitleChange: "${text}"`);
+      batchedSave('title', text);
+    },
+    [batchedSave],
+  );
+
+  /**
+   * Handle text changes - uses batchedSave like mobile
+   */
+  const handleChangeText = useCallback(
+    (text: string) => {
+      console.log(
+        `${LOG_PREFIX} handleChangeText: length=${text.length}, preview="${text.substring(
+          0,
+          30,
+        )}..."`,
+      );
+      setEditorMessage('TYPING');
+
+      // Character limit for non-Plus users
+      if (!lockEditor && !hasPlus && text.length > 10000) {
+        editorRef.current?.blur();
+        setShowSizeModal(true);
+        return;
       }
-      return;
-    }
-    if (!pageId) {
-      const newId = generateId();
-      await PageManager.createPage(newId, audio, '', text);
-      setEditorMessage('CREATED');
-      setId(newId);
-      if (audio) {
-        setAudio(null);
-        setSource(audio.platform);
-        setSourceId(audio.id);
-      }
-      return;
-    }
-    await PageManager.updatePage(pageId, text);
-    setEditorMessage('UPDATED');
-  }, OPERATION_DELAY);
+
+      // Auto-save using batched save (handles both new and existing pages)
+      batchedSave('body', text);
+      setEditorMessage('SAVING...');
+    },
+    [hasPlus, batchedSave],
+  );
 
   const executeQuery = async (query: string) => {
     const trimmedQuery = query.trim();
@@ -187,37 +351,42 @@ export function PageScreen() {
 
   const handleSelectAudio = useCallback(
     (item: Audio) => {
+      console.log(
+        `${LOG_PREFIX} handleSelectAudio: id=${item.id}, title="${item.title}", platform=${item.platform}`,
+      );
+
+      // CRITICAL: Flush any pending saves before switching (prevents data loss)
+      flush();
+
       const pageResult = findPageFromAudio(item.id);
       const existingPageId = pageResult?.id ?? null;
+      console.log(`${LOG_PREFIX} handleSelectAudio: existingPageId=${existingPageId}`);
       logFirebaseEvent(SEARCH_RESULT_SELECTED, {title: item.title});
 
-      // Always set source and sourceId so url is computed
-      setSource(item.platform);
-      setSourceId(item.id);
-
-      if (existingPageId) {
-        // Existing page - navigate to it
-        setId(existingPageId);
-        setAudio(null);
-      } else {
-        // New audio - set audio state for editor
-        setAudio(JSON.stringify(item));
-        setId(null);
-      }
+      // Set audio param - pageId is derived automatically via findPageFromAudio
+      const audioStr = createAudioParam(item.platform, item.id);
+      setAudioParam(audioStr);
     },
-    [findPageFromAudio, setId, setSource, setSourceId, setAudio],
+    [findPageFromAudio, setAudioParam, flush],
   );
 
   const handleSelectPage = useCallback(
     (item: Page) => {
-      setId(item.id!);
+      console.log(
+        `${LOG_PREFIX} handleSelectPage: id=${item.id}, title="${item.title}", audio=${item.audio?.id}`,
+      );
+
+      // CRITICAL: Flush any pending saves before switching (prevents data loss)
+      flush();
+
+      // Set audio param - pageId is derived automatically via findPageFromAudio
       if (item.audio) {
-        setSource(item.audio.platform);
-        setSourceId(item.audio.id);
+        const audioStr = createAudioParam(item.audio.platform, item.audio.id);
+        console.log(`${LOG_PREFIX} handleSelectPage: Setting audioParam=${audioStr}`);
+        setAudioParam(audioStr);
       }
-      setAudio(null);
     },
-    [setId, setSource, setSourceId, setAudio],
+    [setAudioParam, flush],
   );
 
   const [mobile, setMobile] = useState(false);
@@ -236,38 +405,22 @@ export function PageScreen() {
   useEffect(() => {
     logFirebaseEvent(LYRICS_PAGE_ENTERED);
     return () => {
-      handleChangeTextDebounced.flush();
+      // Flush pending saves before leaving
+      flush();
       logFirebaseEvent(LYRICS_PAGE_EXITED);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
-      setEditorMessage('user has not synced');
-      setEditorLoading(false);
-      return;
-    }
-    let ref = database().ref(`pages/${pageId}/body`);
-    const onValue = snapshot => {
-      if (snapshot && snapshot.val()) {
-        setBody(decrypt(snapshot.val()));
-      } else {
-        setBody('');
-      }
-      if (editorLoading) setEditorLoading(false);
-      setEditorMessage('synced body with database');
-    };
-    const onError = (a: Error) => {
-      setEditorMessage(a.message);
-      if (editorLoading) setEditorLoading(false);
-    };
-    ref.on('value', onValue, onError);
-    return () => ref.off('value', onValue);
-  }, [editorLoading, user, pageId]);
+  }, [flush]);
 
   useEffect(() => {
     if (playerLoading) setPlayerLoading(false);
   }, [playerLoading]);
+
+  // Autofocus editor when signed in and editor is ready
+  useEffect(() => {
+    if (user && !editorLoading && url && large && !lockEditor) {
+      editorRef.current?.focus();
+    }
+  }, [user, editorLoading, url, large]);
 
   useEffect(() => {
     const localSearch = window.localStorage.getItem('search');
@@ -282,6 +435,27 @@ export function PageScreen() {
   /* RENDER PANELS */
   const renderLibraryPanel = () => (
     <View style={styles.panel}>
+      <View style={styles.libraryHeader}>
+        <Link href="/" style={styles.logoWrapper}>
+          <img src="/logo-black.png" alt="Lyrist" style={{height: 28, width: 'auto'}} />
+        </Link>
+        {user ? (
+          <Pressable
+            onPress={async () => {
+              await auth().signOut();
+              window.localStorage.clear();
+              logFirebaseEvent(USER_SIGNED_OUT);
+              router.push('/');
+            }}
+            style={styles.signOutButton}>
+            <LyristText style={styles.signOutText}>Sign out</LyristText>
+          </Pressable>
+        ) : (
+          <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInButton}>
+            <LyristText style={styles.signInButtonText}>Sign in</LyristText>
+          </Pressable>
+        )}
+      </View>
       <View style={styles.panelHeader}>
         <LyristText weight="Medium" style={styles.panelTitle}>
           My Library
@@ -309,9 +483,9 @@ export function PageScreen() {
             <Pressable
               key={item.id}
               onPress={() => handleSelectPage(item)}
-              style={[styles.libraryItem, pageId === item.id && styles.libraryItemActive]}>
+              style={[styles.libraryItem, effectivePageId === item.id && styles.libraryItemActive]}>
               <LyristText
-                weight={pageId === item.id ? 'Medium' : 'Regular'}
+                weight={effectivePageId === item.id ? 'Medium' : 'Regular'}
                 style={styles.libraryItemTitle}
                 numberOfLines={1}>
                 {item.title || 'Untitled'}
@@ -330,7 +504,7 @@ export function PageScreen() {
 
   const renderEditorPanel = () => (
     <View style={[styles.panel, styles.editorPanel]}>
-      {inDevEnv() && (
+      {isDevMode() && (
         <View style={styles.debugInfo}>
           <LyristText style={styles.debugText}>player: {message}</LyristText>
           <LyristText style={styles.debugText}>editor: {editorMessage}</LyristText>
@@ -365,7 +539,7 @@ export function PageScreen() {
       <View style={styles.editorWrapper}>
         {editorLoading || pagesLoading || userLoading ? (
           <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 40}} />
-        ) : lockEditor.current ? (
+        ) : lockEditor ? (
           <Pressable onPress={() => router.push('/pricing')} style={styles.lockedBanner}>
             <LyristText style={styles.lockedText}>Get Lyrist Plus for unlimited pages</LyristText>
           </Pressable>
@@ -380,22 +554,25 @@ export function PageScreen() {
             </LyristText>
           </View>
         ) : (
-          <Editor
-            color={'black'}
-            inputAccessoryViewID={'PageScreen'}
-            onChangeText={(text: string) => {
-              setEditorMessage('TYPING');
-              if (!lockEditor.current && !hasPlus && text.length > 10000) {
-                editorRef.current?.blur();
-                setShowSizeModal(true);
-                return;
-              }
-              handleChangeTextDebounced(text);
-            }}
-            placeholder={'Start typing your lyrics...'}
-            ref={editorRef}
-            text={body}
-          />
+          <>
+            <TitleInput
+              key={`title-${editorKey}`}
+              color={'black'}
+              inputAccessoryViewID={'PageScreen'}
+              onChangeText={handleTitleChange}
+              testID="title-input"
+              text={currentTitle}
+            />
+            <Editor
+              key={`editor-${editorKey}`}
+              color={'black'}
+              inputAccessoryViewID={'PageScreen'}
+              onChangeText={handleChangeText}
+              placeholder={'Start typing your lyrics...'}
+              ref={editorRef}
+              text={currentBody}
+            />
+          </>
         )}
       </View>
     </View>
@@ -438,7 +615,7 @@ export function PageScreen() {
           <LyristText style={styles.emptyText}>{searchError.message}</LyristText>
         ) : searchResults.length > 0 ? (
           searchResults.map((item, index) => {
-            const isCurrentlyPlaying = sourceId === item.id;
+            const isCurrentlyPlaying = initialAudio?.id === item.id;
             return (
               <View
                 key={index}
@@ -470,30 +647,6 @@ export function PageScreen() {
   if (large) {
     return (
       <View style={styles.container}>
-        {/* Top Header Bar */}
-        <View style={styles.topHeader}>
-          <Link href="/" style={styles.logoWrapper}>
-            <img src="/logo-black.png" alt="Lyrist" style={{height: 28, width: 'auto'}} />
-          </Link>
-          <View style={styles.headerRight}>
-            {user ? (
-              <Pressable
-                onPress={async () => {
-                  await auth().signOut();
-                  window.localStorage.clear();
-                  logFirebaseEvent(USER_SIGNED_OUT);
-                  router.push('/');
-                }}
-                style={styles.signOutButton}>
-                <LyristText style={styles.signOutText}>Sign out</LyristText>
-              </Pressable>
-            ) : (
-              <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInButton}>
-                <LyristText style={styles.signInButtonText}>Sign in</LyristText>
-              </Pressable>
-            )}
-          </View>
-        </View>
         {/* Three Panel Layout */}
         <View style={styles.threePanel}>
           {renderLibraryPanel()}
@@ -502,24 +655,26 @@ export function PageScreen() {
           <View style={styles.divider} />
           {renderSearchPanel()}
         </View>
-        {/* Modals */}
-        <Modal animationType="fade" transparent visible={!!showSizeModal}>
-          <Pressable onPress={() => setShowSizeModal(false)} style={styles.modalOverlay} />
-          <View style={styles.modalCard}>
-            <LyristText weight="SemiBold">Character limit exceeded</LyristText>
-            <LyristText>Get Plus for unlimited pages!</LyristText>
-            <View style={styles.modalButtons}>
-              <LyristText onPress={() => setShowSizeModal(false)}>No thanks</LyristText>
-              <LyristText
-                onPress={() => {
-                  setShowSizeModal(false);
-                  router.push('/pricing');
-                }}>
-                Get Plus
-              </LyristText>
+        {/* Modal - Only render when needed to avoid portal crash during Fast Refresh */}
+        {showSizeModal && (
+          <Modal animationType="fade" transparent visible={true}>
+            <Pressable onPress={() => setShowSizeModal(false)} style={styles.modalOverlay} />
+            <View style={styles.modalCard}>
+              <LyristText weight="SemiBold">Character limit exceeded</LyristText>
+              <LyristText>Get Plus for unlimited pages!</LyristText>
+              <View style={styles.modalButtons}>
+                <LyristText onPress={() => setShowSizeModal(false)}>No thanks</LyristText>
+                <LyristText
+                  onPress={() => {
+                    setShowSizeModal(false);
+                    router.push('/pricing');
+                  }}>
+                  Get Plus
+                </LyristText>
+              </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
+        )}
       </View>
     );
   }
@@ -527,10 +682,11 @@ export function PageScreen() {
   // Small/Medium screens - single column, use existing nav
   return (
     <View style={styles.containerMobile}>
-      <View style={styles.mobileContent}>
-        {url ? (
-          <>
-            <View style={styles.playerWrapperMobile}>
+      {/* AppHeader renders via layout for mobile */}
+      {url ? (
+        <>
+          <View style={styles.playerWrapperMobile}>
+            <View style={styles.playerInnerMobile}>
               <ReactPlayer
                 url={url}
                 width="100%"
@@ -552,62 +708,69 @@ export function PageScreen() {
                 onError={err => setMessage(JSON.stringify(err))}
               />
             </View>
-            <View style={styles.editorWrapperMobile}>
-              {editorLoading || pagesLoading || userLoading ? (
-                <ActivityIndicator color={LYRIST_BLUE} />
-              ) : lockEditor.current ? (
-                <Pressable onPress={() => router.push('/pricing')} style={styles.lockedBanner}>
-                  <LyristText style={styles.lockedText}>Get Lyrist Plus</LyristText>
-                </Pressable>
-              ) : user == null ? (
-                <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInBanner}>
-                  <LyristText style={styles.signInText}>Sign in to use the editor</LyristText>
-                </Pressable>
-              ) : (
-                <Editor
+          </View>
+          <View style={styles.editorWrapperMobile}>
+            {editorLoading || pagesLoading || userLoading ? (
+              <ActivityIndicator color={LYRIST_BLUE} />
+            ) : lockEditor ? (
+              <Pressable onPress={() => router.push('/pricing')} style={styles.lockedBanner}>
+                <LyristText style={styles.lockedText}>Get Lyrist Plus</LyristText>
+              </Pressable>
+            ) : user == null ? (
+              <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInBanner}>
+                <LyristText style={styles.signInText}>Sign in to use the editor</LyristText>
+              </Pressable>
+            ) : (
+              <View style={styles.editorContentMobile}>
+                <TitleInput
+                  key={`title-${editorKey}`}
                   color={'black'}
                   inputAccessoryViewID={'PageScreen'}
-                  onChangeText={(text: string) => {
-                    setEditorMessage('TYPING');
-                    if (!lockEditor.current && !hasPlus && text.length > 10000) {
-                      editorRef.current?.blur();
-                      setShowSizeModal(true);
-                      return;
-                    }
-                    handleChangeTextDebounced(text);
-                  }}
+                  onChangeText={handleTitleChange}
+                  testID="title-input"
+                  text={currentTitle}
+                />
+                <Editor
+                  key={`editor-${editorKey}`}
+                  color={'black'}
+                  fontSize={16}
+                  inputAccessoryViewID={'PageScreen'}
+                  onChangeText={handleChangeText}
                   placeholder={'Start typing your lyrics...'}
                   ref={editorRef}
-                  text={body}
+                  text={currentBody}
                 />
-              )}
-            </View>
-          </>
-        ) : (
-          <View style={styles.noAudioMobile}>
-            <LyristText style={styles.noAudioText}>
-              Use Search to find audio and start writing
-            </LyristText>
+              </View>
+            )}
           </View>
-        )}
-      </View>
-      <Modal animationType="fade" transparent visible={!!showSizeModal}>
-        <Pressable onPress={() => setShowSizeModal(false)} style={styles.modalOverlay} />
-        <View style={styles.modalCard}>
-          <LyristText weight="SemiBold">Character limit exceeded</LyristText>
-          <LyristText>Get Plus for unlimited pages!</LyristText>
-          <View style={styles.modalButtons}>
-            <LyristText onPress={() => setShowSizeModal(false)}>No thanks</LyristText>
-            <LyristText
-              onPress={() => {
-                setShowSizeModal(false);
-                router.push('/pricing');
-              }}>
-              Get Plus
-            </LyristText>
-          </View>
+        </>
+      ) : (
+        <View style={styles.noAudioMobile}>
+          <LyristText style={styles.noAudioText}>
+            Use Search to find audio and start writing
+          </LyristText>
         </View>
-      </Modal>
+      )}
+      {/* Modal - Only render when needed to avoid portal crash during Fast Refresh */}
+      {showSizeModal && (
+        <Modal animationType="fade" transparent visible={true}>
+          <Pressable onPress={() => setShowSizeModal(false)} style={styles.modalOverlay} />
+          <View style={styles.modalCard}>
+            <LyristText weight="SemiBold">Character limit exceeded</LyristText>
+            <LyristText>Get Plus for unlimited pages!</LyristText>
+            <View style={styles.modalButtons}>
+              <LyristText onPress={() => setShowSizeModal(false)}>No thanks</LyristText>
+              <LyristText
+                onPress={() => {
+                  setShowSizeModal(false);
+                  router.push('/pricing');
+                }}>
+                Get Plus
+              </LyristText>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -619,9 +782,9 @@ const styles = StyleSheet.create({
   },
   containerMobile: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFF',
   },
-  topHeader: {
+  libraryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -637,11 +800,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
   },
   signOutButton: {
     paddingVertical: 6,
@@ -728,15 +886,27 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
   },
   playerWrapperMobile: {
-    aspectRatio: 16 / 9,
     backgroundColor: '#000',
-    maxHeight: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  playerInnerMobile: {
+    width: '85%',
+    aspectRatio: 16 / 9,
+    maxHeight: 180,
   },
   editorWrapper: {
     flex: 1,
   },
   editorWrapperMobile: {
     flex: 1,
+    paddingBottom: 16,
+  },
+  editorContentMobile: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
   lockedBanner: {
     backgroundColor: TURQUOISE,
@@ -786,7 +956,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   platformTabActive: {
-    backgroundColor: LYRIST_PINK,
+    backgroundColor: LYRIST_BLUE,
   },
   platformText: {
     fontSize: 13,
@@ -867,5 +1037,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(52, 152, 219, 0.12)',
     borderLeftWidth: 3,
     borderLeftColor: LYRIST_BLUE,
+  },
+  saveButton: {
+    backgroundColor: LYRIST_BLUE,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 12,
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 15,
   },
 });
