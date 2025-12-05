@@ -16,7 +16,7 @@ import {
   Image,
 } from 'react-native';
 import ReactPlayer from 'react-player';
-import {AudioItem, Editor, LyristText, PageItem, TitleInput} from '../components';
+import {AudioItem, Editor, LyristText, PageItem, PlusButton, TitleInput} from '../components';
 import {
   LYRICS_PAGE_ENTERED,
   LYRICS_PAGE_EXITED,
@@ -28,13 +28,15 @@ import {
   USER_SIGNED_OUT,
 } from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
+import {decrypt} from '../encryption';
 import {logFirebaseEvent} from '../firebase';
 import auth from '../firebase/firebase-auth-web';
+import database from '../firebase/firebase-database-web';
 import {Audio, AudioPlatform, Page} from '../types';
 import {isDevMode} from '../firebase/emulator-utils';
 import {useScale} from '../hooks/useScale';
 import {useSave, useBatchedSave} from '../hooks/useSave';
-import {FaSistrix} from 'react-icons/fa';
+import {FaSistrix, FaLightbulb, FaRegLightbulb} from 'react-icons/fa';
 import {SlSocialSoundcloud, SlSocialYoutube} from 'react-icons/sl';
 
 const LOG_PREFIX = '[PageScreen]';
@@ -163,6 +165,8 @@ export function PageScreen() {
   /* LIBRARY STATE */
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(false); // Dims side panels
+  const PAGE_SIZE = 100;
 
   // Parse audio from URL param into Audio object for useSave
   const initialAudio = useMemo((): Audio | undefined => {
@@ -237,13 +241,18 @@ export function PageScreen() {
   );
 
   const pagesLeftBasicUser = Math.max(0, MAX_PAGES - (pages?.length ?? 0));
-  const pagesToFilter = pages?.sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1));
 
-  // Same logic as mobile: first N pages (sorted by dateCreated ASC) are "unlocked" for free tier
-  const unlockedPages = useMemo(() => {
+  // Sort by dateLastModified descending (most recent first) - this is the display order
+  const pagesToFilter = useMemo(() => {
     if (!pages) return [];
-    return [...pages].sort((a, b) => (a.dateCreated < b.dateCreated ? -1 : 1)).slice(0, MAX_PAGES);
+    return [...pages].sort((a, b) => (a.dateLastModified > b.dateLastModified ? -1 : 1));
   }, [pages]);
+
+  // Unlocked pages = first N from the display order (most recently modified)
+  // This matches what the user sees in the library panel
+  const unlockedPages = useMemo(() => {
+    return pagesToFilter.slice(0, MAX_PAGES);
+  }, [pagesToFilter]);
 
   // reachedFreeLimit: user is NOT Plus AND has >= MAX_PAGES
   const reachedFreeLimit = !hasPlus && (pages?.length ?? 0) >= MAX_PAGES;
@@ -433,74 +442,121 @@ export function PageScreen() {
   }, []);
 
   /* RENDER PANELS */
-  const renderLibraryPanel = () => (
-    <View style={styles.panel}>
-      <View style={styles.libraryHeader}>
-        <Link href="/" style={styles.logoWrapper}>
-          <img src="/logo-black.png" alt="Lyrist" style={{height: 28, width: 'auto'}} />
-        </Link>
-        {user ? (
-          <Pressable
-            onPress={async () => {
-              await auth().signOut();
-              window.localStorage.clear();
-              logFirebaseEvent(USER_SIGNED_OUT);
-              router.push('/');
-            }}
-            style={styles.signOutButton}>
-            <LyristText style={styles.signOutText}>Sign out</LyristText>
-          </Pressable>
-        ) : (
-          <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInButton}>
-            <LyristText style={styles.signInButtonText}>Sign in</LyristText>
-          </Pressable>
-        )}
-      </View>
-      <View style={styles.panelHeader}>
-        <LyristText weight="Medium" style={styles.panelTitle}>
-          My Library
-        </LyristText>
-        {!hasPlus && user && (
-          <LyristText style={styles.pagesLeft} onPress={() => router.push('/pricing')}>
-            {pagesLeftBasicUser} left
-          </LyristText>
-        )}
-      </View>
-      <ScrollView
-        style={styles.panelContent}
-        showsVerticalScrollIndicator={false}
-        {...(Platform.OS === 'web' && ({className: 'pagescreen-panel-scroll'} as any))}>
-        {pagesLoading ? (
-          <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 20}} />
-        ) : !user ? (
-          <LyristText style={styles.emptyText} onPress={() => setOpenAuthModal(true)}>
-            Sign in to see your library
-          </LyristText>
-        ) : error ? (
-          <LyristText style={styles.emptyText}>{error.message}</LyristText>
-        ) : pagesToFilter && pagesToFilter.length > 0 ? (
-          pagesToFilter.map((item, index) => (
+  const renderLibraryPanel = () => {
+    const displayPages = pagesToFilter?.slice(0, PAGE_SIZE) ?? [];
+    const hasMore = (pagesToFilter?.length ?? 0) > PAGE_SIZE;
+
+    return (
+      <View style={[styles.panel, focusMode && styles.panelDimmed]}>
+        <View style={styles.libraryHeader}>
+          <Link href="/" style={styles.logoWrapper}>
+            <img
+              src="/logo-black.png"
+              alt="Lyrist"
+              style={{height: 28, width: 'auto', opacity: focusMode ? 0.3 : 1}}
+            />
+          </Link>
+          {user ? (
             <Pressable
-              key={item.id}
-              onPress={() => handleSelectPage(item)}
-              style={[styles.libraryItem, effectivePageId === item.id && styles.libraryItemActive]}>
-              <LyristText
-                weight={effectivePageId === item.id ? 'Medium' : 'Regular'}
-                style={styles.libraryItemTitle}
-                numberOfLines={1}>
-                {item.title || 'Untitled'}
-              </LyristText>
-              <LyristText style={styles.libraryItemDate} numberOfLines={1}>
-                {new Date(item.dateLastModified).toLocaleDateString()}
+              onPress={async () => {
+                await auth().signOut();
+                window.localStorage.clear();
+                logFirebaseEvent(USER_SIGNED_OUT);
+                router.push('/');
+              }}
+              style={styles.signOutButton}>
+              <LyristText style={[styles.signOutText, focusMode && styles.textDimmed]}>
+                Sign out
               </LyristText>
             </Pressable>
-          ))
-        ) : (
-          <LyristText style={styles.emptyText}>Search for audio to start writing</LyristText>
-        )}
-      </ScrollView>
-    </View>
-  );
+          ) : (
+            <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInButton}>
+              <LyristText style={[styles.signInButtonText, focusMode && styles.textDimmed]}>
+                Sign in
+              </LyristText>
+            </Pressable>
+          )}
+        </View>
+        <View style={styles.panelHeader}>
+          <View style={styles.panelHeaderLeft}>
+            <LyristText weight="Medium" style={[styles.panelTitle, focusMode && styles.textDimmed]}>
+              My Library
+            </LyristText>
+            {pagesToFilter && pagesToFilter.length > 0 && (
+              <LyristText style={[styles.itemCount, focusMode && styles.textDimmed]}>
+                ({pagesToFilter.length})
+              </LyristText>
+            )}
+          </View>
+          {!hasPlus && user && (
+            <View style={focusMode && styles.itemDimmed}>
+              <PlusButton
+                text={`${pagesLeftBasicUser} left`}
+                onPress={() => router.push('/pricing')}
+                small
+              />
+            </View>
+          )}
+        </View>
+        <ScrollView
+          style={styles.panelContentScrollable}
+          showsVerticalScrollIndicator={true}
+          {...(Platform.OS === 'web' && ({className: 'pagescreen-panel-scroll'} as any))}>
+          {pagesLoading ? (
+            <ActivityIndicator color={focusMode ? '#444' : LYRIST_BLUE} style={{marginTop: 20}} />
+          ) : !user ? (
+            <LyristText
+              style={[styles.emptyText, focusMode && styles.textDimmed]}
+              onPress={() => setOpenAuthModal(true)}>
+              Sign in to see your library
+            </LyristText>
+          ) : error ? (
+            <LyristText style={[styles.emptyText, focusMode && styles.textDimmed]}>
+              {error.message}
+            </LyristText>
+          ) : displayPages.length > 0 ? (
+            <>
+              {displayPages.map((item, index) => (
+                <View key={item.id} style={focusMode && styles.itemDimmed}>
+                  <PageItem
+                    animatedValue={animatedValues.current?.get(item.id!)}
+                    index={index}
+                    page={item}
+                    onDelete={() => setPageToDelete(item)}
+                    onShare={async () => {
+                      const itemBody = await database().ref(`pages/${item.id}/body`).once('value');
+                      const bodyText = itemBody.val() ? decrypt(itemBody.val()) : '';
+                      const copiedText = `${item.title}\n${bodyText}\nhttps://lyrist.app`;
+                      const shareObj = {title: item.title, text: copiedText};
+                      if (window.navigator.canShare && window.navigator.canShare(shareObj)) {
+                        window.navigator.share(shareObj);
+                      } else {
+                        Clipboard.setString(copiedText);
+                        setCopiedTitle(item.title);
+                        setTimeout(() => {
+                          setCopiedTitle(null);
+                        }, 3000);
+                      }
+                    }}
+                    onPressItem={page => handleSelectPage(page)}
+                  />
+                </View>
+              ))}
+              {hasMore && (
+                <LyristText style={[styles.moreItemsText, focusMode && styles.textDimmed]}>
+                  +{(pagesToFilter?.length ?? 0) - PAGE_SIZE} more items
+                </LyristText>
+              )}
+            </>
+          ) : (
+            <LyristText style={[styles.emptyText, focusMode && styles.textDimmed]}>
+              Search for audio to start writing
+            </LyristText>
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
 
   const renderEditorPanel = () => (
     <View style={[styles.panel, styles.editorPanel]}>
@@ -540,12 +596,32 @@ export function PageScreen() {
         {editorLoading || pagesLoading || userLoading ? (
           <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 40}} />
         ) : lockEditor ? (
-          <Pressable onPress={() => router.push('/pricing')} style={styles.lockedBanner}>
-            <LyristText style={styles.lockedText}>Get Lyrist Plus for unlimited pages</LyristText>
+          <Pressable style={styles.ctaContainer} onPress={() => router.push('/pricing')}>
+            <LyristText weight="Medium" style={styles.ctaTitle}>
+              Unlock unlimited pages
+            </LyristText>
+            <LyristText style={styles.ctaSubtitle}>
+              You get 3 pages on the free tier. Get Plus for more.
+            </LyristText>
+            <View style={styles.ctaButtonPlus}>
+              <LyristText weight="Medium" style={styles.ctaButtonText}>
+                Get Lyrist Plus
+              </LyristText>
+            </View>
           </Pressable>
         ) : user == null ? (
-          <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInBanner}>
-            <LyristText style={styles.signInText}>Sign in to use the editor</LyristText>
+          <Pressable style={styles.ctaContainer} onPress={() => setOpenAuthModal(true)}>
+            <LyristText weight="Medium" style={styles.ctaTitle}>
+              Your lyrics, synced everywhere
+            </LyristText>
+            <LyristText style={styles.ctaSubtitle}>
+              Save your work and pick up where you left off
+            </LyristText>
+            <View style={styles.ctaButton}>
+              <LyristText weight="Medium" style={styles.ctaButtonText}>
+                Sign in
+              </LyristText>
+            </View>
           </Pressable>
         ) : !url ? (
           <View style={styles.noAudioMessage}>
@@ -555,14 +631,28 @@ export function PageScreen() {
           </View>
         ) : (
           <>
-            <TitleInput
-              key={`title-${editorKey}`}
-              color={'black'}
-              inputAccessoryViewID={'PageScreen'}
-              onChangeText={handleTitleChange}
-              testID="title-input"
-              text={currentTitle}
-            />
+            <View style={styles.titleRow}>
+              <View style={styles.titleInputWrapper}>
+                <TitleInput
+                  key={`title-${editorKey}`}
+                  color={'black'}
+                  inputAccessoryViewID={'PageScreen'}
+                  onChangeText={handleTitleChange}
+                  testID="title-input"
+                  text={currentTitle || currentAudio?.title || ''}
+                />
+              </View>
+              <Pressable
+                onPress={() => setFocusMode(!focusMode)}
+                style={styles.focusModeButton}
+                accessibilityLabel={focusMode ? 'Turn on side panels' : 'Turn off side panels'}>
+                {focusMode ? (
+                  <FaLightbulb size={20} color={LYRIST_BLUE} />
+                ) : (
+                  <FaRegLightbulb size={20} color="#999" />
+                )}
+              </Pressable>
+            </View>
             <Editor
               key={`editor-${editorKey}`}
               color={'black'}
@@ -578,70 +668,112 @@ export function PageScreen() {
     </View>
   );
 
-  const renderSearchPanel = () => (
-    <View style={styles.panel}>
-      <View style={styles.platformTabs}>
-        {AUDIO_PLATFORMS.map(platform => {
-          const plat = platform.toLowerCase();
-          const isSelected = selectedPlatform === plat;
-          const SocialIcon = plat === 'youtube' ? SlSocialYoutube : SlSocialSoundcloud;
-          return (
-            <Pressable
-              key={plat}
-              onPress={() => setPlatform(plat)}
-              style={[styles.platformTab, isSelected && styles.platformTabActive]}>
-              <SocialIcon color={isSelected ? 'white' : '#666'} size={16} />
-              <LyristText style={[styles.platformText, isSelected && styles.platformTextActive]}>
-                {platform}
-              </LyristText>
-            </Pressable>
-          );
-        })}
-      </View>
-      <View style={styles.searchInputWrapper}>
-        <FaSistrix size={14} color="#999" />
-        <TextInput
-          defaultValue={q}
-          onSubmitEditing={e => executeQuery(e.nativeEvent.text)}
-          placeholder="Artist, genre, or song..."
-          placeholderTextColor="#999"
-          style={styles.searchInput}
-        />
-      </View>
-      <ScrollView style={styles.panelContent} showsVerticalScrollIndicator={false}>
-        {searchLoading ? (
-          <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 20}} />
-        ) : searchError ? (
-          <LyristText style={styles.emptyText}>{searchError.message}</LyristText>
-        ) : searchResults.length > 0 ? (
-          searchResults.map((item, index) => {
-            const isCurrentlyPlaying = initialAudio?.id === item.id;
+  const renderSearchPanel = () => {
+    const displayResults = searchResults.slice(0, PAGE_SIZE);
+    const hasMoreResults = searchResults.length > PAGE_SIZE;
+
+    return (
+      <View style={[styles.panel, focusMode && styles.panelDimmed]}>
+        <View style={[styles.platformTabs, focusMode && styles.platformTabsDimmed]}>
+          {AUDIO_PLATFORMS.map(platform => {
+            const plat = platform.toLowerCase();
+            const isSelected = selectedPlatform === plat;
+            const SocialIcon = plat === 'youtube' ? SlSocialYoutube : SlSocialSoundcloud;
             return (
-              <View
-                key={index}
+              <Pressable
+                key={plat}
+                onPress={() => setPlatform(plat)}
                 style={[
-                  styles.audioItemWrapper,
-                  isCurrentlyPlaying && styles.audioItemWrapperActive,
+                  styles.platformTab,
+                  isSelected && styles.platformTabActive,
+                  focusMode && styles.platformTabDimmed,
                 ]}>
-                <AudioItem
-                  audio={item}
-                  index={index}
-                  onPressItem={() => handleSelectAudio(item)}
-                  pageId={findPageFromAudio(item.id)?.id ?? null}
-                />
-              </View>
+                <SocialIcon color={focusMode ? '#555' : isSelected ? 'white' : '#666'} size={16} />
+                <LyristText
+                  style={[
+                    styles.platformText,
+                    isSelected && styles.platformTextActive,
+                    focusMode && styles.textDimmed,
+                  ]}>
+                  {platform}
+                </LyristText>
+              </Pressable>
             );
-          })
-        ) : (
-          <View style={styles.searchHints}>
-            <LyristText style={styles.hintText}>"lo-fi" type beats</LyristText>
-            <LyristText style={styles.hintText}>"drake" instrumentals</LyristText>
-            <LyristText style={styles.hintText}>"song name" lyrics</LyristText>
+          })}
+        </View>
+        <View style={[styles.searchInputWrapper, focusMode && styles.searchInputDimmed]}>
+          <FaSistrix size={14} color={focusMode ? '#555' : '#999'} />
+          <TextInput
+            defaultValue={q}
+            onSubmitEditing={e => executeQuery(e.nativeEvent.text)}
+            placeholder="Artist, genre, or song..."
+            placeholderTextColor={focusMode ? '#444' : '#999'}
+            style={[styles.searchInput, focusMode && styles.searchInputTextDimmed]}
+          />
+        </View>
+        <View style={styles.panelHeader}>
+          <View style={styles.panelHeaderLeft}>
+            <LyristText weight="Medium" style={[styles.panelTitle, focusMode && styles.textDimmed]}>
+              Results
+            </LyristText>
+            {searchResults.length > 0 && (
+              <LyristText style={[styles.itemCount, focusMode && styles.textDimmed]}>
+                ({searchResults.length})
+              </LyristText>
+            )}
           </View>
-        )}
-      </ScrollView>
-    </View>
-  );
+        </View>
+        <ScrollView style={styles.panelContentScrollable} showsVerticalScrollIndicator={true}>
+          {searchLoading ? (
+            <ActivityIndicator color={focusMode ? '#444' : LYRIST_BLUE} style={{marginTop: 20}} />
+          ) : searchError ? (
+            <LyristText style={[styles.emptyText, focusMode && styles.textDimmed]}>
+              {searchError.message}
+            </LyristText>
+          ) : displayResults.length > 0 ? (
+            <>
+              {displayResults.map((item, index) => {
+                const isCurrentlyPlaying = initialAudio?.id === item.id;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.audioItemWrapper,
+                      isCurrentlyPlaying && styles.audioItemWrapperActive,
+                      focusMode && styles.itemDimmed,
+                    ]}>
+                    <AudioItem
+                      audio={item}
+                      index={index}
+                      onPressItem={() => handleSelectAudio(item)}
+                      pageId={findPageFromAudio(item.id)?.id ?? null}
+                    />
+                  </View>
+                );
+              })}
+              {hasMoreResults && (
+                <LyristText style={[styles.moreItemsText, focusMode && styles.textDimmed]}>
+                  +{searchResults.length - PAGE_SIZE} more results
+                </LyristText>
+              )}
+            </>
+          ) : (
+            <View style={styles.searchHints}>
+              <LyristText style={[styles.hintText, focusMode && styles.textDimmed]}>
+                "lo-fi" type beats
+              </LyristText>
+              <LyristText style={[styles.hintText, focusMode && styles.textDimmed]}>
+                "drake" instrumentals
+              </LyristText>
+              <LyristText style={[styles.hintText, focusMode && styles.textDimmed]}>
+                "song name" lyrics
+              </LyristText>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
 
   /* MAIN RENDER */
   if (large) {
@@ -713,12 +845,32 @@ export function PageScreen() {
             {editorLoading || pagesLoading || userLoading ? (
               <ActivityIndicator color={LYRIST_BLUE} />
             ) : lockEditor ? (
-              <Pressable onPress={() => router.push('/pricing')} style={styles.lockedBanner}>
-                <LyristText style={styles.lockedText}>Get Lyrist Plus</LyristText>
+              <Pressable style={styles.ctaContainer} onPress={() => router.push('/pricing')}>
+                <LyristText weight="Medium" style={styles.ctaTitle}>
+                  Unlock unlimited pages
+                </LyristText>
+                <LyristText style={styles.ctaSubtitle}>
+                  Free users get 3 pages. Go Plus for more.
+                </LyristText>
+                <View style={styles.ctaButtonPlus}>
+                  <LyristText weight="Medium" style={styles.ctaButtonText}>
+                    Get Lyrist Plus
+                  </LyristText>
+                </View>
               </Pressable>
             ) : user == null ? (
-              <Pressable onPress={() => setOpenAuthModal(true)} style={styles.signInBanner}>
-                <LyristText style={styles.signInText}>Sign in to use the editor</LyristText>
+              <Pressable style={styles.ctaContainer} onPress={() => setOpenAuthModal(true)}>
+                <LyristText weight="Medium" style={styles.ctaTitle}>
+                  Your lyrics, synced everywhere
+                </LyristText>
+                <LyristText style={styles.ctaSubtitle}>
+                  Save your work and pick up where you left off
+                </LyristText>
+                <View style={styles.ctaButton}>
+                  <LyristText weight="Medium" style={styles.ctaButtonText}>
+                    Sign in
+                  </LyristText>
+                </View>
               </Pressable>
             ) : (
               <View style={styles.editorContentMobile}>
@@ -728,7 +880,7 @@ export function PageScreen() {
                   inputAccessoryViewID={'PageScreen'}
                   onChangeText={handleTitleChange}
                   testID="title-input"
-                  text={currentTitle}
+                  text={currentTitle || currentAudio?.title || ''}
                 />
                 <Editor
                   key={`editor-${editorKey}`}
@@ -822,7 +974,9 @@ const styles = StyleSheet.create({
   },
   panel: {
     flex: 1,
+    flexDirection: 'column',
     backgroundColor: '#FFF',
+    overflow: 'hidden',
   },
   editorPanel: {
     flex: 1.5,
@@ -843,13 +997,25 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 16,
   },
-  pagesLeft: {
-    fontSize: 12,
-    color: TURQUOISE,
-  },
   panelContent: {
     flex: 1,
     paddingHorizontal: 8,
+  },
+  panelContentScrollable: {
+    flex: 1,
+    minHeight: 0,
+    paddingHorizontal: 8,
+  },
+  itemCount: {
+    fontSize: 12,
+    color: '#999',
+  },
+  moreItemsText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 12,
+    fontStyle: 'italic',
   },
   libraryItem: {
     paddingVertical: 10,
@@ -908,21 +1074,40 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
   },
-  lockedBanner: {
-    backgroundColor: TURQUOISE,
-    paddingVertical: 12,
+  ctaContainer: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    gap: 12,
   },
-  lockedText: {
-    color: 'white',
+  ctaTitle: {
+    fontSize: 20,
+    color: '#333',
   },
-  signInBanner: {
+  ctaSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  ctaButton: {
     backgroundColor: LYRIST_BLUE,
-    paddingVertical: 12,
-    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 8,
   },
-  signInText: {
+  ctaButtonPlus: {
+    backgroundColor: TURQUOISE,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 8,
+  },
+  ctaButtonText: {
     color: 'white',
+    fontSize: 12,
   },
   noAudioMessage: {
     flex: 1,
@@ -1054,5 +1239,46 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 15,
+  },
+  // Focus mode styles
+  panelDimmed: {
+    backgroundColor: '#F5F5F5',
+  },
+  textDimmed: {
+    opacity: 0,
+  },
+  itemDimmed: {
+    opacity: 0,
+  },
+  panelHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  platformTabsDimmed: {
+    opacity: 0,
+  },
+  platformTabDimmed: {
+    opacity: 0,
+  },
+  searchInputDimmed: {
+    opacity: 0,
+  },
+  searchInputTextDimmed: {
+    opacity: 0,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E5E5E5',
+  },
+  titleInputWrapper: {
+    flex: 1,
+  },
+  focusModeButton: {
+    padding: 12,
+    marginRight: 4,
+    ...(Platform.OS === 'web' && {cursor: 'pointer' as any}),
   },
 });

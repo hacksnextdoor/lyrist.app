@@ -7,4 +7,5 @@ export * from './FormContainer';
 export * from './FormInput';
 export * from './LyristText';
 export * from './PageItem';
+export * from './PlusButton';
 export * from './TitleInput';

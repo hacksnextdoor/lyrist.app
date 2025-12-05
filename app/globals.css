@@ -64,6 +64,12 @@ body {
 }
 
 /* Custom scrollbar for panels */
+.pagescreen-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .pagescreen-panel-scroll::-webkit-scrollbar {
   width: 6px;
 }

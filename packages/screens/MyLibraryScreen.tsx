@@ -1,7 +1,7 @@
 import {useRouter} from 'next/navigation';
 import {useCallback, useRef, useState} from 'react';
 import {Animated, Clipboard, Modal, Pressable, StyleSheet, View} from 'react-native';
-import {LyristText, PageItem} from '../components';
+import {LyristText, PageItem, PlusButton} from '../components';
 import {LYRIST_BLUE, MAX_PAGES} from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
 import {decrypt} from '../encryption';
@@ -55,7 +55,8 @@ export function MyLibraryScreen() {
         onDelete={() => setPageToDelete(item)}
         onShare={async () => {
           const itemBody = await database().ref(`pages/${item.id}/body`).once('value');
-          const copiedText = `${item.title}\n${decrypt(itemBody.val())}\nhttps://lyrist.app`;
+          const bodyText = itemBody.val() ? decrypt(itemBody.val()) : '';
+          const copiedText = `${item.title}\n${bodyText}\nhttps://lyrist.app`;
           // https://webkit.org/blog/10855/async-clipboard-api/
           // The API is limited to secure contexts, which means that navigator.clipboard is not present for http:// websites.
           const shareObj = {title: item.title, text: copiedText};
@@ -84,11 +85,14 @@ export function MyLibraryScreen() {
           <LyristText weight={'Medium'}>My Library</LyristText>
           {hasPlus ? null : (
             <>
-              <LyristText>·</LyristText>
               {user ? (
-                <LyristText onPress={() => router.push('/pricing')}>
-                  {pagesLeftBasicUser} free page{pagesLeftBasicUser !== 1 && 's'} left
-                </LyristText>
+                <PlusButton
+                  text={`${pagesLeftBasicUser} free page${
+                    pagesLeftBasicUser !== 1 ? 's' : ''
+                  } left`}
+                  onPress={() => router.push('/pricing')}
+                  small
+                />
               ) : (
                 <LyristText onPress={() => setOpenAuthModal(true)}>Sign In</LyristText>
               )}
@@ -197,6 +201,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     paddingHorizontal: normalize(12),
+    alignItems: 'center',
   },
   loadingText: {
     paddingHorizontal: normalize(12),

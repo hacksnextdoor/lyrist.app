@@ -199,12 +199,6 @@ export function useSave({initialPage, userId}: UseSaveOptions) {
     setEditorLoading(initialPage.id != null);
     setEditorKey(k => k + 1); // Force Editor remount with new defaultValue
 
-    if (initialPage.id == null) {
-      log(`SYNC EFFECT: New page (no id) - clearing body/title`);
-      setCurrentBody('');
-      setCurrentTitle('');
-    }
-
     log(`SYNC EFFECT: Complete`);
   }, [initialPage.id, initialPage.audio?.id]);
 

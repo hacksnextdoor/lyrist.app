@@ -40,7 +40,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 16,
     paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5E5',
   },
 });

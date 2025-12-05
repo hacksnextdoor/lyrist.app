@@ -117,14 +117,14 @@ export function PageItemUnmemoized({
           )}
           <View style={styles.meta}>
             <LyristText style={styles.title} numberOfLines={2}>
-              {page.title}
+              {page.title || (page.audio ? page.audio.title : '(no title)')}
             </LyristText>
             <View style={styles.preView}>
               <LyristText style={styles.dateModified}>
                 {getFormattedDate(page.dateLastModified)}
               </LyristText>
               <LyristText style={styles.lyrics} numberOfLines={1} ellipsizeMode={'tail'}>
-                {decrypt(page.preview)}
+                {page.preview ? decrypt(page.preview) : '(no text)'}
               </LyristText>
             </View>
           </View>

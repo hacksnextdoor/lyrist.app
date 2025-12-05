@@ -2,14 +2,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
-import {useEffect, useState} from 'react';
-import {View} from 'react-native';
-import {LyristText} from '../../packages/components';
+import {useEffect, useState, useTransition} from 'react';
+import {ActivityIndicator, Pressable, View} from 'react-native';
+import {LyristText, PlusButton} from '../../packages/components';
 import {
   BTN_PLUS_SUBSCRIPTION_PRESSED,
+  LYRIST_BLUE,
   TAB_MYLYRICS_PRESSED,
   TAB_SEARCH_PRESSED,
-  TURQUOISE,
   USER_SIGNED_OUT,
 } from '../../packages/constants';
 import {useAuthContext} from '../../packages/context';
@@ -23,6 +23,8 @@ export function AppHeader() {
   const pathname = usePathname();
   const {hasPlus, hasProfile, user, userLoading, setOpenAuthModal} = useAuthContext();
   const [mounted, setMounted] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -65,20 +67,31 @@ export function AppHeader() {
         <Link href={'/'}>
           <Image src="/logo-black.png" width={32} height={32} alt="Lyrist logo" />
         </Link>
-        <LyristText
+        <Pressable
           onPress={() => {
             logFirebaseEvent(TAB_MYLYRICS_PRESSED);
-            router.push('/library');
-          }}>
-          My Library
-        </LyristText>
-        <LyristText
+            startTransition(() => router.push('/library'));
+          }}
+          style={({pressed}) => ({
+            opacity: pressed || (isPending && pathname !== '/library') ? 0.5 : 1,
+          })}>
+          <LyristText style={{color: pathname === '/library' ? LYRIST_BLUE : '#000'}}>
+            My Library
+          </LyristText>
+        </Pressable>
+        <Pressable
           onPress={() => {
             logFirebaseEvent(TAB_SEARCH_PRESSED);
-            router.push('/search');
-          }}>
-          Search
-        </LyristText>
+            startTransition(() => router.push('/search'));
+          }}
+          style={({pressed}) => ({
+            opacity: pressed || (isPending && pathname !== '/search') ? 0.5 : 1,
+          })}>
+          <LyristText style={{color: pathname === '/search' ? LYRIST_BLUE : '#000'}}>
+            Search
+          </LyristText>
+        </Pressable>
+        {isPending && <ActivityIndicator size="small" color={LYRIST_BLUE} />}
       </View>
       <View
         style={{
@@ -88,38 +101,37 @@ export function AppHeader() {
         }}>
         {/* Only render auth-dependent UI after mount to avoid hydration mismatch */}
         {!mounted || userLoading ? (
-          <LyristText>Signing in...</LyristText>
+          <LyristText style={{color: '#999'}}>Loading...</LyristText>
         ) : user ? (
           <>
             {hasPlus ? null : (
-              <LyristText
+              <PlusButton
+                text="Get Lyrist Plus"
                 onPress={() => {
                   logFirebaseEvent(BTN_PLUS_SUBSCRIPTION_PRESSED);
-                  router.push('/pricing');
+                  startTransition(() => router.push('/pricing'));
                 }}
-                style={{
-                  backgroundColor: TURQUOISE,
-                  color: 'white',
-                  borderRadius: 5,
-                  fontSize: 12,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
-                }}>
-                Get Lyrist Plus
-              </LyristText>
+              />
             )}
-            <LyristText
+            <Pressable
               onPress={async () => {
+                setSigningOut(true);
                 await auth().signOut();
                 window.localStorage.clear();
                 logFirebaseEvent(USER_SIGNED_OUT);
                 router.push('/');
-              }}>
-              Sign out
-            </LyristText>
+              }}
+              disabled={signingOut}
+              style={({pressed}) => ({opacity: pressed || signingOut ? 0.5 : 1})}>
+              <LyristText>{signingOut ? 'Signing out...' : 'Sign out'}</LyristText>
+            </Pressable>
           </>
         ) : (
-          <LyristText onPress={() => setOpenAuthModal(true)}>Sign in</LyristText>
+          <Pressable
+            onPress={() => setOpenAuthModal(true)}
+            style={({pressed}) => ({opacity: pressed ? 0.5 : 1})}>
+            <LyristText>Sign in</LyristText>
+          </Pressable>
         )}
       </View>
     </View>
