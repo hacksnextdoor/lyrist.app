@@ -619,7 +619,7 @@ export function PageScreen() {
             </LyristText>
             <View style={styles.ctaButton}>
               <LyristText weight="Medium" style={styles.ctaButtonText}>
-                Sign in
+                Sign in to use the editor
               </LyristText>
             </View>
           </Pressable>
@@ -868,7 +868,7 @@ export function PageScreen() {
                 </LyristText>
                 <View style={styles.ctaButton}>
                   <LyristText weight="Medium" style={styles.ctaButtonText}>
-                    Sign in
+                    Sign in to use the editor
                   </LyristText>
                 </View>
               </Pressable>
