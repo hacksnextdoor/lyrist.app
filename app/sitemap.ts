@@ -1,3 +1,5 @@
+import {getAllArtistSlugs, getAllReleaseSlugs} from '../packages/records/data';
+
 export default async function sitemap() {
   const media = [
     {
@@ -22,5 +24,17 @@ export default async function sitemap() {
     lastModified: new Date().toISOString().slice(0, 10),
   }));
 
-  return [...routes, ...media];
+  // Artist pages
+  const artistRoutes = getAllArtistSlugs().map(artist => ({
+    url: `https://lyrist.app/records/${artist}`,
+    lastModified: new Date().toISOString().slice(0, 10),
+  }));
+
+  // Release pages
+  const releaseRoutes = getAllReleaseSlugs().map(({artist, release}) => ({
+    url: `https://lyrist.app/records/${artist}/${release}`,
+    lastModified: new Date().toISOString().slice(0, 10),
+  }));
+
+  return [...routes, ...artistRoutes, ...releaseRoutes, ...media];
 }

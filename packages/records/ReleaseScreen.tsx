@@ -1,94 +1,145 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {LyristText} from '../components';
-import {useScale} from '../hooks/useScale';
-import {CREAM_BACKGROUND} from '../constants';
+import {CREAM_BACKGROUND, LYRIST_BLUE} from '../constants';
+import {ContactFooter, ContactOverlay} from './ContactFooter';
+import {ReleaseCard} from './ReleaseCard';
 import {memo, useMemo} from 'react';
+import type {Artist, Release} from './data';
 
-const SpotifyIframe = memo(() => (
-  <View style={styles.widget}>
-    <iframe
-      title="Spotify player for Right One by Peyt Spencer"
-      style={{borderRadius: 12, height: 152, marginBottom: -8}}
-      src="https://open.spotify.com/embed/track/6UdiHSxkfvXlrRwaZi2qZp?utm_source=generator&theme=0"
-      frameBorder={0}
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-      loading="lazy"
-    />
-  </View>
+interface SpotifyEmbedProps {
+  trackId: string;
+  title: string;
+}
+
+const SpotifyEmbed = memo(({trackId, title}: SpotifyEmbedProps) => (
+  <iframe
+    title={title}
+    style={{borderRadius: 8, height: 152, width: '100%', maxWidth: 600}}
+    src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`}
+    frameBorder={0}
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"
+  />
 ));
 
-export function ReleaseScreen() {
-  const {small, medium} = useScale();
-  const fontSize = small ? 16 : medium ? 20 : 24;
-  const lineHeight = small ? 24 : medium ? 28 : 32;
+export interface ReleaseScreenProps {
+  artist: Artist;
+  release: Release;
+}
+
+export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
+  const {width, height} = useWindowDimensions();
+  const isWide = width >= 900;
+
+  // Scale text to fill viewport - target ~85% of height for content
+  // Base: 16px at 800px height, scale proportionally
+  const baseFontSize = Math.max(14, Math.min(20, height * 0.018));
+  const lineHeight = Math.round(baseFontSize * 1.5);
+
   const textStyles = useMemo(
     () => ({
-      paragraph: {...styles.paragraph, fontSize, lineHeight, marginBottom: fontSize},
-      quote: {...styles.quote, fontSize, lineHeight, marginBottom: fontSize},
+      paragraph: {
+        ...styles.paragraph,
+        fontSize: baseFontSize,
+        lineHeight,
+      },
+      quote: {
+        ...styles.quote,
+        fontSize: baseFontSize / 1.2,
+        lineHeight,
+      },
     }),
-    [fontSize, lineHeight],
+    [baseFontSize, lineHeight],
   );
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <LyristText style={styles.title} weight={'Medium'}>
-        Peyt Spencer Finds The "Right One” in His Summer Solstice Release
-      </LyristText>
+  const articleContent = (
+    <View style={styles.body}>
+      <SpotifyEmbed
+        trackId={release.spotifyTrackId}
+        title={`Spotify player for ${release.title} by ${artist.name}`}
+      />
 
-      <LyristText style={[textStyles.paragraph, {fontStyle: 'italic', marginBottom: -8}]}>
-        Bellevue, WA – June 24, 2025
-      </LyristText>
+      <LyristText style={textStyles.paragraph}>{release.intro}</LyristText>
 
-      <SpotifyIframe />
-
-      <LyristText style={textStyles.paragraph}>
-        As a rising talent in both music and tech worlds, Peyt Spencer hits a new high with his
-        latest single,{' '}
-        <LyristText style={[textStyles.paragraph, {fontStyle: 'italic'}]}>Right One</LyristText>,
-        delivering an anthem celebrating honesty, loyalty, and genuine connection. His lyrics
-        capture the essence of nurturing meaningful relationships, mirroring his own journey of
-        personal growth and exploration:
-      </LyristText>
-
-      <LyristText style={textStyles.quote}>
-        They say, "truthfulness is the foundation of all human virtues"{'\n'}I promise I won't lie
-        or do anything to hurt you{'\n'}
-        Ya presence is a gift I probably don't deserve you{'\n'}
-        Take you out for dinner I'm never gonna desert you{'\n'}
-      </LyristText>
-
-      <LyristText style={textStyles.paragraph}>
-        His bars are vulnerable, yet charming. Fresh off his five-year anniversary,{' '}
-        <LyristText style={[textStyles.paragraph, {fontStyle: 'italic'}]}>Right One</LyristText>{' '}
-        doubles as a quiet tribute:
-      </LyristText>
-
-      <LyristText style={textStyles.quote}>
-        They say, "love lights a flame in the heart that is cold"{'\n'}
-        All that glimmers don't compare to a heart that is gold{'\n'}
-        The hardship of heartbreak we both been thru it{'\n'}
-        My last name same as yours has a ring to it
-      </LyristText>
-
-      <LyristText style={textStyles.paragraph}>
-        For clever wordplay that makes you smile, stream{' '}
-        <LyristText style={[textStyles.paragraph, {fontStyle: 'italic'}]}>Right One</LyristText> now
-        on all platforms.
-      </LyristText>
-
-      <LyristText style={styles.contactHeader}>Contact</LyristText>
-      <LyristText style={[textStyles.paragraph, {marginBottom: 8}]}>
-        Inspired by the Baha'i Faith, with thoughtful insight into the fundamentals of hip-hop, and
-        a flow that wastes no bars, you can follow his grind on Instagram.
-      </LyristText>
-      <Link href={'https://www.instagram.com/peytspencer'} target={'_blank'}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-          <Image alt={'instagram'} src={'/instagram.png'} width={32} height={32} />
-          <LyristText style={styles.link}>@peytspencer</LyristText>
+      {release.quotes.map((quote, i) => (
+        <View key={i}>
+          {quote.pre && (
+            <LyristText style={{...textStyles.paragraph, marginBottom: 8}}>{quote.pre}</LyristText>
+          )}
+          <LyristText style={textStyles.quote}>{quote.lines.join('\n')}</LyristText>
         </View>
+      ))}
+      <LyristText style={textStyles.paragraph}>{release.outro}</LyristText>
+    </View>
+  );
+
+  const otherReleasesContent = (
+    <View style={isWide ? styles.otherReleases : styles.otherReleasesMobile}>
+      <LyristText style={styles.otherReleasesTitle} weight="Medium">
+        More Releases
+      </LyristText>
+      {artist.releases
+        .filter(r => r.slug !== release.slug)
+        .map(r => (
+          <ReleaseCard key={r.slug} release={r} artistSlug={artist.slug} artistName={artist.name} />
+        ))}
+      <Link href={`/records/${artist.slug}`} style={{textDecoration: 'none'}}>
+        <LyristText style={styles.allReleasesLink}>← All Releases</LyristText>
+      </Link>
+    </View>
+  );
+
+  if (isWide) {
+    return (
+      <View style={[styles.container, {height}]}>
+        <View style={styles.contentColumn}>
+          <View style={styles.header}>
+            <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
+            <LyristText style={styles.title} weight={'Medium'}>
+              {release.headline}
+            </LyristText>
+          </View>
+
+          <View style={styles.twoColumn}>
+            {articleContent}
+            {otherReleasesContent}
+          </View>
+        </View>
+
+        <Link
+          href={artist.site}
+          target="_blank"
+          style={{flexBasis: '33.333%', flexGrow: 0, flexShrink: 0, position: 'relative', height}}>
+          <Image
+            src={release.performanceImage}
+            alt={artist.name}
+            fill
+            sizes="33vw"
+            priority
+            style={{objectFit: 'cover'}}
+          />
+          <ContactOverlay artist={artist} img={release.performanceImage} />
+        </Link>
+      </View>
+    );
+  }
+
+  // Mobile layout
+  return (
+    <ScrollView contentContainerStyle={styles.mobileContainer}>
+      <View style={styles.header}>
+        <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
+        <LyristText style={styles.title} weight={'Medium'}>
+          {release.headline}
+        </LyristText>
+      </View>
+      {articleContent}
+      {otherReleasesContent}
+      <Link href={artist.site} target={'_blank'}>
+        <ContactFooter artist={artist} img={release.performanceImage} />
       </Link>
     </ScrollView>
   );
@@ -96,40 +147,76 @@ export function ReleaseScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 32,
+    flexDirection: 'row',
     backgroundColor: '#fff',
-    maxWidth: 1200,
-    paddingBottom: 128,
+    overflow: 'hidden',
+  },
+  contentColumn: {
+    flexBasis: '66.666%',
+    flexGrow: 0,
+    flexShrink: 0,
+    padding: 48,
+    paddingRight: 64,
+    overflow: 'auto' as any,
+  },
+  twoColumn: {
+    flexDirection: 'row',
+    gap: 32,
+    alignItems: 'flex-start',
+  },
+  mobileContainer: {
+    padding: 24,
+  },
+  header: {
+    marginBottom: 32,
+    borderBottomWidth: 2,
+    borderBottomColor: '#000',
+    paddingBottom: 24,
+  },
+  kicker: {
+    fontSize: 16,
+    letterSpacing: 1.5,
+    color: LYRIST_BLUE,
+    marginBottom: 8,
   },
   title: {
     fontSize: 32,
-    marginBottom: 8,
+    lineHeight: 40,
   },
-  location: {
-    fontSize: 24,
-    fontStyle: 'italic',
+  body: {
+    gap: 16,
+    flex: 1,
   },
   paragraph: {
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: 32,
+    fontSize: 16,
   },
   quote: {
-    fontSize: 24,
     fontStyle: 'italic',
-    lineHeight: 32,
-    marginBottom: 32,
+    lineHeight: 24,
     borderLeftWidth: 4,
-    borderLeftColor: '#007AFF',
+    borderLeftColor: LYRIST_BLUE,
     padding: 16,
     backgroundColor: CREAM_BACKGROUND,
   },
-  contactHeader: {
-    fontSize: 32,
+  otherReleases: {
+    gap: 16,
+    width: 280,
+    flexShrink: 0,
+  },
+  otherReleasesMobile: {
+    gap: 16,
+    marginTop: 32,
+  },
+  otherReleasesTitle: {
+    fontSize: 13,
+    letterSpacing: 1.2,
+    color: '#666',
     marginBottom: 8,
+    textTransform: 'uppercase',
   },
-  link: {
-    fontSize: 24,
+  allReleasesLink: {
+    fontSize: 16,
+    color: LYRIST_BLUE,
+    marginTop: 8,
   },
-  widget: {paddingVertical: 32, maxWidth: 600, width: '100%'},
 });
