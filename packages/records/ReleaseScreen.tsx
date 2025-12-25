@@ -95,20 +95,6 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
   if (isWide) {
     return (
       <View style={[styles.container, {height}]}>
-        <View style={styles.contentColumn}>
-          <View style={styles.header}>
-            <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
-            <LyristText style={styles.title} weight={'Medium'}>
-              {release.headline}
-            </LyristText>
-          </View>
-
-          <View style={styles.twoColumn}>
-            {articleContent}
-            {otherReleasesContent}
-          </View>
-        </View>
-
         <Link
           href={artist.site}
           target="_blank"
@@ -123,6 +109,18 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
           />
           <ContactOverlay artist={artist} img={release.performanceImage} />
         </Link>
+        <View style={styles.contentColumn}>
+          <View style={styles.header}>
+            <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
+            <LyristText style={styles.title} weight={'Medium'}>
+              {release.headline}
+            </LyristText>
+          </View>
+          <View style={styles.twoColumn}>
+            {articleContent}
+            {otherReleasesContent}
+          </View>
+        </View>
       </View>
     );
   }
@@ -130,6 +128,9 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
   // Mobile layout
   return (
     <ScrollView contentContainerStyle={styles.mobileContainer}>
+      <Link href={artist.site} target={'_blank'}>
+        <ContactFooter artist={artist} img={release.performanceImage} />
+      </Link>
       <View style={styles.header}>
         <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
         <LyristText style={styles.title} weight={'Medium'}>
@@ -138,9 +139,6 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
       </View>
       {articleContent}
       {otherReleasesContent}
-      <Link href={artist.site} target={'_blank'}>
-        <ContactFooter artist={artist} img={release.performanceImage} />
-      </Link>
     </ScrollView>
   );
 }

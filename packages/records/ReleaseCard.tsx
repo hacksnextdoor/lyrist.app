@@ -42,7 +42,7 @@ export function ReleaseCard({release, artistSlug, artistName}: ReleaseCardProps)
           <LyristText style={styles.title} weight="Medium" numberOfLines={2}>
             {release.headline}
           </LyristText>
-          <LyristText style={styles.readMore}>Read Press Release →</LyristText>
+          <LyristText style={styles.readMore}>Read More →</LyristText>
         </View>
       </View>
     </Link>

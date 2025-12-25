@@ -18,33 +18,6 @@ export function ArtistScreen({artist}: ArtistScreenProps) {
   if (isWide) {
     return (
       <View style={[styles.container, {height}]}>
-        <ScrollView
-          style={styles.scrollColumn}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <LyristText style={styles.artistName} weight="Medium">
-              {artist.name}
-            </LyristText>
-            <LyristText style={styles.bio}>{artist.bio}</LyristText>
-          </View>
-
-          <LyristText style={styles.sectionTitle} weight="Medium">
-            Press Releases
-          </LyristText>
-
-          <View style={styles.releaseList}>
-            {artist.releases.map(release => (
-              <ReleaseCard
-                key={release.slug}
-                release={release}
-                artistSlug={artist.slug}
-                artistName={artist.name}
-              />
-            ))}
-          </View>
-        </ScrollView>
-
         <Link
           href={artist.site}
           target={'_blank'}
@@ -59,6 +32,30 @@ export function ArtistScreen({artist}: ArtistScreenProps) {
           />
           <ContactOverlay artist={artist} img={artist.image} />
         </Link>
+        <ScrollView
+          style={styles.scrollColumn}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <LyristText style={styles.artistName} weight="Medium">
+              {artist.name}
+            </LyristText>
+            <LyristText style={styles.bio}>{artist.bio}</LyristText>
+          </View>
+          <LyristText style={styles.sectionTitle} weight="Medium">
+            Releases
+          </LyristText>
+          <View style={styles.releaseList}>
+            {artist.releases.map(release => (
+              <ReleaseCard
+                key={release.slug}
+                release={release}
+                artistSlug={artist.slug}
+                artistName={artist.name}
+              />
+            ))}
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -72,11 +69,9 @@ export function ArtistScreen({artist}: ArtistScreenProps) {
         </LyristText>
         <LyristText style={styles.bio}>{artist.bio}</LyristText>
       </View>
-
       <LyristText style={styles.sectionTitle} weight="Medium">
         Releases
       </LyristText>
-
       <View style={styles.releaseList}>
         {artist.releases.map(release => (
           <ReleaseCard
