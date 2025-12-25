@@ -128,9 +128,6 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
   // Mobile layout
   return (
     <ScrollView contentContainerStyle={styles.mobileContainer}>
-      <Link href={artist.site} target={'_blank'}>
-        <ContactFooter artist={artist} img={release.performanceImage} />
-      </Link>
       <View style={styles.header}>
         <LyristText style={styles.kicker}>PRESS RELEASE</LyristText>
         <LyristText style={styles.title} weight={'Medium'}>
@@ -139,6 +136,9 @@ export function ReleaseScreen({artist, release}: ReleaseScreenProps) {
       </View>
       {articleContent}
       {otherReleasesContent}
+      <Link href={artist.site} target={'_blank'}>
+        <ContactFooter artist={artist} img={release.performanceImage} />
+      </Link>
     </ScrollView>
   );
 }
