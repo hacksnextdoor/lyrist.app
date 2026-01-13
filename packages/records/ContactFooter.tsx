@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 32,
     marginHorizontal: -24,
+    marginBottom: -24,
   },
   imageContainer: {
     position: 'relative' as any,
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 24,
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
   },
   button: {
     backgroundColor: 'rgba(255,255,255,0.95)',
@@ -80,10 +80,5 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 20,
     paddingTop: 24,
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-  },
-  overlayText: {
-    fontSize: 16,
-    color: '#fff',
   },
 });
