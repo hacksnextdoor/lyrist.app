@@ -21,7 +21,11 @@ export function ContactFooter({artist, img}: ContactFooterProps) {
           style={{width: '100%', height: 'auto'}}
         />
         <View style={styles.mobileOverlay}>
-          <LyristText style={styles.overlayText}>Stay connected at peytspencer.com</LyristText>
+          <View style={styles.button}>
+            <LyristText style={styles.buttonText} weight="Medium">
+              STAY CONNECTED AT PEYTSPENCER.COM
+            </LyristText>
+          </View>
         </View>
       </View>
     </View>
@@ -31,7 +35,11 @@ export function ContactFooter({artist, img}: ContactFooterProps) {
 export function ContactOverlay({artist}: ContactFooterProps) {
   return (
     <View style={styles.overlay}>
-      <LyristText style={styles.overlayText}>Stay connected at peytspencer.com</LyristText>
+      <View style={styles.button}>
+        <LyristText style={styles.buttonText} weight="Medium">
+          STAY CONNECTED AT PEYTSPENCER.COM
+        </LyristText>
+      </View>
     </View>
   );
 }
@@ -40,7 +48,6 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 32,
     marginHorizontal: -24,
-    marginBottom: -24,
   },
   imageContainer: {
     position: 'relative' as any,
@@ -54,6 +61,18 @@ const styles = StyleSheet.create({
     padding: 24,
     background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
   },
+  button: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  buttonText: {
+    fontSize: 11,
+    letterSpacing: 0.5,
+    color: '#000',
+  },
   overlay: {
     position: 'absolute',
     top: 0,
@@ -62,11 +81,6 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 24,
     background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-  },
-  instagramLinkOverlay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
   overlayText: {
     fontSize: 16,

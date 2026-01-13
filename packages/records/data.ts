@@ -35,7 +35,17 @@ export const artists: Artist[] = [
     name: 'Peyt Spencer',
     site: 'https://peytspencer.com/listen',
     location: 'Bellevue, WA',
-    bio: 'Hip-hop artist from Bellevue, WA',
+    bio: `is a rapper and software engineer from Bellevue, Washington, often compared to Jay-Z
+
+for his East Coast cadence and confident delivery. He blends clever punchlines with substance, making you nod your head while catching something new with every rhyme.
+
+Raised on 2000s hip-hop from Ja Rule and LL Cool J to Ludacris and T.I., he carves his own lane from the soulful production and catchy lyrics of that era without ever forgetting how to move any room he's in. His single "Patience" drops words like "homeostasis" while choosing intention over impulse. "Right One" celebrates his wife with vulnerable charm, weaving the Baha'i Writings into lines like "truthfulness is the foundation of all human virtues." He's also building an audience through content, with a reel turning the Writings into a rap pulling in over 50,000 views during summer 2025.
+
+After graduating high school in 2010, he pioneered in rural Panama for a year of service. Living alongside locals and learning their customs, he introduced the Baha'i Faith to various neighborhoods in Santiago by teaching children's classes, animating junior youth empowerment groups, and facilitating Ruhi study circles, while tutoring reading and math. During his downtime, he recorded raps on his laptop to mainstream beats and performed his first rap in Spanish at a community gathering.
+
+Peyt Spencer went on to the University of Florida, where he sold mixtape CDs downtown and performed throughout campus, whether solo, with a live band, or as part of hip-hop theater troupe Signs of Life. During his senior year, he started participating regularly in NBA star Damian Lillard's weekly #4BarFriday challenge. After graduating, he moved to the West Coast to start his tech career and kept submitting. His bars eventually caught Lillard's attention, who highlighted him as one of the best. He's now been a software engineer at Microsoft for the last decade.
+
+Now he's bridging both worlds. He founded Lyrist, a web and mobile app for songwriters to find type beats and beat writer's block, and built his own live streaming infrastructure to connect with fans directly.`,
     instagram: 'peytspencer',
     image: '/peyt-spencer.jpg',
     releases: [

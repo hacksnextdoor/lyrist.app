@@ -55,14 +55,7 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
-      {
-        source: '/pitch',
-        destination:
-          'https://1drv.ms/b/c/87dca7831a060f82/IQR7dy3JxMpuRL-ZQprjjuVlAWZLlCD9VwZc305IIeD9moE',
-        permanent: false,
-        basePath: false,
-      },
-      {
+            {
         source: '/peytspencer/where-i-wanna-be',
         destination: 'https://distrokid.com/hyperfollow/peytspencer/where-i-wanna-be',
         permanent: false,
@@ -85,6 +78,14 @@ const nextConfig = {
         destination: 'https://forms.fillout.com/t/hBdZuS53kkus',
         permanent: false,
         basePath: false,
+      },
+    ];
+  },
+  rewrites() {
+    return [
+      {
+        source: '/pitch',
+        destination: '/pitch.pdf',
       },
     ];
   },

@@ -10,5 +10,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     minHeight: '100%',
+    overflow: 'visible',
   },
 });
