@@ -502,6 +502,13 @@ function PageScreenInner() {
     loadSearch();
   }, [searchParams, setQ, setPlatform]);
 
+  /* EDITOR MODE FLAGS */
+  const isLoading = editorLoading || pagesLoading || userLoading;
+  const isLocked = lockEditor;
+  const needsAuth = user == null;
+  const hasContent = url || effectivePageId;
+  const hasAudio = !!url;
+
   /* RENDER PANELS */
   const renderEditorPanel = () => (
     <View style={[styles.panel, styles.editorPanel]}>
@@ -511,7 +518,7 @@ function PageScreenInner() {
           <LyristText style={styles.debugText}>editor: {editorMessage}</LyristText>
         </View>
       )}
-      {url && (
+      {hasAudio && (
         <View style={styles.playerWrapper}>
           <View style={styles.playerInner}>
             <ReactPlayer
@@ -538,9 +545,9 @@ function PageScreenInner() {
         </View>
       )}
       <View style={styles.editorWrapper}>
-        {editorLoading || pagesLoading || userLoading ? (
+        {isLoading ? (
           <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 40}} />
-        ) : lockEditor ? (
+        ) : isLocked ? (
           <Pressable style={styles.ctaContainer} onPress={() => setOpenPricingModal(true)}>
             <LyristText weight="Medium" style={styles.ctaTitle}>
               Unlock unlimited pages
@@ -554,7 +561,7 @@ function PageScreenInner() {
               </LyristText>
             </View>
           </Pressable>
-        ) : user == null ? (
+        ) : needsAuth ? (
           <Pressable style={styles.ctaContainer} onPress={() => setOpenAuthModal(true)}>
             <LyristText weight="Medium" style={styles.ctaTitle}>
               Your lyrics, synced everywhere
@@ -568,7 +575,7 @@ function PageScreenInner() {
               </LyristText>
             </View>
           </Pressable>
-        ) : !url && !effectivePageId ? (
+        ) : !hasContent ? (
           <View style={styles.noAudioMessage}>
             <LyristText style={styles.noAudioText}>
               Select audio or a page to start writing
@@ -801,36 +808,38 @@ function PageScreenInner() {
   return (
     <View style={styles.containerMobile}>
       {/* AppHeader renders via layout for mobile */}
-      {url ? (
+      {hasContent ? (
         <>
-          <View style={styles.playerWrapperMobile}>
-            <View style={styles.playerInnerMobile}>
-              <ReactPlayer
-                url={url}
-                width="100%"
-                height="100%"
-                playing={playing}
-                volume={1.0}
-                muted={muted}
-                ref={playerRef}
-                style={{backgroundColor: '#000'}}
-                controls={true}
-                loop={true}
-                onPlay={handlePlay}
-                onPause={handlePause}
-                onStart={() => !mobile && setMuted(false)}
-                onReady={() => setMessage('ready')}
-                onBuffer={() => setMessage('buffering')}
-                onBufferEnd={() => setMessage('buffering finished')}
-                onEnded={() => setMessage('ended')}
-                onError={err => setMessage(JSON.stringify(err))}
-              />
+          {hasAudio && (
+            <View style={styles.playerWrapperMobile}>
+              <View style={styles.playerInnerMobile}>
+                <ReactPlayer
+                  url={url}
+                  width="100%"
+                  height="100%"
+                  playing={playing}
+                  volume={1.0}
+                  muted={muted}
+                  ref={playerRef}
+                  style={{backgroundColor: '#000'}}
+                  controls={true}
+                  loop={true}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onStart={() => !mobile && setMuted(false)}
+                  onReady={() => setMessage('ready')}
+                  onBuffer={() => setMessage('buffering')}
+                  onBufferEnd={() => setMessage('buffering finished')}
+                  onEnded={() => setMessage('ended')}
+                  onError={err => setMessage(JSON.stringify(err))}
+                />
+              </View>
             </View>
-          </View>
+          )}
           <View style={styles.editorWrapperMobile}>
-            {editorLoading || pagesLoading || userLoading ? (
+            {isLoading ? (
               <ActivityIndicator color={LYRIST_BLUE} />
-            ) : lockEditor ? (
+            ) : isLocked ? (
               <Pressable style={styles.ctaContainer} onPress={() => setOpenPricingModal(true)}>
                 <LyristText weight="Medium" style={styles.ctaTitle}>
                   Unlock unlimited pages
@@ -844,7 +853,7 @@ function PageScreenInner() {
                   </LyristText>
                 </View>
               </Pressable>
-            ) : user == null ? (
+            ) : needsAuth ? (
               <Pressable style={styles.ctaContainer} onPress={() => setOpenAuthModal(true)}>
                 <LyristText weight="Medium" style={styles.ctaTitle}>
                   Your lyrics, synced everywhere
@@ -885,7 +894,7 @@ function PageScreenInner() {
       ) : (
         <View style={styles.noAudioMobile}>
           <LyristText style={styles.noAudioText}>
-            Use Search to find audio and start writing
+            Select audio or a page to start writing
           </LyristText>
         </View>
       )}
