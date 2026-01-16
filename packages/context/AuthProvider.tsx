@@ -32,8 +32,8 @@ const AuthContext = createContext<{
   setOpenPricingModal: Dispatch<SetStateAction<boolean>>;
   setPlusStatus: (userId: firebase.User['uid']) => Promise<void>;
   setHasProfile: Dispatch<SetStateAction<boolean>>;
-  isTransitioning: boolean;
-  setTransitionMessage: Dispatch<SetStateAction<string>>;
+  pendingCheckout: boolean;
+  setPendingCheckout: Dispatch<SetStateAction<boolean>>;
 } | null>(null);
 
 export function useAuthContext() {
@@ -55,6 +55,7 @@ export function AuthProvider({children}) {
   const [user, setUser] = useState<firebase.User | null>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [openPricingModal, setOpenPricingModal] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState('Loading...');
   const [isInitialLoad, setIsInitialLoad] = useState(true); // Track first auth check vs sign-in
@@ -79,13 +80,18 @@ export function AuthProvider({children}) {
 
   const handleAuthSuccess = () => {
     setOpenAuthModal(false);
-    // Only redirect to /search if signing in from the landing page
+    if (pendingCheckout) {
+      return;
+    }
     if (pathname === '/') {
       router.push('/search');
     }
   };
 
-  const closeAuthModal = () => setOpenAuthModal(false);
+  const closeAuthModal = () => {
+    setOpenAuthModal(false);
+    setPendingCheckout(false);
+  };
 
   const setPlusStatus = async (userId: string) => {
     try {
@@ -102,7 +108,6 @@ export function AuthProvider({children}) {
   const checkProfile = async (user: firebase.User) => {
     try {
       const doc = await firestore().collection('users').doc(user.uid).get();
-      console.log('checkProfile result:', user.uid, doc.exists);
       setHasProfile(doc.exists);
       return doc.exists;
     } catch (e) {
@@ -157,8 +162,8 @@ export function AuthProvider({children}) {
         setOpenPricingModal,
         setPlusStatus,
         setHasProfile,
-        isTransitioning,
-        setTransitionMessage,
+        pendingCheckout,
+        setPendingCheckout,
       }}>
       {children}
       {/* Auth modal - uses fixed View instead of Modal for mobile web compatibility */}
@@ -178,7 +183,7 @@ export function AuthProvider({children}) {
               ✕
             </LyristText>
           </Pressable>
-          <PricingCard isActive intensity={1} />
+          <PricingCard isActive intensity={1} returnUrl={pathname} />
         </View>
       )}
       {/* Blocking transition overlay - only during active sign-in */}

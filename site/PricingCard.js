@@ -94,10 +94,8 @@ export function PricingSection({pageGap}) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Use exact TURQUOISE when fully active, interpolate only when transitioning
-  const backgroundColor = intensity >= 1
-    ? TURQUOISE
-    : `color-mix(in srgb, ${TURQUOISE} ${intensity * 100}%, white)`;
+  const backgroundColor =
+    intensity >= 1 ? TURQUOISE : `color-mix(in srgb, ${TURQUOISE} ${intensity * 100}%, white)`;
 
   return (
     <div
@@ -118,7 +116,8 @@ export function PricingSection({pageGap}) {
 
 /** @type {React.FC<{isActive?: boolean, intensity?: number, returnUrl?: string}>} */
 export const PricingCard = memo(function PricingCard({isActive = false, intensity = 0, returnUrl}) {
-  const {user, hasPlus, plusLoading, setOpenAuthModal} = useAuthContext();
+  const {user, hasPlus, plusLoading, setOpenAuthModal, pendingCheckout, setPendingCheckout} =
+    useAuthContext();
   const {showLoading, hideLoading, setLoadingMessage} = useLoading();
   const {small, medium, large} = useScale();
   const [selectedPlan, setSelectedPlan] = useState(1); // Monthly default
@@ -135,6 +134,7 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
     }
 
     if (!user) {
+      setPendingCheckout(true);
       setOpenAuthModal(true);
       return;
     }
@@ -186,7 +186,15 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
     hideLoading,
     setLoadingMessage,
     returnUrl,
+    setPendingCheckout,
   ]);
+
+  useEffect(() => {
+    if (user && pendingCheckout && !processing && !plusLoading && !hasPlus) {
+      setPendingCheckout(false);
+      handleCheckout();
+    }
+  }, [user, pendingCheckout, processing, plusLoading, hasPlus, setPendingCheckout, handleCheckout]);
 
   // Content fades in only after background is turquoise
   const contentOpacity = intensity >= 0.8 ? 1 : 0;
@@ -301,7 +309,9 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
       {/* Content container - fades in when background is turquoise */}
       <View style={[styles.content, dynamicStyles.content]}>
         <h2 style={{margin: 0, padding: 0, marginBottom: 32}}>
-          <LyristText style={[styles.headline, dynamicStyles.headline, responsiveStyles.headline]} weight="Medium">
+          <LyristText
+            style={[styles.headline, dynamicStyles.headline, responsiveStyles.headline]}
+            weight="Medium">
             Take your songwriting to the next level
           </LyristText>
         </h2>
@@ -361,21 +371,43 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
           onHoverIn={() => setCtaHovered(true)}
           onHoverOut={() => setCtaHovered(false)}
           disabled={processing}>
-          <LyristText style={[styles.ctaText, dynamicStyles.ctaText, responsiveStyles.ctaText]} weight="Medium">
+          <LyristText
+            style={[styles.ctaText, dynamicStyles.ctaText, responsiveStyles.ctaText]}
+            weight="Medium">
             {processing ? 'Loading...' : 'Start 3-day free trial'}
           </LyristText>
         </Pressable>
 
         {/* Benefits - two columns on desktop, single on mobile */}
-        <View style={[styles.benefitsContainer, small && styles.benefitsContainerMobile, {gap: small ? 0 : large ? 64 : 32, marginTop: small ? 20 : large ? 48 : 32}]}>
+        <View
+          style={[
+            styles.benefitsContainer,
+            small && styles.benefitsContainerMobile,
+            {gap: small ? 0 : large ? 64 : 32, marginTop: small ? 20 : large ? 48 : 32},
+          ]}>
           {/* Current benefits */}
           <View style={styles.benefitsColumn}>
-            <LyristText style={[styles.benefitsHeader, dynamicStyles.headline, {fontSize: small ? 14 : large ? 24 : 18, marginBottom: small ? 8 : 12}]} weight="Medium">
+            <LyristText
+              style={[
+                styles.benefitsHeader,
+                dynamicStyles.headline,
+                {fontSize: small ? 14 : large ? 24 : 18, marginBottom: small ? 8 : 12},
+              ]}
+              weight="Medium">
               What you get
             </LyristText>
             <View style={[styles.benefits, {gap: small ? 6 : large ? 12 : 8}]}>
               {BENEFITS.map((benefit, i) => (
-                <View key={i} style={[styles.benefitItem, dynamicStyles.benefitItem, {paddingVertical: small ? 4 : large ? 10 : 6, paddingHorizontal: small ? 8 : large ? 16 : 12}]}>
+                <View
+                  key={i}
+                  style={[
+                    styles.benefitItem,
+                    dynamicStyles.benefitItem,
+                    {
+                      paddingVertical: small ? 4 : large ? 10 : 6,
+                      paddingHorizontal: small ? 8 : large ? 16 : 12,
+                    },
+                  ]}>
                   <View style={[styles.benefitIconWrapper, small && {width: 14, height: 14}]}>
                     <IoDiamond
                       size={small ? 10 : large ? 18 : 14}
@@ -384,7 +416,12 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
                       style={{animationDelay: `${i * 0.4}s`}}
                     />
                   </View>
-                  <LyristText style={[styles.benefitText, dynamicStyles.benefitText, {fontSize: responsiveStyles.benefitText.fontSize}]}>
+                  <LyristText
+                    style={[
+                      styles.benefitText,
+                      dynamicStyles.benefitText,
+                      {fontSize: responsiveStyles.benefitText.fontSize},
+                    ]}>
                     {benefit}
                   </LyristText>
                 </View>
@@ -393,16 +430,39 @@ export const PricingCard = memo(function PricingCard({isActive = false, intensit
           </View>
           {/* Coming soon */}
           <View style={[styles.benefitsColumn, small && {marginTop: 20}]}>
-            <LyristText style={[styles.benefitsHeader, dynamicStyles.headline, {fontSize: small ? 14 : large ? 24 : 18, marginBottom: small ? 8 : 12}]} weight="Medium">
+            <LyristText
+              style={[
+                styles.benefitsHeader,
+                dynamicStyles.headline,
+                {fontSize: small ? 14 : large ? 24 : 18, marginBottom: small ? 8 : 12},
+              ]}
+              weight="Medium">
               Coming soon
             </LyristText>
             <View style={[styles.benefits, {gap: small ? 6 : large ? 12 : 8}]}>
               {COMING_SOON.map((feature, i) => (
-                <View key={i} style={[styles.benefitItem, dynamicStyles.benefitItem, {paddingVertical: small ? 4 : large ? 10 : 6, paddingHorizontal: small ? 8 : large ? 16 : 12}]}>
+                <View
+                  key={i}
+                  style={[
+                    styles.benefitItem,
+                    dynamicStyles.benefitItem,
+                    {
+                      paddingVertical: small ? 4 : large ? 10 : 6,
+                      paddingHorizontal: small ? 8 : large ? 16 : 12,
+                    },
+                  ]}>
                   <View style={[styles.benefitIconWrapper, small && {width: 14, height: 14}]}>
-                    <IoEllipseOutline size={small ? 10 : large ? 16 : 12} color="rgba(255,255,255,0.5)" />
+                    <IoEllipseOutline
+                      size={small ? 10 : large ? 16 : 12}
+                      color="rgba(255,255,255,0.5)"
+                    />
                   </View>
-                  <LyristText style={[styles.benefitText, dynamicStyles.benefitText, {fontSize: responsiveStyles.benefitText.fontSize, opacity: 0.7}]}>
+                  <LyristText
+                    style={[
+                      styles.benefitText,
+                      dynamicStyles.benefitText,
+                      {fontSize: responsiveStyles.benefitText.fontSize, opacity: 0.7},
+                    ]}>
                     {feature}
                   </LyristText>
                 </View>

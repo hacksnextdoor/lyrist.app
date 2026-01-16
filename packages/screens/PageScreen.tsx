@@ -568,10 +568,10 @@ function PageScreenInner() {
               </LyristText>
             </View>
           </Pressable>
-        ) : !url ? (
+        ) : !url && !effectivePageId ? (
           <View style={styles.noAudioMessage}>
             <LyristText style={styles.noAudioText}>
-              Select audio from search to start writing
+              Select audio or a page to start writing
             </LyristText>
           </View>
         ) : (
@@ -610,7 +610,6 @@ function PageScreenInner() {
     </View>
   );
 
-
   /* RENDER SEARCH RESULTS ONLY (input is in header) */
   const renderSearchResults = () => {
     const displayResults = searchResults.slice(0, PAGE_SIZE);
@@ -629,7 +628,8 @@ function PageScreenInner() {
                 onPress={() => setPlatform(plat)}
                 style={[styles.platformTab, isSelected && styles.platformTabActive]}>
                 <SocialIcon color={isSelected ? 'white' : '#666'} size={14} />
-                <LyristText style={[styles.platformTabText, isSelected && styles.platformTabTextActive]}>
+                <LyristText
+                  style={[styles.platformTabText, isSelected && styles.platformTabTextActive]}>
                   {platform}
                 </LyristText>
               </Pressable>
@@ -651,7 +651,9 @@ function PageScreenInner() {
                     <SlSocialSoundcloud color="#999" size={12} />
                   )}
                   <LyristText style={styles.platformIndicatorText}>
-                    {displayResults.length} {resultsPlatform === 'youtube' ? 'YouTube' : 'SoundCloud'} result{displayResults.length !== 1 ? 's' : ''}
+                    {displayResults.length}{' '}
+                    {resultsPlatform === 'youtube' ? 'YouTube' : 'SoundCloud'} result
+                    {displayResults.length !== 1 ? 's' : ''}
                   </LyristText>
                 </View>
               )}
@@ -660,7 +662,10 @@ function PageScreenInner() {
                 return (
                   <View
                     key={index}
-                    style={[styles.audioItemWrapper, isCurrentlyPlaying && styles.audioItemWrapperActive]}>
+                    style={[
+                      styles.audioItemWrapper,
+                      isCurrentlyPlaying && styles.audioItemWrapperActive,
+                    ]}>
                     <AudioItem
                       audio={item}
                       index={index}
@@ -721,7 +726,11 @@ function PageScreenInner() {
             ) : user ? (
               <>
                 {!hasPlus && (
-                  <PlusButton text="Get Lyrist Plus" onPress={() => setOpenPricingModal(true)} small />
+                  <PlusButton
+                    text="Get Lyrist Plus"
+                    onPress={() => setOpenPricingModal(true)}
+                    small
+                  />
                 )}
                 <Pressable
                   onPress={async () => {
@@ -743,13 +752,26 @@ function PageScreenInner() {
         </View>
         {/* Three Panel Content */}
         <View style={styles.threePanel}>
-          <View style={[styles.librarySidebarWrapper, focusMode && styles.focusModeDimmed]} {...(Platform.OS === 'web' && {className: animateReady ? 'panel-animate-left' : 'panel-pre-animate'} as any)}>
+          <View
+            style={[styles.librarySidebarWrapper, focusMode && styles.focusModeDimmed]}
+            {...(Platform.OS === 'web' &&
+              ({className: animateReady ? 'panel-animate-left' : 'panel-pre-animate'} as any))}>
             <View style={styles.librarySidebar}>
               <MyLibraryScreen panelMode onSelectPage={handleSelectPage} />
             </View>
           </View>
-          <View style={styles.panelCenter} {...(Platform.OS === 'web' && {className: animateReady ? 'panel-animate-fade' : 'panel-pre-animate'} as any)}>{renderEditorPanel()}</View>
-          <View style={[styles.panelRight, focusMode && styles.focusModeDimmed]} {...(Platform.OS === 'web' && {className: animateReady ? 'panel-animate-right' : 'panel-pre-animate'} as any)}>{renderSearchResults()}</View>
+          <View
+            style={styles.panelCenter}
+            {...(Platform.OS === 'web' &&
+              ({className: animateReady ? 'panel-animate-fade' : 'panel-pre-animate'} as any))}>
+            {renderEditorPanel()}
+          </View>
+          <View
+            style={[styles.panelRight, focusMode && styles.focusModeDimmed]}
+            {...(Platform.OS === 'web' &&
+              ({className: animateReady ? 'panel-animate-right' : 'panel-pre-animate'} as any))}>
+            {renderSearchResults()}
+          </View>
         </View>
         {/* Modal - Only render when needed to avoid portal crash during Fast Refresh */}
         {showSizeModal && (
@@ -894,7 +916,12 @@ function PageScreenInner() {
 // Export wrapper with Suspense for useSearchParams
 export function PageScreen() {
   return (
-    <Suspense fallback={<View style={styles.container}><ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 40}} /></View>}>
+    <Suspense
+      fallback={
+        <View style={styles.container}>
+          <ActivityIndicator color={LYRIST_BLUE} style={{marginTop: 40}} />
+        </View>
+      }>
       <PageScreenInner />
     </Suspense>
   );
