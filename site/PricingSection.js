@@ -5,65 +5,57 @@ import {useAuthContext} from '../packages/context';
 import {useLoading} from '../packages/context/LoadingProvider';
 import {LyristText} from '../packages/components';
 import {useScale} from '../packages/hooks/useScale';
-import {LYRIST_BLUE, TURQUOISE} from '../packages/constants';
-import {FaCheck, FaMinus, FaWrench, FaPause} from 'react-icons/fa';
+import {TURQUOISE} from '../packages/constants';
+import {IoDiamond, IoEllipseOutline} from 'react-icons/io5';
 import createCheckoutSession from '../app/actions/stripe';
 import {SectionTitle} from './SectionTitle';
 
-const SUBSCRIPTION_OPTIONS = [
+const isDev = process.env.NODE_ENV === 'development';
+
+const PLANS = [
   {
     name: 'Weekly',
     price: '$2.99',
-    productId: 'prod_TVAhh6lveiGasR',
-    period: '1 week',
-    discount: null,
+    period: 'week',
+    productId: isDev ? 'prod_Ox9YC2iHmim441' : 'prod_TVAhh6lveiGasR',
     recurring: {interval: 'week', interval_count: 1},
   },
   {
     name: 'Monthly',
     price: '$9.99',
-    productId: 'prod_NPZeELRcg81f06',
-    period: '1 month',
-    discount: '23% OFF',
+    period: 'month',
+    productId: isDev ? 'prod_Ox9WC8qO1iY36o' : 'prod_NPZeELRcg81f06',
     recurring: {interval: 'month', interval_count: 1},
   },
   {
     name: 'Yearly',
     price: '$69.99',
-    productId: 'prod_NPZe7uNfwmqrAC',
-    period: '1 year',
-    discount: '55% OFF',
+    period: 'year',
+    productId: isDev ? 'prod_Ox9rbajpitne7j' : 'prod_NPZe7uNfwmqrAC',
     recurring: {interval: 'year', interval_count: 1},
+    discount: '55% off',
   },
 ];
 
-// Status: 'yes' = available, 'wip' = work in progress, 'planned' = planned, 'paused' = paused, 'no' = not available
-const ALL_FEATURES = [
-  // Plus features
-  {name: 'Unlimited pages', tier: 'plus', mobile: 'yes', web: 'yes'},
-  {name: 'Unlimited smart suggestions', tier: 'plus', mobile: 'yes', web: 'yes'},
-  {name: 'Folders', tier: 'plus', mobile: 'yes', web: 'wip'},
-  {name: 'Record your ideas', tier: 'plus', mobile: 'planned', web: 'planned'},
-  {name: 'Import local audio files', tier: 'plus', mobile: 'planned', web: 'planned'},
-  {name: 'Sync text with audio via timestamps', tier: 'plus', mobile: 'planned', web: 'planned'},
-  {name: 'Lyrist Connect (social)', tier: 'plus', mobile: 'planned', web: 'planned'},
-  {name: 'Color themes', tier: 'plus', mobile: 'planned', web: 'planned'},
-  // Free features
-  {name: 'Cross-device sync', tier: 'free', mobile: 'yes', web: 'yes'},
-  {name: 'Search YouTube', tier: 'free', mobile: 'yes', web: 'yes'},
-  {name: 'Search SoundCloud', tier: 'free', mobile: 'yes', web: 'yes'},
-  {name: 'Rhymes & related words', tier: 'free', mobile: 'yes', web: 'planned'},
-  {name: 'Import audio from URLs', tier: 'free', mobile: 'yes', web: 'planned'},
-  {name: 'Writing timer', tier: 'free', mobile: 'yes', web: 'planned'},
-  {name: 'Chat support', tier: 'free', mobile: 'yes', web: 'planned'},
+const BENEFITS = [
+  'Unlimited pages',
+  'Unlimited smart suggestions',
+  'Organize with folders',
+  'Cross-device sync',
+  'Search YouTube and SoundCloud',
+  'Rhyming dictionary',
+  'No ads',
+  'No AI training on your music',
 ];
 
-const StatusIcon = ({status}) => {
-  if (status === 'yes') return <FaCheck color={TURQUOISE} size={16} />;
-  if (status === 'wip') return <FaWrench color={LYRIST_BLUE} size={14} title="In progress" />;
-  if (status === 'planned') return <FaWrench color="#999" size={14} title="Planned" />;
-  return <FaMinus color="#ccc" size={14} />;
-};
+const COMING_SOON = [
+  'Voice memos',
+  'Use your own beats',
+  'Timestamped lyrics',
+  'Connect with other artists',
+  'Personalize your workspace',
+  'Export your pages',
+];
 
 export const PricingSection = memo(function PricingSection({
   header,
@@ -72,414 +64,370 @@ export const PricingSection = memo(function PricingSection({
 }) {
   const {small, medium, large} = useScale();
   const {user, hasPlus, plusLoading, setOpenAuthModal} = useAuthContext();
-  const {showLoading, hideLoading, setLoadingMessage, isLoading} = useLoading();
-  const [hoveredPriceCard, setHoveredPriceCard] = useState(null);
-  const [processingCheckout, setProcessingCheckout] = useState(null); // Track which option is processing
+  const {showLoading, hideLoading, setLoadingMessage} = useLoading();
+  const [selectedPlan, setSelectedPlan] = useState(1); // Monthly default
+  const [hoveredPlan, setHoveredPlan] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [ctaHovered, setCtaHovered] = useState(false);
 
-  const pageGap = useMemo(() => (small ? 32 : medium ? 48 : 64), [small, medium]);
+  const handleCheckout = useCallback(async () => {
+    if (processing || plusLoading) return;
 
-  const handlePricingClick = useCallback(
-    async option => {
-      // Prevent double-clicking
-      if (processingCheckout) {
-        return;
+    if (hasPlus) {
+      window.location.href = '/search';
+      return;
+    }
+
+    if (!user) {
+      setOpenAuthModal(true);
+      return;
+    }
+
+    const plan = PLANS[selectedPlan];
+
+    try {
+      setProcessing(true);
+      showLoading('Preparing checkout...');
+
+      const pricingResponse = await fetch('/api/pricing');
+      if (!pricingResponse.ok) throw new Error('Failed to fetch pricing');
+
+      const pricingData = await pricingResponse.json();
+      const matchingPrice = pricingData.find(item => item.product.id === plan.productId);
+
+      if (!matchingPrice) {
+        throw new Error(`No ${plan.name} subscription found. Please contact support.`);
       }
 
-      // If we're still checking plus status, wait
-      if (plusLoading) {
-        return;
+      if (!user.email) {
+        throw new Error('Email not found. Please sign in again.');
       }
 
-      // If user already has plus, redirect to app
-      if (hasPlus) {
-        setProcessingCheckout(option.name);
-        showLoading('Going to app...');
-        window.location.href = '/search';
-        return;
-      }
+      setLoadingMessage('Redirecting to checkout...');
 
-      // If not logged in, show auth modal from context
-      if (!user) {
-        setOpenAuthModal(true);
-        return;
-      }
+      await createCheckoutSession(
+        {price: matchingPrice.price.id, quantity: 1},
+        matchingPrice.price.recurring,
+        user.uid,
+        user.email,
+      );
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert(error.message || 'Failed to start checkout. Please try again.');
+    } finally {
+      setProcessing(false);
+      hideLoading();
+    }
+  }, [
+    user,
+    hasPlus,
+    plusLoading,
+    selectedPlan,
+    processing,
+    setOpenAuthModal,
+    showLoading,
+    hideLoading,
+    setLoadingMessage,
+  ]);
 
-      // If logged in but no plus, create checkout session
-      try {
-        setProcessingCheckout(option.name);
-        showLoading('Preparing checkout...');
-
-        // Get the actual pricing data from Stripe
-        const pricingResponse = await fetch('/api/pricing');
-
-        if (!pricingResponse.ok) {
-          throw new Error('Failed to fetch pricing data');
-        }
-
-        const pricingData = await pricingResponse.json();
-
-        // Find the matching price based on the product ID
-        const matchingPrice = pricingData.find(item => {
-          return item.product.id === option.productId;
-        });
-
-        if (!matchingPrice) {
-          console.error(
-            'Available prices:',
-            pricingData.map(p => p.product.name),
-          );
-          throw new Error(
-            `No ${option.name} subscription found in Stripe. Please contact support.`,
-          );
-        }
-
-        // Verify user email exists
-        if (!user.email) {
-          throw new Error('User email not found. Please sign in again.');
-        }
-
-        // Create the line item for Stripe
-        const lineItem = {
-          price: matchingPrice.price.id,
-          quantity: 1,
-        };
-
-        setLoadingMessage('Redirecting to checkout...');
-
-        // Call the server action to create checkout session
-        await createCheckoutSession(lineItem, matchingPrice.price.recurring, user.uid, user.email);
-      } catch (error) {
-        console.error('Checkout error:', error);
-
-        // Provide user-friendly error messages
-        let errorMessage = 'Failed to start checkout. Please try again.';
-
-        if (error.message?.includes('No') && error.message?.includes('subscription found')) {
-          errorMessage = error.message;
-        } else if (error.message?.includes('email')) {
-          errorMessage = 'Unable to verify your email. Please sign out and sign in again.';
-        } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
-          errorMessage = 'Network error. Please check your connection and try again.';
-        }
-
-        alert(errorMessage);
-      } finally {
-        setProcessingCheckout(null);
-        hideLoading();
-      }
+  // Responsive styles - much bigger on desktop
+  const responsiveStyles = {
+    card: {
+      padding: small ? 24 : medium ? 48 : 96,
+      maxWidth: small ? '100%' : medium ? 800 : 1400,
     },
-    [
-      user,
-      hasPlus,
-      plusLoading,
-      processingCheckout,
-      setOpenAuthModal,
-      showLoading,
-      hideLoading,
-      setLoadingMessage,
-    ],
-  );
-  return (
-    <View>
-      <View style={{marginBottom: large ? 48 : 32, alignItems: 'center'}}>
-        <SectionTitle>{header}</SectionTitle>
+    headline: {
+      fontSize: small ? 28 : medium ? 40 : 56,
+    },
+    plans: {
+      gap: small ? 8 : medium ? 16 : 24,
+      marginBottom: small ? 24 : medium ? 32 : 48,
+    },
+    planOption: {
+      paddingVertical: small ? 12 : medium ? 20 : 28,
+    },
+    planPrice: {
+      fontSize: small ? 28 : medium ? 40 : 56,
+    },
+    planPeriod: {
+      fontSize: small ? 14 : medium ? 18 : 22,
+    },
+    ctaButton: {
+      paddingVertical: small ? 16 : medium ? 24 : 32,
+    },
+    ctaText: {
+      fontSize: small ? 18 : medium ? 24 : 32,
+    },
+    benefitsHeader: {
+      fontSize: small ? 16 : medium ? 20 : 24,
+    },
+    benefitText: {
+      fontSize: small ? 14 : medium ? 16 : 18,
+    },
+  };
+
+  if (plusLoading) {
+    return (
+      <View style={[styles.card, responsiveStyles.card]}>
+        <LyristText style={styles.loading}>Loading...</LyristText>
       </View>
+    );
+  }
 
-      {/* Consolidated Feature & Pricing Table */}
-      <View>
+  if (hasPlus) {
+    return (
+      <View style={[styles.card, responsiveStyles.card, {alignItems: 'center'}]}>
+        <LyristText style={styles.title}>LYRIST PLUS</LyristText>
+        <LyristText style={styles.hasPlus}>You have Plus!</LyristText>
+        <Pressable
+          style={[styles.ctaButton, responsiveStyles.ctaButton]}
+          onPress={() => (window.location.href = '/search')}>
+          <LyristText style={[styles.ctaText, responsiveStyles.ctaText]} weight="Medium">
+            Go to app
+          </LyristText>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.card, responsiveStyles.card]}>
+      {header && (
+        <View style={{marginBottom: 24, alignItems: 'center'}}>
+          <SectionTitle>{header}</SectionTitle>
+        </View>
+      )}
+
+      <View style={styles.content}>
+        {/* Plan selector */}
+        <View style={[styles.plans, responsiveStyles.plans]}>
+          {PLANS.map((plan, i) => {
+            const isSelected = selectedPlan === i;
+            const isHovered = hoveredPlan === i && !isSelected;
+            return (
+              <Pressable
+                key={i}
+                onPress={() => setSelectedPlan(i)}
+                onHoverIn={() => setHoveredPlan(i)}
+                onHoverOut={() => setHoveredPlan(null)}
+                style={[
+                  styles.planOption,
+                  responsiveStyles.planOption,
+                  isSelected && styles.planSelected,
+                  isHovered && styles.planHovered,
+                ]}>
+                <LyristText
+                  style={[
+                    styles.planPrice,
+                    responsiveStyles.planPrice,
+                    isSelected && styles.planPriceSelected,
+                  ]}
+                  weight="Medium">
+                  {plan.price}
+                </LyristText>
+                <LyristText
+                  style={[
+                    styles.planPeriod,
+                    responsiveStyles.planPeriod,
+                    isSelected && styles.planPeriodSelected,
+                  ]}>
+                  {plan.period}
+                </LyristText>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* CTA Button */}
+        <Pressable
+          style={[
+            styles.ctaButton,
+            responsiveStyles.ctaButton,
+            processing && styles.ctaDisabled,
+            ctaHovered && styles.ctaButtonHovered,
+          ]}
+          onPress={handleCheckout}
+          onHoverIn={() => setCtaHovered(true)}
+          onHoverOut={() => setCtaHovered(false)}
+          disabled={processing}>
+          <LyristText style={[styles.ctaText, responsiveStyles.ctaText]} weight="Medium">
+            {processing ? 'Loading...' : 'Start 3-day free trial'}
+          </LyristText>
+        </Pressable>
+
+        {/* Benefits - two columns */}
         {showFeatures && (
-          <View style={{alignItems: 'center', marginBottom: pageGap}}>
-            <View style={{width: '100%', maxWidth: 700}}>
-              {/* Plus Section with Pricing */}
-              <View style={styles.tierSection}>
-                {/* Pricing Row - Full Width, Prominent */}
-                <View style={styles.pricingRow}>
-                  <LyristText
-                    style={{
-                      fontSize: small ? 16 : 18,
-                      color: '#333',
-                      marginBottom: 20,
-                      textAlign: 'center',
-                    }}
-                    weight="Medium">
-                    Become a member today
-                  </LyristText>
-                  <View style={[styles.pricingContainer, small && {gap: 8}]}>
-                    {SUBSCRIPTION_OPTIONS.map((opt, i) => (
-                      <Pressable
-                        key={i}
-                        onPress={() => handlePricingClick(opt)}
-                        onHoverIn={() => setHoveredPriceCard(`price-${i}`)}
-                        onHoverOut={() => setHoveredPriceCard(null)}
-                        disabled={processingCheckout !== null}
-                        style={{flex: 1, maxWidth: large ? 240 : medium ? 200 : 140}}>
-                        <View
-                          style={[
-                            styles.priceCard,
-                            medium && styles.priceCardMedium,
-                            large && styles.priceCardLarge,
-                            hoveredPriceCard === `price-${i}` && styles.priceCardHovered,
-                          ]}>
-                          {opt.discount && (
-                            <View
-                              style={[styles.discountBadge, large && styles.discountBadgeLarge]}>
-                              <LyristText
-                                style={{color: 'white', fontSize: large ? 12 : 10}}
-                                weight="Medium">
-                                {opt.discount}
-                              </LyristText>
-                            </View>
-                          )}
-                          <LyristText
-                            style={{
-                              fontSize: large ? 16 : medium ? 14 : 11,
-                              color: '#666',
-                              textTransform: 'uppercase',
-                              letterSpacing: 0.5,
-                            }}>
-                            {opt.period}
-                          </LyristText>
-                          <LyristText
-                            weight="Medium"
-                            style={{fontSize: large ? 40 : medium ? 32 : 22, color: '#000'}}>
-                            {opt.price}
-                          </LyristText>
-                        </View>
-                      </Pressable>
-                    ))}
-                  </View>
-                  <LyristText
-                    style={{fontSize: 12, color: '#666', marginTop: 8, textAlign: 'center'}}>
-                    {plusLoading
-                      ? 'Loading...'
-                      : hasPlus
-                      ? 'You have Plus! Go to app →'
-                      : '3-day free trial included'}
-                  </LyristText>
-                </View>
-                {/* Table Header */}
-                <View style={[styles.tableRow, styles.tableHeader]}>
-                  <View style={{flex: 2}}>
-                    <LyristText weight="Medium" style={styles.tierHeaderText}>
-                      What you get with Plus
-                    </LyristText>
-                  </View>
-                  <View style={{flex: 1, alignItems: 'center'}}>
-                    <LyristText weight="Medium" style={{fontSize: 14}}>
-                      Mobile
-                    </LyristText>
-                  </View>
-                  <View style={{flex: 1, alignItems: 'center'}}>
-                    <LyristText weight="Medium" style={{fontSize: 14}}>
-                      Web
-                    </LyristText>
-                  </View>
-                </View>
-                {/* Feature rows with Mobile/Web columns */}
-                {ALL_FEATURES.filter(f => f.tier === 'plus').map((feature, i) => (
-                  <View key={i} style={styles.tableRow}>
-                    <View style={{flex: 2}}>
-                      <LyristText style={{fontSize: small ? 13 : 15}}>{feature.name}</LyristText>
+          <View style={[styles.benefitsContainer, small && styles.benefitsContainerMobile, {marginTop: large ? 48 : 32}]}>
+            {/* Current benefits */}
+            <View style={styles.benefitsColumn}>
+              <LyristText style={[styles.benefitsHeader, {fontSize: responsiveStyles.benefitsHeader.fontSize}]} weight="Medium">
+                What you get
+              </LyristText>
+              <View style={[styles.benefits, {gap: large ? 12 : 8}]}>
+                {BENEFITS.map((benefit, i) => (
+                  <View key={i} style={[styles.benefitItem, {paddingVertical: large ? 10 : 6, paddingHorizontal: large ? 16 : 12}]}>
+                    <View style={styles.benefitIconWrapper}>
+                      <IoDiamond size={large ? 18 : 14} color={TURQUOISE} className="diamond-sparkle" style={{animationDelay: `${i * 0.4}s`}} />
                     </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                      <StatusIcon status={feature.mobile} />
-                    </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                      <StatusIcon status={feature.web} />
-                    </View>
+                    <LyristText style={[styles.benefitText, {fontSize: responsiveStyles.benefitText.fontSize}]}>{benefit}</LyristText>
                   </View>
                 ))}
               </View>
-
-              <View style={styles.tierSection}>
-                <View style={styles.tierHeaderRowFree}>
-                  <View style={{flex: 2}}>
-                    <LyristText weight="Medium" style={styles.tierHeaderText}>
-                      What you get for free
-                    </LyristText>
-                  </View>
-                  <View style={{flex: 1, alignItems: 'center'}}>
-                    <LyristText weight="Medium" style={{fontSize: 14}}>
-                      Mobile
-                    </LyristText>
-                  </View>
-                  <View style={{flex: 1, alignItems: 'center'}}>
-                    <LyristText weight="Medium" style={{fontSize: 14}}>
-                      Web
-                    </LyristText>
-                  </View>
-                </View>
-                {ALL_FEATURES.filter(f => f.tier === 'free').map((feature, i) => (
-                  <View key={i} style={styles.tableRow}>
-                    <View style={{flex: 2}}>
-                      <LyristText style={{fontSize: small ? 13 : 15}}>{feature.name}</LyristText>
+            </View>
+            {/* Coming soon */}
+            <View style={styles.benefitsColumn}>
+              <LyristText style={[styles.benefitsHeader, {fontSize: responsiveStyles.benefitsHeader.fontSize}]} weight="Medium">
+                Coming soon
+              </LyristText>
+              <View style={[styles.benefits, {gap: large ? 12 : 8}]}>
+                {COMING_SOON.map((feature, i) => (
+                  <View key={i} style={[styles.benefitItem, {paddingVertical: large ? 10 : 6, paddingHorizontal: large ? 16 : 12}]}>
+                    <View style={styles.benefitIconWrapper}>
+                      <IoEllipseOutline size={large ? 16 : 12} color="#ccc" />
                     </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                      <StatusIcon status={feature.mobile} />
-                    </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                      <StatusIcon status={feature.web} />
-                    </View>
+                    <LyristText style={[styles.benefitText, {fontSize: responsiveStyles.benefitText.fontSize, opacity: 0.7}]}>{feature}</LyristText>
                   </View>
                 ))}
-              </View>
-
-              {/* Legend */}
-              <View style={styles.legend}>
-                <View style={styles.legendItem}>
-                  <FaCheck color={TURQUOISE} size={12} />
-                  <LyristText style={{fontSize: 11, color: '#666'}}>Available</LyristText>
-                </View>
-                <View style={styles.legendItem}>
-                  <FaWrench color={LYRIST_BLUE} size={11} />
-                  <LyristText style={{fontSize: 11, color: '#666'}}>In progress</LyristText>
-                </View>
-                <View style={styles.legendItem}>
-                  <FaWrench color="#999" size={11} />
-                  <LyristText style={{fontSize: 11, color: '#666'}}>Planned</LyristText>
-                </View>
-                {/* <View style={styles.legendItem}>
-                  <FaPause color="#ccc" size={10} />
-                  <LyristText style={{fontSize: 11, color: '#666'}}>Paused</LyristText>
-                </View> */}
               </View>
             </View>
           </View>
         )}
 
-        {/* Ad-free Support Message */}
-        <View
-          style={{alignItems: 'center', marginBottom: pageGap, paddingHorizontal: small ? 16 : 24}}>
-          <LyristText style={{fontSize: small ? 16 : 20, textAlign: 'justify', maxWidth: 600}}>
-            We would like to stay ad-free for as long as possible. Consider supporting Lyrist by
-            purchasing Plus.
-          </LyristText>
-        </View>
+        {/* Support message */}
+        {showMessage && (
+          <View style={{marginTop: large ? 48 : 24, alignItems: 'center'}}>
+            <LyristText style={{fontSize: small ? 14 : medium ? 16 : 20, color: '#666', textAlign: 'center', maxWidth: 600}}>
+              We'd like to stay ad-free. Consider supporting Lyrist by purchasing Plus.
+            </LyristText>
+          </View>
+        )}
       </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  // Table styles
-  tableRow: {
+  card: {
+    width: '100%',
+    alignSelf: 'center',
+  },
+  title: {
+    fontSize: 16,
+    letterSpacing: 3,
+    color: TURQUOISE,
+    marginBottom: 24,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  content: {
+    width: '100%',
+  },
+  plans: {
     flexDirection: 'row',
+    gap: 16,
+    marginBottom: 32,
+  },
+  planOption: {
+    flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
-  },
-  tableHeader: {
-    backgroundColor: '#F5F5F7',
-    // borderTopLeftRadius: 12,
-    // borderTopRightRadius: 12,
-    paddingVertical: 14,
-  },
-  tierHeaderRowFree: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    backgroundColor: '#F5F5F7',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  tierHeaderText: {
-    fontSize: 18,
-    color: '#111',
-  },
-  // Prominent pricing row
-  pricingRow: {
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  pricingContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'center',
-  },
-  priceCard: {
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    paddingVertical: 16,
+    borderWidth: 2,
+    borderColor: '#e5e5e5',
+    borderRadius: 20,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    position: 'relative',
   },
-  priceCardMedium: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-  },
-  priceCardLarge: {
-    paddingVertical: 32,
-    paddingHorizontal: 28,
-    borderRadius: 16,
-  },
-  priceCardHovered: {
-    borderColor: '#333',
-    backgroundColor: '#F0F0F0',
-    transform: [{scale: 1.02}],
-  },
-  discountBadge: {
-    position: 'absolute',
-    top: -10,
-    right: -8,
+  planSelected: {
+    borderColor: TURQUOISE,
     backgroundColor: TURQUOISE,
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
   },
-  discountBadgeLarge: {
-    top: -12,
-    right: -10,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  planHovered: {
+    borderColor: '#ccc',
   },
-  // Legacy styles (keeping for compatibility)
-  priceChip: {
+  planPrice: {
+    fontSize: 36,
+    color: '#000',
+  },
+  planPriceSelected: {
+    color: '#fff',
+  },
+  planPeriod: {
+    fontSize: 16,
+    color: '#888',
+    marginTop: 4,
+    textTransform: 'uppercase',
+  },
+  planPeriodSelected: {
+    color: 'rgba(255,255,255,0.7)',
+  },
+  ctaButton: {
+    backgroundColor: TURQUOISE,
+    paddingVertical: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    transition: 'all 0.3s ease',
+  },
+  ctaButtonHovered: {
+    transform: 'scale(1.02)',
+    boxShadow: '0 8px 30px rgba(0,199,190,0.4)',
+  },
+  ctaDisabled: {
+    opacity: 0.5,
+  },
+  ctaText: {
+    color: '#fff',
+    fontSize: 20,
+  },
+  loading: {
+    textAlign: 'center',
+    color: '#999',
+    padding: 40,
+    fontSize: 16,
+  },
+  hasPlus: {
+    textAlign: 'center',
+    fontSize: 24,
+    color: '#000',
+    marginBottom: 24,
+  },
+  benefitsContainer: {
+    flexDirection: 'row',
+    gap: 32,
+    marginTop: 32,
+  },
+  benefitsContainerMobile: {
+    flexDirection: 'column',
+    gap: 24,
+  },
+  benefitsColumn: {
+    flex: 1,
+  },
+  benefitsHeader: {
+    fontSize: 18,
+    marginBottom: 12,
+    color: '#000',
+  },
+  benefits: {
+    gap: 8,
+  },
+  benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(64,214,195,0.3)',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.04)',
   },
-  priceChipHovered: {
-    backgroundColor: TURQUOISE,
-    borderColor: TURQUOISE,
-  },
-  discountBadgeSmall: {
-    backgroundColor: TURQUOISE,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginLeft: 4,
-  },
-  legend: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: 16,
-    paddingVertical: 12,
-  },
-  legendItem: {
-    flexDirection: 'row',
+  benefitIconWrapper: {
+    width: 18,
+    height: 18,
     alignItems: 'center',
-    gap: 5,
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  benefitText: {
+    fontSize: 14,
+    color: '#555',
   },
 });

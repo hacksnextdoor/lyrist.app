@@ -17,7 +17,6 @@ export default defineConfig({
       name: 'chromium',
       use: {...devices['Desktop Chrome']},
     },
-    // Uncomment these for full browser coverage:
     {
       name: 'firefox',
       use: {...devices['Desktop Firefox']},

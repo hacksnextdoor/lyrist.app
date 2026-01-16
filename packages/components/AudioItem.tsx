@@ -4,6 +4,7 @@ import {Image, ListRenderItemInfo, StyleSheet, TouchableHighlight, View} from 'r
 import {SlPencil} from 'react-icons/sl';
 // import SimpleLineIcon from "react-native-vector-icons/SimpleLineIcons";
 // import { useStyles } from "../hooks";
+import {useScale} from '../hooks/useScale';
 import {Audio, Page} from '../types';
 import {normalize} from '../utils';
 import {LyristText} from './LyristText';
@@ -13,51 +14,65 @@ export type AudioItemProps = {
   index: ListRenderItemInfo<typeof AudioItem>['index'];
   onPressItem: (id: Page['id'], audio: Audio) => void;
   pageId?: Page['id'];
+  compact?: boolean;
 };
 
 export const AudioItem = memo(AudioItemUnmemoized);
 
-export function AudioItemUnmemoized({index, onPressItem, pageId, audio}: AudioItemProps) {
+export function AudioItemUnmemoized({index, onPressItem, pageId, audio, compact}: AudioItemProps) {
+  const {large} = useScale();
+
+  // Use compact sizing in two-panel mode, large sizing only in three-panel editor
+  const useLargeSize = large && !compact;
+  const imageWidth = useLargeSize ? 160 : normalize(70);
+  const imageHeight = useLargeSize ? 90 : normalize(52.5);
+  const fontSize = useLargeSize ? 15 : normalize(12);
+  const padding = useLargeSize ? 16 : normalize(12);
+  const paddingVertical = useLargeSize ? 12 : normalize(6);
+  const channelSize = useLargeSize ? 20 : 16;
+
   const styles = StyleSheet.create({
     rowContainer: {
       flex: 1,
       // backgroundColor: colors.background,
       flexDirection: 'row',
-      paddingHorizontal: normalize(12),
-      paddingVertical: normalize(6),
+      paddingHorizontal: padding,
+      paddingVertical: paddingVertical,
     },
     image: {
       alignSelf: 'center',
-      width: normalize(70),
-      height: normalize(52.5),
-      marginRight: 10,
+      width: imageWidth,
+      height: imageHeight,
+      marginRight: large ? 16 : 10,
+      borderRadius: large ? 8 : 4,
     },
     textContainer: {
       flex: 1,
-      gap: 4,
+      gap: large ? 6 : 4,
+      justifyContent: 'center',
     },
     title: {
       // color: colors.text,
       color: 'black',
-      fontSize: normalize(12),
+      fontSize: fontSize,
     },
     stats: {
       color: '#656565',
-      fontSize: normalize(12),
+      fontSize: fontSize,
     },
     author: {
       alignItems: 'center',
       flexDirection: 'row',
-      gap: 4,
+      gap: large ? 6 : 4,
     },
     channelThumbnail: {
-      borderRadius: 16 / 2,
-      height: 16,
-      width: 16,
+      borderRadius: channelSize / 2,
+      height: channelSize,
+      width: channelSize,
     },
     authorName: {
       color: '#656565',
-      fontSize: normalize(12),
+      fontSize: fontSize,
     },
   });
   //   const { colors } = useTheme();
@@ -87,7 +102,7 @@ export function AudioItemUnmemoized({index, onPressItem, pageId, audio}: AudioIt
             </LyristText>
           </View>
         </View>
-        {pageId && <SlPencil size={normalize(16)} color={'black'} />}
+        {pageId && <SlPencil size={useLargeSize ? 20 : normalize(16)} color={'black'} />}
       </View>
     </TouchableHighlight>
   );

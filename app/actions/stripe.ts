@@ -12,12 +12,16 @@ export default async function createCheckoutSession(
   recurring: Stripe.Price.Recurring,
   userId: string,
   userEmail: string,
+  returnUrl?: string,
 ) {
+  const origin = headers().get('origin');
+  const cancelUrl = returnUrl ? `${origin}${returnUrl}` : `${origin}/pricing`;
+
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: recurring ? 'subscription' : 'payment',
     line_items: [lineItem],
     metadata: {userId},
-    subscription_data: headers().get('origin')?.includes('localhost')
+    subscription_data: origin?.includes('localhost')
       ? {}
       : recurring && recurring.interval === 'week'
       ? {trial_period_days: 3}
@@ -26,8 +30,8 @@ export default async function createCheckoutSession(
       : recurring && recurring.interval === 'year'
       ? {trial_period_days: 3}
       : {},
-    success_url: `${headers().get('origin')}/search?checkout-session-id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${headers().get('origin')}/pricing`,
+    success_url: `${origin}/search?checkout-session-id={CHECKOUT_SESSION_ID}`,
+    cancel_url: cancelUrl,
     customer_email: userEmail,
   });
 

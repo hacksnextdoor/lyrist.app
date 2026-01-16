@@ -2,14 +2,15 @@
 import {useQueryState} from 'next-usequerystate';
 import {useEffect} from 'react';
 import {ActivityIndicator, View} from 'react-native';
-import {LyristText} from '../packages/components';
 import {useAuthContext} from '../packages/context';
-import {LYRIST_BLUE} from '../packages/constants';
-import {PricingSection} from './PricingSection';
+import {TURQUOISE} from '../packages/constants';
+import {PricingCard} from './PricingCard';
+import {useScale} from '../packages/hooks/useScale';
 
 export function PricingPageClient() {
   const [checkoutSessionId] = useQueryState('checkout-session-id');
-  const {user, plusLoading, setPlusStatus, hasPlus} = useAuthContext();
+  const {user, plusLoading, setPlusStatus} = useAuthContext();
+  const {small} = useScale();
 
   useEffect(() => {
     // handle purchase completion via checkoutSessionId
@@ -21,20 +22,22 @@ export function PricingPageClient() {
   if (plusLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 48}}>
-        <ActivityIndicator color={LYRIST_BLUE} />
+        <ActivityIndicator color={TURQUOISE} />
       </View>
     );
   }
 
-  if (hasPlus) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 48}}>
-        <LyristText style={{textAlign: 'center', fontSize: 24}}>
-          Thanks for purchasing Lyrist Plus!
-        </LyristText>
-      </View>
-    );
-  }
-
-  return <PricingSection header={'Take your songwriting to the next level with Lyrist Plus'} />;
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: TURQUOISE,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: small ? 16 : 24,
+        minHeight: 600,
+      }}>
+      <PricingCard isActive intensity={1} returnUrl="/pricing" />
+    </View>
+  );
 }

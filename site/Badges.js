@@ -14,7 +14,7 @@ export function Badges() {
     <View style={[styles.badges, !large && {alignSelf: 'center'}]}>
       <Link role="link" href={'https://lyrist.app/ios'} target={'_blank'}>
         <Image
-          alt={'app-store-badge'}
+          alt="Download Lyrist songwriting app on the App Store"
           src={'/app-store.png'}
           height={badgeHeight * 0.95}
           width={appStoreWidth * 0.95}
@@ -26,7 +26,7 @@ export function Badges() {
         style={{marginLeft: 8}}
         target={'_blank'}>
         <Image
-          alt={'google-play-badge'}
+          alt="Download Lyrist songwriting app on Google Play"
           src={'/google-play.png'}
           height={badgeHeight * 0.95}
           width={googlePlayWidth * 0.95}

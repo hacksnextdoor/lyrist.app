@@ -8,7 +8,7 @@ Write end-to-end tests that verify user-visible behavior and give confidence tha
 
 ## Core Philosophy
 
-> "The more your tests resemble the way your software is used, the more confidence they can give you." — Kent C. Dodds
+> "The more your tests resemble the way your software is used, the more confidence they can give you." - Kent C. Dodds
 
 Follow these official guides:
 

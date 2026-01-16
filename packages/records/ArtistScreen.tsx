@@ -13,7 +13,8 @@ export interface ArtistScreenProps {
 }
 
 const REEL_LINK = 'https://www.instagram.com/peytspencer/reel/DLiQnoxSYQ8';
-const REEL_TEXT = 'a reel turning the Writings into a rap pulling in over 50,000 views during summer 2025';
+const REEL_TEXT =
+  'a reel turning the Writings into a rap pulling in over 50,000 views during summer 2025';
 
 function renderWithLinks(text: string) {
   if (!text.includes(REEL_TEXT)) return text;
@@ -118,7 +119,11 @@ export function ArtistScreen({artist}: ArtistScreenProps) {
         transition: 'max-height 0.4s ease-in-out',
       }}>
       <View style={styles.bioContent}>
-        <BioParagraphs paragraphs={paragraphs.slice(2)} padding={padding} onCollapse={collapseBio} />
+        <BioParagraphs
+          paragraphs={paragraphs.slice(2)}
+          padding={padding}
+          onCollapse={collapseBio}
+        />
       </View>
     </div>
   );
@@ -155,10 +160,19 @@ export function ArtistScreen({artist}: ArtistScreenProps) {
               {headerContent}
             </div>
             {expandedBio}
-            <LyristText style={[styles.sectionTitle, {paddingLeft: padding.left, paddingRight: padding.right}]} weight="Medium">
+            <LyristText
+              style={[
+                styles.sectionTitle,
+                {paddingLeft: padding.left, paddingRight: padding.right},
+              ]}
+              weight="Medium">
               Releases
             </LyristText>
-            <View style={[styles.releaseList, {paddingLeft: padding.left, paddingRight: padding.right}]}>
+            <View
+              style={[
+                styles.releaseList,
+                {paddingLeft: padding.left, paddingRight: padding.right},
+              ]}>
               {releases}
             </View>
           </div>
@@ -221,7 +235,7 @@ const styles = StyleSheet.create({
   },
   bioLink: {
     color: '#007aff',
-    textDecoration: 'underline',
+    textDecorationLine: 'underline',
   },
   sectionTitle: {
     fontSize: 14,

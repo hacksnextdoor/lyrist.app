@@ -8,6 +8,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -16,6 +17,7 @@ import {AudioItem, LyristText} from '../components';
 import {LYRIST_BLUE, QUERY_EXECUTED, SEARCH_RESULT_SELECTED, TURQUOISE} from '../constants';
 import {useAuthContext, usePagesContext} from '../context';
 import {logFirebaseEvent} from '../firebase';
+import {useScale} from '../hooks/useScale';
 import {normalize} from '../utils';
 
 export const AUDIO_PLATFORMS = ['YouTube', 'SoundCloud'];
@@ -28,7 +30,8 @@ const PLUS_FEATURES = [
   'Lyrist Connect (soon)',
 ];
 
-export function SearchScreen() {
+export function SearchScreen({panelMode = false}: {panelMode?: boolean} = {}) {
+  const {small} = useScale();
   /* STYLES */
 
   /* NAVIGATOR */
@@ -43,7 +46,7 @@ export function SearchScreen() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<Error | null>(null);
   const {findPageFromAudio} = usePagesContext();
-  const {user, setPlusStatus} = useAuthContext();
+  const {user, hasPlus, setPlusStatus, setOpenPricingModal} = useAuthContext();
   const checkoutSessionId = searchParams.get('checkout-session-id');
   const searchParamsString = searchParams.toString();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -94,6 +97,7 @@ export function SearchScreen() {
         key={index}
         audio={item}
         index={index}
+        compact={panelMode}
         onPressItem={() => {
           const editorUrl = `/editor?${new URLSearchParams(
             pageId
@@ -111,7 +115,7 @@ export function SearchScreen() {
         pageId={pageId}
       />
     );
-  }, []);
+  }, [panelMode]);
 
   /* EFFECTS */
   useEffect(() => {
@@ -180,7 +184,7 @@ export function SearchScreen() {
   /* JSX */
   return (
     <View style={styles.container}>
-      <View style={styles.innerContainer}>
+      <View style={[styles.innerContainer, (panelMode || !small) && {maxWidth: '100%'}]}>
         <View style={styles.platformTabs}>
           {AUDIO_PLATFORMS.map(platform => {
             const plat = platform.toLowerCase();
@@ -204,6 +208,7 @@ export function SearchScreen() {
           <FaSistrix size={14} color="#999" />
           <TextInput
             autoFocus
+            autoCorrect={false}
             defaultValue={q}
             onSubmitEditing={e => executeQuery(e.nativeEvent.text)}
             placeholder="What do you want to listen to?"
@@ -211,7 +216,7 @@ export function SearchScreen() {
             style={styles.searchInput}
           />
         </View>
-        <View style={styles.resultsContainer}>
+        <ScrollView style={styles.resultsContainer} contentContainerStyle={styles.resultsContent}>
           {searchResults.length > 0 ? (
             searchResults.map((item, index) => handleRenderItem({item, index}))
           ) : searchLoading ? (
@@ -219,13 +224,35 @@ export function SearchScreen() {
           ) : searchError ? (
             <LyristText style={styles.errorText}>{searchError.message}</LyristText>
           ) : (
-            <View style={styles.searchHints}>
-              <LyristText style={styles.hintText}>"genre" instrumentals</LyristText>
-              <LyristText style={styles.hintText}>"artist name" type beats</LyristText>
-              <LyristText style={styles.hintText}>"song name" lyrics</LyristText>
+            <View style={styles.emptyState}>
+              <View style={styles.searchHints}>
+                <LyristText weight="Medium" style={styles.hintsTitle}>
+                  Try searching for
+                </LyristText>
+                <LyristText style={styles.hintText}>"lo-fi" type beats</LyristText>
+                <LyristText style={styles.hintText}>"drake" instrumentals</LyristText>
+                <LyristText style={styles.hintText}>"song name" lyrics</LyristText>
+              </View>
+              {!hasPlus && (
+                <Pressable style={styles.plusPromo} onPress={() => setOpenPricingModal(true)}>
+                  <LyristText weight="Medium" style={styles.plusPromoTitle}>
+                    Unlock more with Plus
+                  </LyristText>
+                  <View style={styles.plusFeatures}>
+                    <LyristText style={styles.plusFeatureText}>✦ Unlimited pages</LyristText>
+                    <LyristText style={styles.plusFeatureText}>✦ AI-powered suggestions</LyristText>
+                    <LyristText style={styles.plusFeatureText}>✦ Organize with folders</LyristText>
+                  </View>
+                  <View style={styles.plusPromoButton}>
+                    <LyristText weight="Medium" style={styles.plusPromoButtonText}>
+                      Learn more
+                    </LyristText>
+                  </View>
+                </Pressable>
+              )}
             </View>
           )}
-        </View>
+        </ScrollView>
       </View>
       {/* <FlatList<Audio>
         data={searchResults}
@@ -302,12 +329,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    overflow: 'hidden',
   },
   innerContainer: {
     flex: 1,
     width: '100%',
     maxWidth: 600,
     gap: 8,
+    overflow: 'hidden',
   },
   title: {
     paddingHorizontal: normalize(12),
@@ -360,20 +389,64 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     flex: 1,
+    minHeight: 0,
+  },
+  resultsContent: {
     paddingBottom: normalize(48),
   },
   errorText: {
     color: '#666',
     paddingHorizontal: normalize(12),
   },
-  searchHints: {
+  emptyState: {
+    flex: 1,
     paddingHorizontal: normalize(16),
-    gap: 4,
+    paddingTop: normalize(20),
+    gap: 32,
+  },
+  searchHints: {
+    gap: 8,
+  },
+  hintsTitle: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
   },
   hintText: {
     fontSize: 14,
     color: '#888',
     fontStyle: 'italic',
+  },
+  plusPromo: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 20,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  plusPromoTitle: {
+    fontSize: 16,
+    color: '#333',
+  },
+  plusFeatures: {
+    gap: 6,
+  },
+  plusFeatureText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  plusPromoButton: {
+    backgroundColor: TURQUOISE,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  plusPromoButtonText: {
+    color: 'white',
+    fontSize: 14,
   },
   modalOverlay: {
     flex: 1,

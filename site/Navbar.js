@@ -23,7 +23,7 @@ export function Navbar() {
   const mainLinks = [
     {label: 'Reviews', href: '#reviews', internal: true},
     {label: 'Plus', href: '#pricing', internal: true},
-    {label: 'Roadmap', href: '#roadmap', internal: true},
+    {label: 'Roadmap', href: '/roadmap'},
     {label: 'FAQ', href: '/faq'},
   ];
 
@@ -48,7 +48,14 @@ export function Navbar() {
               <Pressable
                 onHoverIn={() => setHoveredItem(`main-${index}`)}
                 onHoverOut={() => setHoveredItem(null)}
-                style={[styles.navItem, hoveredItem === `main-${index}` && styles.navItemHovered]}>
+                style={({pressed}) => [
+                  styles.navItem,
+                  hoveredItem === `main-${index}` && styles.navItemHovered,
+                  {
+                    opacity: pressed ? 0.6 : 1,
+                    transform: pressed ? 'scale(0.97)' : 'scale(1)',
+                  },
+                ]}>
                 <LyristText style={styles.navText} weight="Medium">
                   {item.label}
                 </LyristText>
@@ -64,7 +71,13 @@ export function Navbar() {
               <Pressable
                 onHoverIn={() => setHoveredItem(`legal-${index}`)}
                 onHoverOut={() => setHoveredItem(null)}
-                style={styles.legalItem}>
+                style={({pressed}) => [
+                  styles.legalItem,
+                  {
+                    opacity: pressed ? 0.5 : 1,
+                    transform: pressed ? 'scale(0.97)' : 'scale(1)',
+                  },
+                ]}>
                 <LyristText
                   style={[
                     styles.legalText,

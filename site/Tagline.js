@@ -6,7 +6,7 @@ import {LyristText} from 'packages/components';
 import {TryInput} from './TryInput';
 
 const MAX_WIDTH = 1400;
-const BASE_FONT_SIZE = 81.6;
+const BASE_FONT_SIZE = 80;
 const START_COLOR = '#000000';
 
 export const Tagline = memo(function Tagline() {
@@ -21,17 +21,19 @@ export const Tagline = memo(function Tagline() {
 
   return (
     <View style={styles.section}>
-      <View style={styles.taglineRow}>
-        <LyristText style={[styles.line1, {fontSize: scaledFontSize}]} weight={'Medium'}>
-          Find{' '}
+      <h1 style={{margin: 0, padding: 0, display: 'contents'}}>
+        <View style={styles.taglineRow}>
+          <LyristText style={[styles.line1, {fontSize: scaledFontSize}]} weight={'Medium'}>
+            Find{' '}
+          </LyristText>
+          <TryInput showStamp />
+        </View>
+        <LyristText
+          style={{fontSize: scaledFontSize, marginTop: heroMarginTop, alignSelf: 'center'}}
+          weight={'Medium'}>
+          beat writer's block
         </LyristText>
-        <TryInput showStamp />
-      </View>
-      <LyristText
-        style={{fontSize: scaledFontSize, marginTop: heroMarginTop, alignSelf: 'center'}}
-        weight={'Medium'}>
-        beat writer's block
-      </LyristText>
+      </h1>
     </View>
   );
 });

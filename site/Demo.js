@@ -323,11 +323,16 @@ export function Demo() {
               onHoverIn={() => setHovered(genre)}
               onHoverOut={() => setHovered(null)}
               disabled={loading}
-              style={[
+              style={({pressed}) => [
                 styles.genrePill,
                 isSelected && styles.genrePillSelected,
                 isHovered && !isSelected && styles.genrePillHovered,
                 loading && styles.genrePillDisabled,
+                {
+                  opacity: pressed ? 0.7 : 1,
+                  transform: pressed ? 'scale(0.95)' : 'scale(1)',
+                  transition: 'all 0.1s ease',
+                },
               ]}>
               <LyristText
                 style={[styles.genreText, isSelected && styles.genreTextSelected]}
@@ -348,7 +353,16 @@ export function Demo() {
       ) : error ? (
         <View style={styles.errorContainer}>
           <LyristText style={styles.errorText}>{error}</LyristText>
-          <Pressable onPress={handleRefresh} style={styles.retryButton}>
+          <Pressable
+            onPress={handleRefresh}
+            style={({pressed}) => [
+              styles.retryButton,
+              {
+                opacity: pressed ? 0.7 : 1,
+                transform: pressed ? 'scale(0.97)' : 'scale(1)',
+                transition: 'all 0.1s ease',
+              },
+            ]}>
             <LyristText style={styles.retryButtonText} weight="Medium">
               Try Again
             </LyristText>
@@ -394,14 +408,32 @@ export function Demo() {
                   </LyristText>
                 </View>
                 <View style={styles.controlButtons}>
-                  <Pressable onPress={() => setPlaying(!playing)} style={styles.controlButton}>
+                  <Pressable
+                    onPress={() => setPlaying(!playing)}
+                    style={({pressed}) => [
+                      styles.controlButton,
+                      {
+                        opacity: pressed ? 0.6 : 1,
+                        transform: pressed ? 'scale(0.9)' : 'scale(1)',
+                        transition: 'all 0.1s ease',
+                      },
+                    ]}>
                     {playing ? (
                       <FaPause size={16} color="#333" />
                     ) : (
                       <FaPlay size={16} color="#333" />
                     )}
                   </Pressable>
-                  <Pressable onPress={handleRefresh} style={styles.controlButton}>
+                  <Pressable
+                    onPress={handleRefresh}
+                    style={({pressed}) => [
+                      styles.controlButton,
+                      {
+                        opacity: pressed ? 0.6 : 1,
+                        transform: pressed ? 'scale(0.9)' : 'scale(1)',
+                        transition: 'all 0.1s ease',
+                      },
+                    ]}>
                     <FiRefreshCw size={16} color="#333" />
                   </Pressable>
                 </View>
@@ -435,7 +467,15 @@ export function Demo() {
               onPress={scrollToPricing}
               onHoverIn={() => setHovered('cta')}
               onHoverOut={() => setHovered(null)}
-              style={[styles.ctaButton, hovered === 'cta' && styles.ctaButtonHovered]}>
+              style={({pressed}) => [
+                styles.ctaButton,
+                hovered === 'cta' && styles.ctaButtonHovered,
+                {
+                  opacity: pressed ? 0.8 : 1,
+                  transform: pressed ? 'scale(0.97)' : 'scale(1)',
+                  transition: 'all 0.1s ease',
+                },
+              ]}>
               <LyristText style={styles.ctaButtonText} weight="Medium">
                 Get Plus
               </LyristText>
@@ -495,7 +535,7 @@ const styles = StyleSheet.create({
   },
   genrePillHovered: {
     borderColor: LYRIST_BLUE,
-    transform: [{scale: 1.02}],
+    transform: 'scale(1.02)',
   },
   genrePillDisabled: {
     opacity: 0.5,
@@ -539,11 +579,7 @@ const styles = StyleSheet.create({
   demoContainer: {
     backgroundColor: 'white',
     borderRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 8,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
     gap: 20,
   },
   contentRow: {
@@ -634,7 +670,7 @@ const styles = StyleSheet.create({
     transition: 'transform 0.2s ease',
   },
   ctaButtonHovered: {
-    transform: [{scale: 1.05}],
+    transform: 'scale(1.05)',
   },
   ctaButtonText: {
     color: 'white',

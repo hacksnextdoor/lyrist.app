@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {LyristText} from 'packages/components/LyristText';
 import {useScale} from 'packages/hooks/useScale';
@@ -63,7 +63,7 @@ function StarRating({rating = 4.5, size = 16}) {
 }
 
 export function Metrics() {
-  const {small, medium, large} = useScale();
+  const {small, medium} = useScale();
   const [metricsData, setMetricsData] = useState({
     authors: null,
     pages: null,
@@ -87,39 +87,67 @@ export function Metrics() {
     fetchMetrics();
   }, []);
 
+  // Responsive sizes
+  const valueFontSize = small ? 48 : medium ? 64 : 80;
+  const labelFontSize = small ? 16 : medium ? 24 : 32;
+  const starSize = small ? 16 : medium ? 24 : 32;
+  const containerPadding = small ? 32 : medium ? 48 : 48;
+  const verticalPadding = small ? 16 : medium ? 24 : 32;
+
   return (
-    <View style={styles.container}>
-      <View style={[styles.metricsRow, small && styles.metricsRowMobile]}>
+    <View style={[styles.container, {paddingVertical: verticalPadding, alignItems: 'center'}]}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          alignItems: 'flex-start',
+          maxWidth: 1400,
+          width: '100%',
+          paddingHorizontal: containerPadding,
+        }}>
         {METRICS_CONFIG.map((metric, i) => {
           const value = metricsData[metric.id];
-          const isLast = i === METRICS_CONFIG.length - 1;
 
           return (
-            <>
-              <View key={i} style={styles.metricItem}>
-                <LyristText
-                  style={[styles.metricValue, small && styles.metricValueMobile]}
-                  weight="Medium">
-                  {metric.value ? (
-                    <AnimatedNumber value={metric.value} isDecimal />
-                  ) : value !== null ? (
-                    <AnimatedNumber value={value} />
-                  ) : (
-                    '...'
-                  )}
-                </LyristText>
+            <View key={i} style={{alignItems: 'center'}}>
+              <LyristText
+                style={{
+                  color: 'white',
+                  fontSize: valueFontSize,
+                  lineHeight: valueFontSize,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+                weight="Medium">
+                {metric.value ? (
+                  <AnimatedNumber value={metric.value} isDecimal />
+                ) : value !== null ? (
+                  <AnimatedNumber value={value} />
+                ) : (
+                  '...'
+                )}
+              </LyristText>
+              <View
+                style={{
+                  marginTop: 8,
+                  height: labelFontSize,
+                  justifyContent: 'center',
+                }}>
                 {metric.isRating ? (
-                  <StarRating rating={4.5} size={small ? 14 : 18} />
+                  <StarRating rating={4.5} size={starSize} />
                 ) : (
                   <LyristText
-                    style={[styles.metricLabel, small && styles.metricLabelMobile]}
+                    style={{
+                      color: 'rgba(255,255,255,0.8)',
+                      fontSize: labelFontSize,
+                      textTransform: 'lowercase',
+                      lineHeight: labelFontSize,
+                    }}
                     weight="Medium">
                     {metric.label}
                   </LyristText>
                 )}
               </View>
-              {!isLast && <View style={[styles.divider, small && styles.dividerMobile]} />}
-            </>
+            </View>
           );
         })}
       </View>
@@ -131,58 +159,5 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: LYRIST_BLUE,
     width: '100%',
-    paddingVertical: 16,
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    maxWidth: 900,
-    marginHorizontal: 'auto',
-  },
-  metricsRowMobile: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-  },
-  metricGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  metricItem: {
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 24,
-  },
-  metricItemMobile: {
-    paddingHorizontal: 12,
-    gap: 4,
-  },
-  metricValue: {
-    color: 'white',
-    fontSize: 48,
-    lineHeight: 48,
-    fontVariantNumeric: 'tabular-nums',
-  },
-  metricValueMobile: {
-    fontSize: 28,
-    lineHeight: 28,
-  },
-  metricLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
-    textTransform: 'lowercase',
-  },
-  metricLabelMobile: {
-    fontSize: 12,
-  },
-  divider: {
-    width: 1,
-    height: 50,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-  },
-  dividerMobile: {
-    height: 40,
   },
 });

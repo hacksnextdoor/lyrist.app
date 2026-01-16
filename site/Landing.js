@@ -1,85 +1,73 @@
 'use client';
-import {useMemo} from 'react';
+import {useMemo, useEffect} from 'react';
 import {View} from 'react-native';
 import {CREAM_BACKGROUND} from 'packages/constants';
 import {useScale} from 'packages/hooks/useScale';
 import {Badges} from './Badges';
-import {FaqSection} from './FaqSection';
 import {Footer} from './Footer';
 import {Header} from './Header';
 import {Metrics} from './Metrics';
-import {Navbar} from './Navbar';
-import {PricingSection} from './PricingSection';
-import {Roadmap} from './Roadmap';
+import {PricingSection} from './PricingCard';
 import {Tagline} from './Tagline';
 import {Reviews} from './Reviews';
-import {TryInput} from './TryInput';
 
 export function Landing() {
   const {small, medium} = useScale();
 
-  const pagePadding = useMemo(() => (small ? 32 : medium ? 40 : 48), [small, medium]);
-  const pageGap = useMemo(() => (small ? 32 : medium ? 48 : 64), [small, medium]);
+  // Enable scroll snap for landing page
+  useEffect(() => {
+    document.documentElement.classList.add('landing-scroll-snap');
+    return () => document.documentElement.classList.remove('landing-scroll-snap');
+  }, []);
+
+  const pagePadding = useMemo(() => (small ? 24 : medium ? 48 : 48), [small, medium]);
+  const pageGap = useMemo(() => (small ? 16 : medium ? 48 : 64), [small, medium]);
 
   return (
     <View style={{backgroundColor: CREAM_BACKGROUND}}>
+      {/* First fold - use flexbox with 100dvh to spread content */}
       <View
         style={{
-          gap: pageGap,
-          padding: pagePadding,
-          maxWidth: 1400,
-          width: '100%',
-          alignSelf: 'center',
+          minHeight: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
         }}>
-        <Header />
-        <Tagline />
-        <Badges />
-        <View id="reviews" style={{paddingVertical: pageGap}}>
-          <Reviews />
-        </View>
-      </View>
-      {/* Metrics spans full width */}
-      <Metrics />
-      <View
-        style={{
-          gap: pageGap,
-          // padding: pagePadding,
-          maxWidth: 1400,
-          width: '100%',
-          alignSelf: 'center',
-        }}>
-        <View id="pricing" style={{paddingVertical: pageGap}}>
-          <PricingSection header={'Get the ultimate Lyrist experience with Plus'} />
-        </View>
-      </View>
-      <View id="roadmap" style={{backgroundColor: 'white', paddingVertical: pageGap}}>
         <View
           style={{
-            gap: pageGap,
+            flex: 1,
             padding: pagePadding,
             maxWidth: 1400,
             width: '100%',
             alignSelf: 'center',
+            overflow: 'visible',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: pageGap,
           }}>
-          <Roadmap />
+          <Header />
+          <View style={{alignItems: 'center', gap: small ? 24 : 32}}>
+            <Tagline />
+            <Badges />
+          </View>
+          <View id="reviews" style={{overflow: 'visible'}}>
+            <Reviews />
+          </View>
         </View>
+        <Metrics />
       </View>
+
+      {/* Pricing - full width with scroll-triggered color animation */}
+      <PricingSection pageGap={pageGap} />
+
       <View
         style={{
-          gap: pageGap,
           padding: pagePadding,
           maxWidth: 1400,
           width: '100%',
           alignSelf: 'center',
         }}>
-        <TryInput showStamp />
-        <Badges />
-        <View id="faq" style={{paddingVertical: pageGap}}>
-          <FaqSection collapsible={true} />
-        </View>
-        <Navbar />
-        <Footer />
-        <View />
+        <Footer showTryInput />
       </View>
     </View>
   );

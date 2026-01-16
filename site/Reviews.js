@@ -3,29 +3,31 @@ import {useMemo} from 'react';
 import {FaAppStoreIos, FaCheck, FaGooglePlay, FaRegStar, FaStar} from 'react-icons/fa';
 import {StyleSheet, View} from 'react-native';
 import {LyristText} from 'packages/components';
-import {SectionTitle} from './SectionTitle';
 import {TURQUOISE} from 'packages/constants';
 import {useScale} from 'packages/hooks/useScale';
 import reviews from '../reviews.json';
 import {ReviewStack} from './ReviewStack';
 
-export function Reviews() {
+export function Reviews({maxPerColumn}) {
   const {small, medium, large} = useScale();
-  const pagePadding = useMemo(() => (small ? 32 : medium ? 40 : 48), [small, medium]);
+  const pagePadding = useMemo(() => (small ? 24 : medium ? 48 : 48), [small, medium]);
   const numCols = large ? 3 : 2;
   const columns = useMemo(() => {
     const cols = Array.from({length: numCols}, () => []);
     reviews.forEach((review, i) => {
       cols[i % numCols].push(review);
     });
+    // Limit reviews per column if maxPerColumn is specified
+    if (maxPerColumn) {
+      return cols.map(col => col.slice(0, maxPerColumn));
+    }
     return cols;
-  }, [numCols]);
+  }, [numCols, maxPerColumn]);
 
   return (
-    <View style={{gap: small ? 16 : medium ? 24 : 32}}>
-      <SectionTitle>The people love their songwriting toolkit</SectionTitle>
+    <View>
       {small ? (
-        <View style={{marginHorizontal: -pagePadding}}>
+        <View style={{marginHorizontal: -pagePadding, paddingBottom: 8, overflow: 'visible'}}>
           <ReviewStack reviews={reviews} />
         </View>
       ) : (
@@ -66,7 +68,7 @@ export function Reviews() {
                         flexDirection: 'row',
                         alignItems: 'center',
                         gap: 8,
-                        marginTop: 12,
+                        marginTop: 16,
                       }}>
                       <FaCheck color={TURQUOISE} size={12} />
                       <LyristText style={{color: TURQUOISE, fontSize: 16}} weight="Medium">
@@ -92,11 +94,7 @@ const styles = StyleSheet.create({
     backgroundColor: TURQUOISE,
   },
   cardShadow: {
-    shadowColor: '#171717',
-    shadowOffset: {width: 0.3, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
+    boxShadow: '0.3px 1px 3px rgba(23,23,23,0.2)',
   },
   reviewCard: {
     backgroundColor: 'white',

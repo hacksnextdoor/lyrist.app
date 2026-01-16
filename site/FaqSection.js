@@ -23,7 +23,11 @@ const FAQS = [
   },
   {
     q: 'How does the AI work?',
-    a: 'Our AI suggests lines based on your previous context, helping you bridge gaps in your song without taking over your creative process.',
+    a: 'Our AI suggests lines based on your previous context, helping you bridge gaps in your song without taking over your creative process. Writing full songs is a no-no.',
+  },
+  {
+    q: 'Are my lyrics used to train AI?',
+    a: 'No. Your lyrics and music are not used to train AI models. Your creative expression is uniquely yours.',
   },
   {
     q: 'What if I delete the app off my phone?',

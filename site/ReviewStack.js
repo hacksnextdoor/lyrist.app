@@ -54,6 +54,7 @@ export function ReviewStack({reviews = []}) {
   const resumeTimeout = useRef(null);
   const rafId = useRef(null);
   const lastTimestamp = useRef(0);
+  const hasInitialized = useRef(false);
 
   const cardWidth = CARD_WIDTH + CARD_GAP;
 
@@ -71,10 +72,22 @@ export function ReviewStack({reviews = []}) {
     return extended;
   }, [reviews]);
 
+  // Width of one full set of reviews
+  const singleSetWidth = reviews.length * cardWidth;
   const loopWidth = duplicatedReviews.length * cardWidth;
 
+  // Initialize scroll position to the middle (start of 2nd set) for bidirectional scrolling
   useEffect(() => {
-    if (!loopWidth) {
+    if (!hasInitialized.current && scrollRef.current && singleSetWidth > 0) {
+      const initialOffset = singleSetWidth; // Start at beginning of 2nd set
+      scrollRef.current.scrollTo({x: initialOffset, animated: false});
+      scrollOffset.current = initialOffset;
+      hasInitialized.current = true;
+    }
+  }, [singleSetWidth]);
+
+  useEffect(() => {
+    if (!loopWidth || !singleSetWidth) {
       return undefined;
     }
 
@@ -87,8 +100,11 @@ export function ReviewStack({reviews = []}) {
 
       if (!isUserInteracting.current && scrollRef.current) {
         scrollOffset.current += delta * AUTO_SCROLL_SPEED;
-        if (scrollOffset.current >= loopWidth) {
-          scrollOffset.current -= loopWidth;
+
+        // Wrap around when reaching the end (keep within middle sets)
+        if (scrollOffset.current >= singleSetWidth * 3) {
+          scrollOffset.current -= singleSetWidth;
+          scrollRef.current.scrollTo({x: scrollOffset.current, animated: false});
         }
         scrollRef.current.scrollTo({x: scrollOffset.current, animated: false});
       }
@@ -103,7 +119,7 @@ export function ReviewStack({reviews = []}) {
         cancelAnimationFrame(rafId.current);
       }
     };
-  }, [loopWidth]);
+  }, [loopWidth, singleSetWidth]);
 
   useEffect(() => {
     return () => {
@@ -120,11 +136,28 @@ export function ReviewStack({reviews = []}) {
     }
   };
 
+  const normalizeScrollPosition = (offset) => {
+    if (singleSetWidth <= 0) return offset;
+
+    // Keep scroll position within the middle two sets for seamless looping
+    if (offset < singleSetWidth * 0.5) {
+      // Scrolled too far left - jump forward by one set
+      return offset + singleSetWidth;
+    } else if (offset >= singleSetWidth * 2.5) {
+      // Scrolled too far right - jump back by one set
+      return offset - singleSetWidth;
+    }
+    return offset;
+  };
+
   const resumeAutoScroll = event => {
     if (event?.nativeEvent?.contentOffset?.x >= 0) {
       scrollOffset.current = event.nativeEvent.contentOffset.x;
-      if (loopWidth > 0) {
-        scrollOffset.current %= loopWidth;
+
+      // Normalize position for seamless looping
+      const normalized = normalizeScrollPosition(scrollOffset.current);
+      if (normalized !== scrollOffset.current) {
+        scrollOffset.current = normalized;
         scrollRef.current?.scrollTo({x: scrollOffset.current, animated: false});
       }
     }
@@ -145,8 +178,11 @@ export function ReviewStack({reviews = []}) {
 
   const handleScroll = event => {
     scrollOffset.current = event.nativeEvent.contentOffset.x;
-    if (loopWidth > 0 && scrollOffset.current >= loopWidth) {
-      scrollOffset.current %= loopWidth;
+
+    // Check bounds and loop if needed
+    const normalized = normalizeScrollPosition(scrollOffset.current);
+    if (normalized !== scrollOffset.current) {
+      scrollOffset.current = normalized;
       scrollRef.current?.scrollTo({x: scrollOffset.current, animated: false});
     }
   };
@@ -189,7 +225,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     marginTop: 16,
-    overflow: 'hidden',
+    paddingBottom: 16,
     userSelect: 'none',
     WebkitUserSelect: 'none',
   },
@@ -211,10 +247,6 @@ const styles = StyleSheet.create({
     WebkitUserSelect: 'none',
   },
   cardShadow: {
-    shadowColor: '#171717',
-    shadowOffset: {width: 0.3, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
+    boxShadow: '0.3px 1px 3px rgba(23,23,23,0.2)',
   },
 });

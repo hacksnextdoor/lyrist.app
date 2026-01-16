@@ -1,9 +1,9 @@
 'use client';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 export function Terms() {
   return (
-    <ScrollView contentContainerStyle={{padding: 40}}>
+    <View>
       <View style={styles.container}>
         <Text role={'header'} style={styles.pageTitle}>
           Terms & Conditions
@@ -573,7 +573,7 @@ export function Terms() {
           .
         </Text>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

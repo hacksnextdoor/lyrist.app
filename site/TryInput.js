@@ -228,7 +228,7 @@ const getRandomSample = (array, count) => {
 };
 
 const MAX_WIDTH = 1400;
-const BASE_FONT_SIZE = 81.6;
+const BASE_FONT_SIZE = 80;
 
 export const TryInput = memo(function TryInput({showStamp = false}) {
   const {width} = useHydratedDimensions();
@@ -249,6 +249,7 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
   const [loopNum, setLoopNum] = useState(0);
   const [currentArtistIndex, setCurrentArtistIndex] = useState(0);
   const [caretVisible, setCaretVisible] = useState(true);
+  const [stampVisible, setStampVisible] = useState(true);
   const {showLoading, isLoading} = useLoading();
 
   useEffect(() => {
@@ -257,6 +258,14 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
     }, 500);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!showStamp) return;
+    const interval = setInterval(() => {
+      setStampVisible(v => !v);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [showStamp]);
 
   useEffect(() => {
     const i = loopNum % artists.length;
@@ -334,7 +343,16 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
 
   return (
     <View style={styles.inputWrapper}>
-      <Pressable style={styles.inputContainer} onPress={handleNavigate}>
+      <Pressable
+        style={({pressed}) => [
+          styles.inputContainer,
+          {
+            opacity: pressed ? 0.8 : 1,
+            transform: pressed ? 'scale(0.995)' : 'scale(1)',
+            transition: 'all 0.1s ease',
+          },
+        ]}
+        onPress={handleNavigate}>
         <FiSearch size={scaledFontSize * 0.5} color="#999" style={{marginRight: 8}} />
         <LyristText style={[styles.inputText, {fontSize: scaledFontSize}]} weight={'Medium'}>
           {text}
@@ -351,8 +369,13 @@ export const TryInput = memo(function TryInput({showStamp = false}) {
           type beats
         </LyristText>
         {showStamp && (
-          <View style={[styles.stamp, small && styles.stampSmall]}>
-            <TbPointer size={small ? 7 : 11} color="white" style={{marginRight: small ? 3 : 4}} />
+          <View
+            style={[
+              styles.stamp,
+              small && styles.stampSmall,
+              {opacity: stampVisible ? 1 : 0, transition: 'opacity 0.5s ease-in-out'},
+            ]}>
+            <TbPointer size={small ? 8 : 10} color="white" style={{marginRight: small ? 3 : 4}} />
             <LyristText style={[styles.stampText, small && styles.stampTextSmall]} weight="Medium">
               try it free
             </LyristText>
@@ -391,26 +414,26 @@ const styles = StyleSheet.create({
     right: 8,
     backgroundColor: LYRIST_BLUE,
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
+    paddingVertical: 4,
+    borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
   },
   stampSmall: {
-    bottom: -8,
-    right: 6,
+    bottom: -10,
+    right: 4,
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 3,
+    paddingVertical: 3,
+    borderRadius: 4,
   },
   stampText: {
     color: 'white',
-    fontSize: 11,
+    fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   stampTextSmall: {
-    fontSize: 7,
+    fontSize: 8,
     letterSpacing: 0.3,
   },
 });

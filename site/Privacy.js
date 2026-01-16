@@ -1,9 +1,9 @@
 'use client';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 export function Privacy() {
   return (
-    <ScrollView contentContainerStyle={{padding: 40}}>
+    <View>
       <View style={styles.container}>
         <Text role={'header'} style={styles.pageTitle}>
           Privacy Policy
@@ -432,7 +432,7 @@ export function Privacy() {
           </Text>
         </Text>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

@@ -86,3 +86,77 @@ body {
 .pagescreen-panel-scroll::-webkit-scrollbar-thumb:hover {
   background: #cccccc;
 }
+
+/* View Transitions API - smooth page transitions */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 0.2s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.2s ease-in;
+}
+
+/* Slide animation for search panel */
+::view-transition-old(search-panel) {
+  animation: slide-to-right 0.3s ease-out;
+}
+
+::view-transition-new(search-panel) {
+  animation: slide-from-right 0.3s ease-out;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-to-right {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(50px); opacity: 0; }
+}
+
+@keyframes slide-from-right {
+  from { transform: translateX(-50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Three-panel entrance - use transitions instead of animations */
+.panel-pre-animate {
+  opacity: 0;
+  /* No transition here - only on animate classes */
+}
+
+.panel-animate-left,
+.panel-animate-fade,
+.panel-animate-right {
+  opacity: 1;
+  transition: opacity 0.2s ease-out;
+}
+
+/* Landing page scroll snap - snaps to pricing section when close */
+html.landing-scroll-snap {
+  scroll-snap-type: y proximity;
+}
+
+/* Subtle sparkle effect for diamond icons */
+.diamond-sparkle {
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4) drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+  }
+}

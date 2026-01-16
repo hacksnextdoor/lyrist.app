@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'black',
     fontFamily: 'Fira Sans',
-    ...(Platform.OS === 'web' && {outline: 'none' as any}),
+    ...(Platform.OS === 'web' && {outlineStyle: 'none' as any}),
   },
   input: {
     marginTop: 8,

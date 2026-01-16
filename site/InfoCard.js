@@ -79,11 +79,7 @@ const styles = StyleSheet.create({
     backgroundColor: LYRIST_BLUE,
     borderRadius: 24,
     padding: 32,
-    shadowColor: '#171717',
-    shadowOffset: {width: 0.3, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
+    boxShadow: '0.3px 1px 3px rgba(23,23,23,0.2)',
   },
   iconContainer: {
     justifyContent: 'center',
