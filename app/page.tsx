@@ -1,19 +1,20 @@
 import {Landing} from 'site/Landing';
 
 export const metadata = {
-  title: 'Lyrist - Songwriting App for Lyrics, Rhymes & Beats',
+  title: "Lyrist - Free Songwriting App | Find Type Beats, Beat Writer's Block",
   description:
-    "The all-in-one songwriting toolkit. Write lyrics, find rhymes, discover type beats, cure writer's block, and create songs faster. Trusted by thousands of songwriters.",
+    'Discover type beats, write lyrics with free AI tools, and find rhymes — all in one place. No account needed to start. Available on iOS, Android, and web.',
   keywords: [
     'songwriting app',
-    'lyrics writing',
-    'rhyme generator',
+    'free songwriting app',
+    'lyrics writing app',
+    'rhyme finder',
     'type beats',
     'beat finder',
     "writer's block",
-    'song lyrics',
-    'music creation',
-    'songwriting tool',
+    'lyricist app',
+    'song lyrics app',
+    'lyrist',
   ],
   alternates: {
     canonical: '/',

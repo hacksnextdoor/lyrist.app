@@ -2,12 +2,10 @@ import {AppProviders} from 'packages/context/AppProviders';
 import './globals.css';
 
 const name = 'Lyrist';
-const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  : 'http://localhost:3000';
-const tagline = "Find type beats, beat writer's block";
+const baseUrl = 'https://lyrist.app';
+const tagline = "Free Songwriting App | Find Type Beats, Beat Writer's Block";
 const description =
-  "The all-in-one toolkit for songwriters - discover beats, write lyrics, find rhymes, cure your writer's block, and share content without tedious app switching!";
+  "Discover type beats, write lyrics, find rhymes, and beat writer's block. Free on iOS, Android, and web.";
 
 // JSON-LD Schema for SEO
 const jsonLd = {
@@ -64,7 +62,7 @@ const jsonLd = {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.5',
-        ratingCount: '1000',
+        ratingCount: '84',
         bestRating: '5',
         worstRating: '1',
       },
@@ -96,7 +94,7 @@ export const metadata = {
   description,
   creator: 'Peyt Spencer Dewar',
   openGraph: {
-    title: name,
+    title: 'Lyrist - Free Songwriting App',
     description,
     type: 'website',
     // url: "https://lyrist.app",
