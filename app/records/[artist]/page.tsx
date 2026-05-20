@@ -17,7 +17,7 @@ export async function generateMetadata({params}: Props) {
 
   return {
     title: `${artist.name} - Releases`,
-    description: `Press releases and music from ${artist.name}, ${artist.bio}`,
+    description: artist.metaDescription,
   };
 }
 
