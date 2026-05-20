@@ -35,9 +35,9 @@ export const artists: Artist[] = [
     name: 'Peyt Spencer',
     site: 'https://peytspencer.com/listen',
     location: 'Bellevue, WA',
-    bio: `Peyt Spencer (peyt rhymes with heat) is a rapper and software engineer from Bellevue, Washington, often praised for his East Coast cadence reminiscent of Jay-Z.
+    bio: `(peyt rhymes with heat) is a rapper and software engineer from Bellevue, Washington, often praised for his East Coast cadence reminiscent of Jay-Z.
 
-Raised on 2000s hip-hop from Ja Rule and LL Cool J to Ludacris and T.I., he mastered the craft while changing the subject. He's now taking From The Ground Up across North America: part concert, part conversation about his path of growth, applying universal principles for a well-rounded life.
+Raised on 2000s hip-hop from Ja Rule and LL Cool J to Ludacris and T.I., he mastered the craft while changing the subject. He's now taking his From The Ground Up tour across North America: part concert, part conversation about his path of growth, applying universal principles for a well-rounded life.
 
 Much of his songwriting is inspired by the Baha'i Faith, the same Faith that guided him on a year of service in Veraguas, Panama, after high school. He lived alongside families in Santiago, teaching virtues to children, animating peer-led groups of early adolescents, facilitating study circles for youth and adults, and tutoring reading and math. During his downtime, he recorded raps on his laptop over mainstream beats. His first performed rap ever was in Spanish, at a community gathering.
 
