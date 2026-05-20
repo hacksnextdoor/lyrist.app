@@ -35,17 +35,17 @@ export const artists: Artist[] = [
     name: 'Peyt Spencer',
     site: 'https://peytspencer.com/listen',
     location: 'Bellevue, WA',
-    bio: `is a rapper and software engineer from Bellevue, Washington, often compared to Jay-Z
+    bio: `Peyt Spencer (peyt rhymes with heat) is a rapper and software engineer from Bellevue, Washington, often praised for his East Coast cadence reminiscent of Jay-Z.
 
-for his East Coast cadence and confident delivery. He blends clever punchlines with substance, making you nod your head while catching something new with every rhyme.
+Raised on 2000s hip-hop from Ja Rule and LL Cool J to Ludacris and T.I., he mastered the craft while changing the subject. He's now taking From The Ground Up across North America: part concert, part conversation about his path of growth, applying universal principles for a well-rounded life.
 
-Raised on 2000s hip-hop from Ja Rule and LL Cool J to Ludacris and T.I., he carves his own lane from the soulful production and catchy lyrics of that era without ever forgetting how to move any room he's in. His single "Patience" drops words like "homeostasis" while choosing intention over impulse. "Right One" celebrates his wife with vulnerable charm, weaving the Baha'i Writings into lines like "truthfulness is the foundation of all human virtues." He's also building an audience through content, with a reel turning the Writings into a rap pulling in over 50,000 views during summer 2025.
+Much of his songwriting is inspired by the Baha'i Faith, the same Faith that guided him on a year of service in Veraguas, Panama, after high school. He lived alongside families in Santiago, teaching virtues to children, animating peer-led groups of early adolescents, facilitating study circles for youth and adults, and tutoring reading and math. During his downtime, he recorded raps on his laptop over mainstream beats. His first performed rap ever was in Spanish, at a community gathering.
 
-After graduating high school in 2010, he pioneered in rural Panama for a year of service. Living alongside locals and learning their customs, he introduced the Baha'i Faith to various neighborhoods in Santiago by teaching children's classes, animating junior youth empowerment groups, and facilitating Ruhi study circles, while tutoring reading and math. During his downtime, he recorded raps on his laptop to mainstream beats and performed his first rap in Spanish at a community gathering.
+After completing his year of service, he attended the University of Florida, where he immersed himself in Gainesville's local scene, handing out mixtape CDs, selling shirts, and performing solo, with a live band, and as a member of both UF's Hip-Hop Collective and the theater troupe Signs of Life.
 
-Peyt Spencer went on to the University of Florida, where he sold mixtape CDs downtown and performed throughout campus, whether solo, with a live band, or as part of hip-hop theater troupe Signs of Life. During his senior year, he started participating regularly in NBA star Damian Lillard's weekly #4BarFriday challenge. After graduating, he moved to the West Coast to start his tech career and kept submitting. His bars eventually caught Lillard's attention, who highlighted him as one of the best. He's now been a software engineer at Microsoft for the last decade.
+During his senior year, he became a regular participant in NBA star Damian Lillard's weekly #4BarFriday Instagram rap challenge. After graduation, he landed a software testing job in Gainesville and stayed another year before moving to the West Coast to join Microsoft, where he's spent the last decade as a software engineer. His bars eventually caught the attention of Dame D.O.L.L.A., who reposted his videos and featured him live on the #4BarFriday IG Cypher during Covid. Soon after, he released one last single before stepping away from music to focus on family and his tech career.
 
-Now he's bridging both worlds. He founded Lyrist, a web and mobile app for songwriters to find type beats and beat writer's block, and built his own live streaming infrastructure to connect with fans directly.`,
+Four years later, he returned with the maturity to wear every hat his independence demands. Music and code are his life's work. He founded Lyrist to help other songwriters find beats and beat writer's block, and is the entire team behind his own catalog, tour, merch, and live streams.`,
     instagram: 'peytspencer',
     image: '/peyt-spencer.jpg',
     releases: [
